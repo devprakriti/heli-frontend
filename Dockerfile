@@ -1,13 +1,19 @@
-FROM node:20-alpine
-
+FROM --platform=linux/amd64 node:20.16.0 as build-stage
+# RUN npm install --global yarn
+# Create app directory
+RUN mkdir -p /app
 WORKDIR /app
 
-COPY package.json .
-
-RUN npm install --legacy-peer-deps
-
+# Install app dependenciesenv
+COPY package.json ./
+RUN yarn install
 COPY . .
 
-EXPOSE 5173
+RUN yarn build
 
-CMD [ "npm", "run", "dev" ]
+
+
+EXPOSE 5003
+
+CMD [ "node", "server.js" ]
+
