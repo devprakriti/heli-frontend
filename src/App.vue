@@ -16,9 +16,9 @@
           <li>
             <router-link to="/dashboard" class="block py-2 px-4 rounded hover:bg-gray-700">Dashboard</router-link>
           </li>
-          <!-- <li>
+          <li>
             <router-link to="/settings" class="block py-2 px-4 rounded hover:bg-gray-700">Settings</router-link>
-          </li> -->
+          </li>
           <li>
             <router-link to="/accounts" class="block py-2 px-4 rounded hover:bg-gray-700">Accounts</router-link>
           </li>
@@ -52,28 +52,28 @@
 export default {
   data() {
     return {
-      loading: false, // Add loading state
+      loading: false,
     };
   },
   computed: {
     isAuthenticated() {
-      return !!localStorage.getItem('authToken'); // Check if authToken exists
+      return !!localStorage.getItem('authToken'); 
     },
   },
   methods: {
     async logout() {
-      this.loading = true; // Set loading state to true during logout
+      this.loading = true; 
       setTimeout(() => {
-        localStorage.removeItem('authToken'); // Remove authToken on logout
-        this.loading = false; // Set loading to false after logout
-        this.$router.push('/login'); // Redirect to login page
-        window.location.reload(); // Reload the page to go to login page
-      }, 1000); // Simulate 1-second delay for logout process
+        localStorage.removeItem('authToken'); 
+        this.loading = false;
+        this.$router.push('/login'); 
+        window.location.reload(); 
+      }, 1000); 
     },
   },
   mounted() {
     if (!localStorage.getItem('authToken')) {
-      this.$router.push('/login'); // Redirect to login if no authToken found
+      this.$router.push('/login');
     }
   },
 };

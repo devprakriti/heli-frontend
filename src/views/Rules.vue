@@ -665,17 +665,14 @@ export default {
         console.error("Error fetching rules:", error);
       }
     },
-     // Helper method to get authorization token
     getAuthToken() {
-      const token = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
+      const token = localStorage.getItem("authToken");
       if (!token) {
         console.error("Authorization token not found");
-        // You can also redirect the user to login here
         return null;
       }
       return token;
     },
-      // Validate form data before submitting
     validateForm(rule) {
       this.errors = {
         Id:null,
@@ -712,8 +709,6 @@ export default {
 
       return isValid;
     },
-
-    // Fetch the list of rules (GET request)
     async getRules() {
       const token = this.getAuthToken();
       if (!token) return; 
@@ -752,7 +747,7 @@ export default {
       } else if (issueFrequency === 2) {
         return 'Manual';
       }
-      return 'Unknown'; // Fallback if an unexpected value is encountered
+      return 'Unknown'; 
     },
 
    async createRule() {
@@ -802,7 +797,6 @@ export default {
       }
     },
   
-    // Open the edit modal and set the rule to be edited
     openEditModal(rule) {
       console.log('rule',rule)
       this.editingRule = { 

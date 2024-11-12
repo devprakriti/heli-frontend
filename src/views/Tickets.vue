@@ -226,7 +226,7 @@ export default {
         memo: "",
         operator: ""
       },
-      daysInMonth: Array.from({ length: 31 }, (_, i) => i + 1), // Generate days 1-31
+      daysInMonth: Array.from({ length: 31 }, (_, i) => i + 1), 
       daysOfWeek: [
         { value: 1, label: 'Sunday' },
         { value: 2, label: 'Monday' },
@@ -242,7 +242,7 @@ export default {
       operators: [],
       showCreateModal: false,
       showEditModal: false,
-      errors: { // Initialize errors object
+      errors: {
         userId: null,
         ruleId:  null,
         quantity:  null,
@@ -253,24 +253,20 @@ export default {
   },
 
   mounted() {
-    // Fetch the rules when the component is mounted
     this.getTickets();
     this.getRules();
     this.getOperators();
   
   },
   methods: {
-    // Helper method to get authorization token
     getAuthToken() {
-      const token = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
+      const token = localStorage.getItem("authToken"); 
       if (!token) {
         console.error("Authorization token not found");
-        // You can also redirect the user to login here
         return null;
       }
       return token;
     },
-      // Validate form data before submitting
     validateForm(rule) {
       this.errors = {
         userId: null,
@@ -311,7 +307,7 @@ export default {
     // Fetch the list of rules (GET request)
     async getTickets() {
       const token = this.getAuthToken();
-      if (!token) return; // If no token, stop execution
+      if (!token) return; 
       try {
         const response = await axios.get("/api/spinwin/tickets", {
           headers: {
@@ -333,10 +329,9 @@ export default {
         console.error("Error fetching tickets:", error);
       }
     },
-    // Fetch the list of operators (GET request)
     async getOperators() {
       const token = this.getAuthToken();
-      if (!token) return; // If no token, stop execution
+      if (!token) return; 
       try {
         const response = await axios.get("/api/users", {
           headers: {
@@ -344,13 +339,12 @@ export default {
           },
         });
         console.log('response',response)
-        // Assume each user represents an operator
         this.operators = response.data.userList.map((user) => ({
           id: user.id,
           username: user.username,
           email: user.email,
           phone: user.phone,
-          status: true, // Mock status
+          status: true,
         }));
       } catch (error) {
         console.error("Error fetching operators:", error);
@@ -358,7 +352,7 @@ export default {
     },
     async getRules() {
       const token = this.getAuthToken();
-      if (!token) return; // If no token, stop execution
+      if (!token) return;
       try {
         const response = await axios.get("/api/spinwin/rules", {
           headers: {
@@ -366,7 +360,6 @@ export default {
           },
         });
         console.log('response',response)
-        // Assume each user represents an rule
         this.rules = response.data.ruleList.map((rule) => ({
           Id: rule.Id,
           Name: rule.Name,
@@ -375,16 +368,14 @@ export default {
           IssueFrequency: rule.IssueFrequency,
           DesignatedDate: rule.DesignatedDate,
           DesignatedDays: rule.DesignatedDays,
-          status: rule.Status, // Mock status
+          status: rule.Status, 
         }));
       } catch (error) {
         console.error("Error fetching rules:", error);
       }
     },
-
-    // Create a new rule (POST request)
   async createTicket() {
-      if (!this.validateForm(this.newTicket)) return; // Validate before proceeding
+      if (!this.validateForm(this.newTicket)) return; 
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -398,7 +389,6 @@ export default {
           }
         );
         console.log('response',response)
-        // window.location.reload();
         this.newTicket = { 
           userId: "",
           ruleId:  "",
@@ -416,8 +406,6 @@ export default {
 
 
    
-
-    // Open the edit modal and set the ticket to be edited
     openEditModal(ticket) {
       console.log('editingTicket',ticket)
       this.editingTicket = { 
@@ -428,12 +416,11 @@ export default {
           operator: ticket.Operator,
           status: ticket.Status };
       this.showEditModal = true;
-      this.showCreateModal = false; // Close Create Modal if open
+      this.showCreateModal = false; 
     },
 
-    // Update an existing ticket (PUT request)
   async updateTicket() {
-      if (!this.validateForm(this.editingTicket)) return; // Validate before proceeding
+      if (!this.validateForm(this.editingTicket)) return; 
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -460,21 +447,16 @@ export default {
       }
   },
 
-    // Toggle the status of an ticket
     toggleStatus(ticket) {
-      ticket.status = !ticket.status; // Toggle the status between Active/Inactive
+      ticket.status = !ticket.status; 
     },
-
-    // Close the modals
     closeModal() {
       this.showCreateModal = false;
       this.showEditModal = false;
     },
-
-    // Open the create modal
     openCreateModal() {
       this.showCreateModal = true;
-      this.showEditModal = false; // Close Edit Modal if open
+      this.showEditModal = false;
     },
   },
 };

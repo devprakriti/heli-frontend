@@ -199,21 +199,17 @@ export default {
   },
 
   mounted() {
-    // Fetch the operators when the component is mounted
     this.getOperators();
   },
   methods: {
-    // Helper method to get authorization token
     getAuthToken() {
-      const token = localStorage.getItem("authToken"); // Assuming token is stored in localStorage
+      const token = localStorage.getItem("authToken");
       if (!token) {
         console.error("Authorization token not found");
-        // You can also redirect the user to login here
         return null;
       }
       return token;
     },
-      // Validate form data before submitting
     validateForm(operator) {
       this.errors = {
         username: null,
@@ -245,10 +241,9 @@ export default {
       return isValid;
     },
 
-    // Fetch the list of operators (GET request)
     async getOperators() {
       const token = this.getAuthToken();
-      if (!token) return; // If no token, stop execution
+      if (!token) return; 
       try {
         const response = await axios.get("/api/users", {
           headers: {
@@ -256,22 +251,19 @@ export default {
           },
         });
         console.log('response',response)
-        // Assume each user represents an operator
         this.operators = response.data.userList.map((user) => ({
           id: user.id,
           username: user.username,
           email: user.email,
           phone: user.phone,
-          status: true, // Mock status
+          status: true,
         }));
       } catch (error) {
         console.error("Error fetching operators:", error);
       }
     },
-
-    // Create a new operator (POST request)
   async createOperator() {
-      if (!this.validateForm(this.newOperator)) return; // Validate before proceeding
+      if (!this.validateForm(this.newOperator)) return; 
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -299,19 +291,14 @@ export default {
       }
     },
 
-
-   
-
-    // Open the edit modal and set the operator to be edited
     openEditModal(operator) {
       this.editingOperator = { ...operator };
       this.showEditModal = true;
       this.showCreateModal = false; // Close Create Modal if open
     },
 
-    // Update an existing operator (PUT request)
   async updateOperator() {
-      if (!this.validateForm(this.editingOperator)) return; // Validate before proceeding
+      if (!this.validateForm(this.editingOperator)) return; 
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -337,10 +324,8 @@ export default {
         console.error("Error updating operator:", error);
       }
   },
-
-    // Toggle the status of an operator
     toggleStatus(operator) {
-      operator.status = !operator.status; // Toggle the status between Active/Inactive
+      operator.status = !operator.status; 
     },
 
     // Close the modals
@@ -352,12 +337,11 @@ export default {
     // Open the create modal
     openCreateModal() {
       this.showCreateModal = true;
-      this.showEditModal = false; // Close Edit Modal if open
+      this.showEditModal = false; 
     },
   },
 };
 </script>
 
 <style scoped>
-/* Add any additional scoped styles here */
 </style>

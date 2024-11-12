@@ -1,6 +1,5 @@
 <template>
   <div class="flex h-screen justify-center items-center bg-gray-100">
-    <!-- Show loading screen when login is in process -->
     <div v-if="loading" class="flex justify-center items-center h-full">
       <div class="text-center">
         <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
@@ -8,7 +7,6 @@
       </div>
     </div>
 
-    <!-- Show login form when not loading -->
     <form v-else @submit.prevent="login" class="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
 
@@ -70,32 +68,24 @@ export default {
       return !this.emailError && !this.passwordError;
     },
     async login() {
-      // Clear previous error messages
       this.errorMessage = "";
 
-      // Form validation
       if (!this.validateForm()) {
         return;
       }
-
-      // Set loading state to true when login starts
       this.loading = true;
 
       try {
-        // Make the API call to login
         const response = await axios.post('/api/auth/login', {
           email: this.email,
           password: this.password,
         });
-
-        // Check for successful response and save the token
         if (response.data.token) {
           localStorage.setItem("authToken", response.data.token);
 
-          // Navigate to dashboard and reload the page
           this.$router.push("/dashboard");
           setTimeout(() => {
-            window.location.reload(); // Reload the page after navigation
+            window.location.reload(); 
       }, 100); // Small delay to ensure navigation happens first
         } else {
           // Show error message if login failed
