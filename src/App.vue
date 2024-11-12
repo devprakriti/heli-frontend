@@ -31,9 +31,9 @@
           <li>
             <router-link to="/tickets" class="block py-2 px-4 rounded hover:bg-gray-700">Tickets</router-link>
           </li>
-          <li>
+          <!-- <li>
             <router-link to="/test" class="block py-2 px-4 rounded hover:bg-gray-700">Test</router-link>
-          </li>
+          </li> -->
         </ul>
       </aside>
 

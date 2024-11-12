@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import AdminLogin from '@/views/Login.vue'; // Make sure this import matches the updated name of Login.vue
+import AdminLogin from '@/views/Login.vue'; 
 import AdminDashboard from '@/views/Dashboard.vue';
 import AdminSettings from '@/views/Settings.vue';
 import AdminOperators from '@/views/Operators.vue';
