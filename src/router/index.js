@@ -6,6 +6,7 @@ import AdminOperators from '@/views/Operators.vue';
 import AdminTickets from '@/views/Tickets.vue'
 import Rules from '@/views/Rules.vue';
 import AdminAccounts from  '@/views/Accounts.vue';
+import Test from '@/views/Test.vue';
 
 
 const routes = [
@@ -47,6 +48,14 @@ const routes = [
     path: '/rules', 
     name: 'Rules',
     component: Rules,
+    meta: {
+      requiresAuth: true  // Only allow access to authenticated users
+    }
+  },
+  { 
+    path: '/test', 
+    name: 'Test',
+    component: Test,
     meta: {
       requiresAuth: true  // Only allow access to authenticated users
     }

@@ -3,474 +3,190 @@
     <!-- Tab Navigation -->
     <div class="border-b border-gray-300 mb-6">
       <nav class="flex space-x-4">
-        <button
-          @click="activeTab = 'settings'"
-          :class="{
-            'border-blue-500 text-blue-600': activeTab === 'settings',
-            'border-transparent text-gray-500': activeTab !== 'settings'
-          }"
-          class="py-2 px-4 border-b-2 font-medium text-sm"
-        >
-          Rules
-        </button>
-        <!-- <button
-          @click="activeTab = 'reward'"
-          :class="{
-            'border-blue-500 text-blue-600': activeTab === 'reward',
-            'border-transparent text-gray-500': activeTab !== 'reward'
-          }"
-          class="py-2 px-4 border-b-2 font-medium text-sm"
-        >
-          Reward & Probability
-        </button>
-        <button
-          @click="activeTab = 'pictureContent'"
-          :class="{
-            'border-blue-500 text-blue-600': activeTab === 'pictureContent',
-            'border-transparent text-gray-500': activeTab !== 'pictureContent'
-          }"
-          class="py-2 px-4 border-b-2 font-medium text-sm"
-        >
-          Picture & Content
-        </button>
-        <button
-          @click="activeTab = 'history'"
-          :class="{
-            'border-blue-500 text-blue-600': activeTab === 'history',
-            'border-transparent text-gray-500': activeTab !== 'history'
-          }"
-          class="py-2 px-4 border-b-2 font-medium text-sm"
-        >
-          History
-        </button>
-        <button
-          @click="activeTab = 'performance'"
-          :class="{
-            'border-blue-500 text-blue-600': activeTab === 'performance',
-            'border-transparent text-gray-500': activeTab !== 'performance'
-          }"
-          class="py-2 px-4 border-b-2 font-medium text-sm"
-        >
-          Performance Analysis
-        </button> -->
+         <h3 class="text-2xl font-semibold mb-4">List of Rules</h3>
       </nav>
     </div>
-
-    <!-- Tab Content -->
-    <div v-if="activeTab === 'settings'">
-      <!-- Settings Section -->
-      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <!-- <h2 class="text-lg font-semibold mb-4">Spinwin Routine Status</h2> -->
-
-        <!-- Toggle Options -->
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <!-- <span class="font-semibold text-gray-700">Spinwin Routine  Status</span> -->
-            <h2 class="text-lg font-semibold mb-4">Spinwin Routine Status</h2>
-           
-          </div>
-          <div>
-               <label class="flex items-center justify-center cursor-pointer">
-                  
-                  <input type="checkbox" v-model="systemConfig.value" class="sr-only"
-                    :checked="systemConfig.value" @click= "changeSettings(systemConfig)"
-                  >
-                  <span class="ml-2">Disable</span> &nbsp; 
-                 <div
-                   :class="{
-                     'bg-blue-500': systemConfig.value,
-                     'bg-gray-300': !systemConfig.value
-                   }"
-                   class="relative inline-block h-6 w-12 rounded-full"
-                 >
-                   <span
-                     :class="{
-                       'translate-x-6': systemConfig.value,
-                       'translate-x-1': !systemConfig.value
-                     }"
-                     class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                   ></span>
-                 </div>
-                 <span class="ml-2">Enable</span>
-               </label>
-            <!-- <label class="flex items-center justify-center cursor-pointer">    
-              <input type="checkbox" v-model="statisticalProcedureEnabled" class="sr-only" @click= "changeSettings()">
-                  <span class="ml-2">Disable</span> &nbsp; 
-                  <div
-                   :class="{
-                     'bg-blue-500': statisticalProcedureEnabled,
-                  'bg-gray-300': !statisticalProcedureEnabled
-                   }"
-                   class="relative inline-block h-6 w-12 rounded-full"
-                 >
-                   <span
-                     :class="{
-                       'translate-x-6': statisticalProcedureEnabled,
-                       'translate-x-1': !statisticalProcedureEnabled
-                     }"
-                     class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                   ></span>
-                 </div>
-                 <span class="ml-2">Enable</span>
-               </label> -->
-          </div>
-        </div>     
-      </div>
-
       <!-- Table Section -->
-      <div class="bg-white p-6 rounded-lg shadow-lg relative">
-        <!-- Plus Button -->
-        <button @click="openCreateModal" class="absolute top-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-md hover:bg-blue-600">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
+    <div class="bg-white p-6 rounded-lg shadow-lg relative">
+      <!-- Plus Button -->
+      <button @click="openCreateModal" class="absolute top-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-md hover:bg-blue-600">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
 
-        <table class="min-w-full table-auto border-collapse border border-gray-200">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="border px-4 py-2 text-left">Operate</th>
-              <th class="border px-4 py-2 text-left">Status</th>
-              <th class="border px-4 py-2 text-left">Name</th>
-              <th class="border px-4 py-2 text-left">Type of Condition</th>
-              <th class="border px-4 py-2 text-left">Issue Time</th>
-              <th class="border px-4 py-2 text-left">Issue Threshold Amount</th>
-              <th class="border px-4 py-2 text-left">Sheets</th>
-              <th class="border px-4 py-2 text-left">Valid Period</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, index) in rules" :key="index" class="hover:bg-gray-50">
-              <td class="border px-4 py-2 text-center">
-                <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
-              </td>
-              <td class="border px-4 py-2 text-center">
+      <table class="min-w-full table-auto border-collapse border border-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-4 py-2 text-left">Operate</th>
+            <th class="border px-4 py-2 text-left">Status</th>
+            <th class="border px-4 py-2 text-left">Name</th>
+            <th class="border px-4 py-2 text-left">Type of Condition</th>
+            <th class="border px-4 py-2 text-left">Issue Time</th>
+            <th class="border px-4 py-2 text-left">Issue Threshold Amount</th>
+            <th class="border px-4 py-2 text-left">Sheets</th>
+            <th class="border px-4 py-2 text-left">Valid Period</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(row, index) in rules" :key="index" class="hover:bg-gray-50">
+            <td class="border px-4 py-2 text-center">
+              <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
+            </td>
+            <td class="border px-4 py-2 text-center">
+              
+              <label class="flex items-center justify-center cursor-pointer">
                 
-                <label class="flex items-center justify-center cursor-pointer">
-                  
-                   <input type="checkbox" v-model="row.status" class="sr-only"
-                   @click= "toggleStatus(row)"  :checked="row.status"
-                   >
-                  <div
-                    :class="{
-                      'bg-blue-500': row.status,
-                      'bg-gray-300': !row.status
-                    }"
-                    class="relative inline-block h-6 w-12 rounded-full"
+                  <input type="checkbox" v-model="row.status" class="sr-only"
+                  @click= "toggleStatus(row)"  :checked="row.status"
                   >
-                    <span
-                      :class="{
-                        'translate-x-6': row.status,
-                        'translate-x-1': !row.status
-                      }"
-                      class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                    ></span>
-                  </div>
+                <div
+                  :class="{
+                    'bg-blue-500': row.status,
+                    'bg-gray-300': !row.status
+                  }"
+                  class="relative inline-block h-6 w-12 rounded-full"
+                >
+                  <span
+                    :class="{
+                      'translate-x-6': row.status,
+                      'translate-x-1': !row.status
+                    }"
+                    class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
+                  ></span>
+                </div>
+              </label>
+              
+            </td>
+            <td class="border px-4 py-2">{{ row.name }}</td>
+            <td class="border px-4 py-2">{{ row.type }}</td>
+            <td class="border px-4 py-2">{{ row.issueTime }}</td>
+            <td class="border px-4 py-2">{{ row.issueThresholdAmount }}</td>
+            <td class="border px-4 py-2">{{ row.sheets }}</td>
+            <td class="border px-4 py-2">{{ row.validPeriod }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Create Modal -->
+      <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
+          <h3 class="text-2xl font-bold mb-4">Create New Rule</h3>
+          <form @submit.prevent="createRule" class="space-y-4">
+            <!-- Rule Name -->
+            <div>
+              <label class="block text-gray-700">Rule Name</label>
+              <input
+                v-model="newRule.Name"
+                type="text"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+              />
+            </div>
+
+            <!-- Ticket Type -->
+            <div>
+              <label class="block text-gray-700">Ticket Type</label>
+              <select
+                v-model="newRule.TicketType"
+                class="form-select block w-full px-4 py-2 border rounded-lg"
+              >
+                <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
+              </select>
+            </div>
+
+            <!-- Ticket Amount -->
+            <div>
+              <label class="block text-gray-700">Ticket Amount</label>
+              <input
+                v-model="newRule.TicketAmount"
+                type="number"
+                class="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <!-- Issue Frequency Radio Buttons -->
+            <div>
+              <label class="block text-gray-700">Issue Frequency</label>
+              <div class="flex items-center space-x-4">
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="newRule.IssueFrequency"
+                    value=0
+                    class="form-radio text-blue-600"
+                  />
+                  <span class="ml-2">Everyday</span>
                 </label>
-                
-              </td>
-              <td class="border px-4 py-2">{{ row.name }}</td>
-              <td class="border px-4 py-2">{{ row.type }}</td>
-              <td class="border px-4 py-2">{{ row.issueTime }}</td>
-              <td class="border px-4 py-2">{{ row.issueThresholdAmount }}</td>
-              <td class="border px-4 py-2">{{ row.sheets }}</td>
-              <td class="border px-4 py-2">{{ row.validPeriod }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Create Modal -->
-        <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
-            <h3 class="text-2xl font-bold mb-4">Create New Rule</h3>
-            <form @submit.prevent="createRule" class="space-y-4">
-              <!-- Rule Name -->
-              <div>
-                <label class="block text-gray-700">Rule Name</label>
-                <input
-                  v-model="newRule.Name"
-                  type="text"
-                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-                />
-              </div>
-
-              <!-- Ticket Type -->
-              <div>
-                <label class="block text-gray-700">Ticket Type</label>
-                <select
-                  v-model="newRule.TicketType"
-                  class="form-select block w-full px-4 py-2 border rounded-lg"
-                >
-                  <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
-                </select>
-              </div>
-
-              <!-- Ticket Amount -->
-              <div>
-                <label class="block text-gray-700">Ticket Amount</label>
-                <input
-                  v-model="newRule.TicketAmount"
-                  type="number"
-                  class="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-
-              <!-- Issue Frequency Radio Buttons -->
-              <div>
-                <label class="block text-gray-700">Issue Frequency</label>
-                <div class="flex items-center space-x-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.IssueFrequency"
-                      value=0
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Everyday</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.IssueFrequency"
-                      value=1
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Designated Time</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.IssueFrequency"
-                      value=2
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Manual</span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Show additional options if Designated Time is selected -->
-              <div v-if="newRule.IssueFrequency == 1">
-                <!-- Designated Date -->
-                <div>
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
-                    <span class="ml-2">Designated Date</span>
-                  </label>
-                  <multiselect
-                    v-if="designatedDateSelected"
-                    v-model="selectedDesignatedDates"
-                    :options="dateOptions"
-                    :multiple="true"
-                    :close-on-select="false"
-                    placeholder="Select Dates"
-                    label="label"
-                    track-by="value"
-                    class="block w-full mt-2"
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="newRule.IssueFrequency"
+                    value=1
+                    class="form-radio text-blue-600"
                   />
-                </div>
-
-                <!-- Designated Weekday -->
-                <div>
-                  <label class="inline-flex items-center">
-                    <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
-                    <span class="ml-2">Designated Weekday</span>
-                  </label>
-                  <multiselect
-                    v-if="designatedWeekdaySelected"
-                    v-model="selectedDesignatedDays"
-                    :options="weekdayOptions"
-                    :multiple="true"
-                    :close-on-select="false"
-                    placeholder="Select Weekdays"
-                    label="label"
-                    track-by="value"
-                    class="block w-full mt-2"
+                  <span class="ml-2">Designated Time</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="newRule.IssueFrequency"
+                    value=2
+                    class="form-radio text-blue-600"
                   />
-                </div>
-             
+                  <span class="ml-2">Manual</span>
+                </label>
               </div>
+            </div>
+
+            <!-- Show additional options if Designated Time is selected -->
+            <div v-if="newRule.IssueFrequency == 1">
+              <!-- Designated Date -->
               <div>
-                <label class="block text-gray-700">Expiry Type</label>
-                <div class="flex items-center space-x-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.ExpireType"
-                      value=0
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Never</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.ExpireType"
-                      value=1
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Days</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="newRule.ExpireType"
-                      value=2
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Hours</span>
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label class="block text-gray-700">Expiry Time</label>
-                <input
-                  v-model="newRule.ExpireTime"
-                  type="number"
-                  class="w-full px-4 py-2 border rounded-lg"
+                <label class="inline-flex items-center">
+                  <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
+                  <span class="ml-2">Designated Date</span>
+                </label>
+                <multiselect
+                  v-if="designatedDateSelected"
+                  v-model="selectedDesignatedDates"
+                  :options="dateOptions"
+                  :multiple="true"
+                  :close-on-select="false"
+                  placeholder="Select Dates"
+                  label="label"
+                  track-by="value"
+                  class="block w-full mt-2"
                 />
               </div>
 
-              <div class="flex justify-end">
-                <button
-                  type="button"
-                  @click="closeModal"
-                  class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  class="bg-blue-600 text-white py-2 px-4 rounded-lg"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-        
-        <!-- Edit Modal -->
-        <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
-            <h3 class="text-2xl font-bold mb-4">Update Rule</h3>
-            <form @submit.prevent="updateRule" class="space-y-4">
-              <!-- Rule Name -->
+              <!-- Designated Weekday -->
               <div>
-                <label class="block text-gray-700">Rule Name</label>
-                <input
-                  v-model="editingRule.Name"
-                  type="text"
-                  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                <label class="inline-flex items-center">
+                  <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
+                  <span class="ml-2">Designated Weekday</span>
+                </label>
+                <multiselect
+                  v-if="designatedWeekdaySelected"
+                  v-model="selectedDesignatedDays"
+                  :options="weekdayOptions"
+                  :multiple="true"
+                  :close-on-select="false"
+                  placeholder="Select Weekdays"
+                  label="label"
+                  track-by="value"
+                  class="block w-full mt-2"
                 />
               </div>
-
-              <!-- Ticket Type -->
-              <div>
-                <label class="block text-gray-700">Ticket Type</label>
-                <select
-                  v-model="editingRule.TicketType"
-                  class="form-select block w-full px-4 py-2 border rounded-lg"
-                >
-                  <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
-                </select>
-              </div>
-
-              <!-- Ticket Amount -->
-              <div>
-                <label class="block text-gray-700">Ticket Amount</label>
-                <input
-                  v-model="editingRule.TicketAmount"
-                  type="number"
-                  class="w-full px-4 py-2 border rounded-lg"
-                />
-              </div>
-
-              <!-- Issue Frequency Radio Buttons -->
-              <div>
-                <label class="block text-gray-700">Issue Frequency</label>
-                <div class="flex items-center space-x-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="editingRule.IssueFrequency"
-                      value="0"
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Everyday</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="editingRule.IssueFrequency"
-                      value="1"
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Designated Time</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      v-model="editingRule.IssueFrequency"
-                      value="2"
-                      class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">Manual</span>
-                  </label>
-                </div>
-              </div>
-
-        <!-- Show additional options if Designated Time is selected -->
-             <!-- Show additional options if Designated Time is selected -->
-        <div v-if="editingRule.IssueFrequency == 1">
-          <!-- Designated Date -->
-          <div>
-            <label class="inline-flex items-center">
-              <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
-              <span class="ml-2">Designated Date</span>
-            </label>
-            <multiselect
-              v-if="designatedDateSelected"
-              v-model="editingRule.DesignatedDate"
-              :options="dateOptions"
-              :multiple="true"
-              :close-on-select="false"
-              placeholder="Select Dates"
-              label="label"
-              track-by="value"
-              class="block w-full mt-2"
-            />
-          </div>
-
-          <!-- Designated Weekday -->
-          <div>
-            <label class="inline-flex items-center">
-              <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
-              <span class="ml-2">Designated Weekday</span>
-            </label>
-            <multiselect
-              v-if="designatedWeekdaySelected"
-              v-model="editingRule.DesignatedDays"
-              :options="weekdayOptions"
-              :multiple="true"
-              :close-on-select="false"
-              placeholder="Select Weekdays"
-              value="label"
-              track-by="value"
-              class="block w-full mt-2"
-            />
-          </div>
-        </div>
-
-            <!-- Expiry Type and Expiry Time -->
+            
+            </div>
             <div>
               <label class="block text-gray-700">Expiry Type</label>
               <div class="flex items-center space-x-4">
                 <label class="inline-flex items-center">
                   <input
                     type="radio"
-                    v-model="editingRule.ExpireType"
-                    value="0"
+                    v-model="newRule.ExpireType"
+                    value=0
                     class="form-radio text-blue-600"
                   />
                   <span class="ml-2">Never</span>
@@ -478,8 +194,8 @@
                 <label class="inline-flex items-center">
                   <input
                     type="radio"
-                    v-model="editingRule.ExpireType"
-                    value="1"
+                    v-model="newRule.ExpireType"
+                    value=1
                     class="form-radio text-blue-600"
                   />
                   <span class="ml-2">Days</span>
@@ -487,44 +203,216 @@
                 <label class="inline-flex items-center">
                   <input
                     type="radio"
-                    v-model="editingRule.ExpireType"
-                    value="2"
+                    v-model="newRule.ExpireType"
+                    value=2
                     class="form-radio text-blue-600"
                   />
                   <span class="ml-2">Hours</span>
                 </label>
               </div>
             </div>
-
             <div>
               <label class="block text-gray-700">Expiry Time</label>
               <input
-                v-model="editingRule.ExpireTime"
+                v-model="newRule.ExpireTime"
                 type="number"
                 class="w-full px-4 py-2 border rounded-lg"
               />
             </div>
 
-          <div class="flex justify-end">
-          <button
-            type="button"
-            @click="closeModal"
-            class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="bg-blue-600 text-white py-2 px-4 rounded-lg"
-          >
-            Update
+            <div class="flex justify-end">
+              <button
+                type="button"
+                @click="closeModal"
+                class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
+              >
+                Cancel
               </button>
+              <button
+                type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-lg"
+              >
+                Create
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Edit Modal -->
+      <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
+          <h3 class="text-2xl font-bold mb-4">Update Rule</h3>
+          <form @submit.prevent="updateRule" class="space-y-4">
+            <!-- Rule Name -->
+            <div>
+              <label class="block text-gray-700">Rule Name</label>
+              <input
+                v-model="editingRule.Name"
+                type="text"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+              />
+            </div>
+
+            <!-- Ticket Type -->
+            <div>
+              <label class="block text-gray-700">Ticket Type</label>
+              <select
+                v-model="editingRule.TicketType"
+                class="form-select block w-full px-4 py-2 border rounded-lg"
+              >
+                <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
+              </select>
+            </div>
+
+            <!-- Ticket Amount -->
+            <div>
+              <label class="block text-gray-700">Ticket Amount</label>
+              <input
+                v-model="editingRule.TicketAmount"
+                type="number"
+                class="w-full px-4 py-2 border rounded-lg"
+              />
+            </div>
+
+            <!-- Issue Frequency Radio Buttons -->
+            <div>
+              <label class="block text-gray-700">Issue Frequency</label>
+              <div class="flex items-center space-x-4">
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.IssueFrequency"
+                    value="0"
+                    class="form-radio text-blue-600"
+                  />
+                  <span class="ml-2">Everyday</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.IssueFrequency"
+                    value="1"
+                    class="form-radio text-blue-600"
+                  />
+                  <span class="ml-2">Designated Time</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.IssueFrequency"
+                    value="2"
+                    class="form-radio text-blue-600"
+                  />
+                  <span class="ml-2">Manual</span>
+                </label>
               </div>
-            </form>
-          </div>
+            </div>
+
+      <!-- Show additional options if Designated Time is selected -->
+            <!-- Show additional options if Designated Time is selected -->
+      <div v-if="editingRule.IssueFrequency == 1">
+        <!-- Designated Date -->
+        <div>
+          <label class="inline-flex items-center">
+            <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
+            <span class="ml-2">Designated Date</span>
+          </label>
+          <multiselect
+            v-if="designatedDateSelected"
+            v-model="editingRule.DesignatedDate"
+            :options="dateOptions"
+            :multiple="true"
+            :close-on-select="false"
+            placeholder="Select Dates"
+            label="label"
+            track-by="value"
+            class="block w-full mt-2"
+          />
         </div>
 
+        <!-- Designated Weekday -->
+        <div>
+          <label class="inline-flex items-center">
+            <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
+            <span class="ml-2">Designated Weekday</span>
+          </label>
+          <multiselect
+            v-if="designatedWeekdaySelected"
+            v-model="editingRule.DesignatedDays"
+            :options="weekdayOptions"
+            :multiple="true"
+            :close-on-select="false"
+            placeholder="Select Weekdays"
+            value="label"
+            track-by="value"
+            class="block w-full mt-2"
+          />
+        </div>
       </div>
+
+          <!-- Expiry Type and Expiry Time -->
+          <div>
+            <label class="block text-gray-700">Expiry Type</label>
+            <div class="flex items-center space-x-4">
+              <label class="inline-flex items-center">
+                <input
+                  type="radio"
+                  v-model="editingRule.ExpireType"
+                  value="0"
+                  class="form-radio text-blue-600"
+                />
+                <span class="ml-2">Never</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input
+                  type="radio"
+                  v-model="editingRule.ExpireType"
+                  value="1"
+                  class="form-radio text-blue-600"
+                />
+                <span class="ml-2">Days</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input
+                  type="radio"
+                  v-model="editingRule.ExpireType"
+                  value="2"
+                  class="form-radio text-blue-600"
+                />
+                <span class="ml-2">Hours</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-700">Expiry Time</label>
+            <input
+              v-model="editingRule.ExpireTime"
+              type="number"
+              class="w-full px-4 py-2 border rounded-lg"
+            />
+          </div>
+
+        <div class="flex justify-end">
+        <button
+          type="button"
+          @click="closeModal"
+          class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="bg-blue-600 text-white py-2 px-4 rounded-lg"
+        >
+          Update
+            </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>

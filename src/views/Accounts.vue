@@ -1,9 +1,11 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
-    <h2 class="text-3xl font-semibold mb-4">List of Accounts</h2>
+    <div class="border-b border-gray-300 mb-6">
+      <nav class="flex space-x-4">
+         <h3 class="text-2xl font-semibold mb-4">List of Accounts</h3>
+      </nav>
+    </div>
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
-    
-
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
@@ -24,9 +26,6 @@
           </tr>
         </tbody>
       </table>
-
-    
-      
     </div>
   </div>
 </template>

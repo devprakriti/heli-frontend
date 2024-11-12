@@ -15,12 +15,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEdit, faTrash, faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-// Add icons to the library
+
 library.add(faEdit, faTrash, faExchangeAlt)
 
 const app = createApp(App)
 
-// Register the FontAwesomeIcon component globally
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(router).mount('#app')
 
