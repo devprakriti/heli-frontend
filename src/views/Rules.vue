@@ -710,8 +710,9 @@ export default {
     },
 
    async updateRule() {
-      if (!this.validateForm(this.editingRule)) return; // Validate before proceeding
-      
+      console.log('hereddddd prakrii')
+      // if (!this.validateForm(this.editingRule)) return; // Validate before proceeding
+      console.log('editingRule', this.editingRule)
       const transformedDates = this.editingRule.DesignatedDate.map(item => {
         return parseInt(item.value);
       });
@@ -719,6 +720,7 @@ export default {
         return parseInt(item.value);
       });
 
+      console.log(this.editingRule.TicketAmount, 'ticketamount')
       this.editingRule.DesignatedDays = JSON.stringify(transformedDays); // Store only `value` in DesignatedDays
       this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
 
