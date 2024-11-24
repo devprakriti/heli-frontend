@@ -285,6 +285,7 @@
                     v-model="editingRule.IssueFrequency"
                     value="0"
                     class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Everyday</span>
                 </label>
@@ -294,6 +295,7 @@
                     v-model="editingRule.IssueFrequency"
                     value="1"
                     class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Designated Time</span>
                 </label>
@@ -303,115 +305,120 @@
                     v-model="editingRule.IssueFrequency"
                     value="2"
                     class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Manual</span>
                 </label>
               </div>
             </div>
 
-      <!-- Show additional options if Designated Time is selected -->
             <!-- Show additional options if Designated Time is selected -->
-      <div v-if="editingRule.IssueFrequency == 1">
-        <!-- Designated Date -->
-        <div>
-          <label class="inline-flex items-center">
-            <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
-            <span class="ml-2">Designated Date</span>
-          </label>
-          <multiselect
-            v-if="designatedDateSelected"
-            v-model="editingRule.DesignatedDate"
-            :options="dateOptions"
-            :multiple="true"
-            :close-on-select="false"
-            placeholder="Select Dates"
-            label="label"
-            track-by="value"
-            class="block w-full mt-2"
-          />
-        </div>
+            <div v-if="editingRule.IssueFrequency == 1">
+              <div>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" :disabled="isReadOnly" />
+                  <span class="ml-2">Designated Date</span>
+                </label>
+                <multiselect
+                  v-if="designatedDateSelected"
+                  v-model="editingRule.DesignatedDate"
+                  :options="dateOptions"
+                  :multiple="true"
+                  :close-on-select="false"
+                  placeholder="Select Dates"
+                  label="label"
+                  track-by="value"
+                  class="block w-full mt-2"
+                  :disabled="isReadOnly"
+                />
+              </div>
 
-        <!-- Designated Weekday -->
-        <div>
-          <label class="inline-flex items-center">
-            <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
-            <span class="ml-2">Designated Weekday</span>
-          </label>
-          <multiselect
-            v-if="designatedWeekdaySelected"
-            v-model="editingRule.DesignatedDays"
-            :options="weekdayOptions"
-            :multiple="true"
-            :close-on-select="false"
-            placeholder="Select Weekdays"
-            value="label"
-            track-by="value"
-            class="block w-full mt-2"
-          />
-        </div>
-      </div>
-
-          <!-- Expiry Type and Expiry Time -->
-          <div>
-            <label class="block text-gray-700">Expiry Type</label>
-            <div class="flex items-center space-x-4">
-              <label class="inline-flex items-center">
-                <input
-                  type="radio"
-                  v-model="editingRule.ExpireType"
-                  value="0"
-                  class="form-radio text-blue-600"
+              <div>
+                <label class="inline-flex items-center">
+                  <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" :disabled="isReadOnly" />
+                  <span class="ml-2">Designated Weekday</span>
+                </label>
+                <multiselect
+                  v-if="designatedWeekdaySelected"
+                  v-model="editingRule.DesignatedDays"
+                  :options="weekdayOptions"
+                  :multiple="true"
+                  :close-on-select="false"
+                  placeholder="Select Weekdays"
+                  value="label"
+                  track-by="value"
+                  class="block w-full mt-2"
+                  :disabled="isReadOnly"
                 />
-                <span class="ml-2">Never</span>
-              </label>
-              <label class="inline-flex items-center">
-                <input
-                  type="radio"
-                  v-model="editingRule.ExpireType"
-                  value="1"
-                  class="form-radio text-blue-600"
-                />
-                <span class="ml-2">Days</span>
-              </label>
-              <label class="inline-flex items-center">
-                <input
-                  type="radio"
-                  v-model="editingRule.ExpireType"
-                  value="2"
-                  class="form-radio text-blue-600"
-                />
-                <span class="ml-2">Hours</span>
-              </label>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label class="block text-gray-700">Expiry Time</label>
-            <input
-              v-model="editingRule.ExpireTime"
-              type="number"
-              class="w-full px-4 py-2 border rounded-lg"
-            />
-          </div>
+            <!-- Expiry Type and Expiry Time -->
+            <div>
+              <label class="block text-gray-700">Expiry Type</label>
+              <div class="flex items-center space-x-4">
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.ExpireType"
+                    value="0"
+                    class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
+                  />
+                  <span class="ml-2">Never</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.ExpireType"
+                    value="1"
+                    class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
+                  />
+                  <span class="ml-2">Days</span>
+                </label>
+                <label class="inline-flex items-center">
+                  <input
+                    type="radio"
+                    v-model="editingRule.ExpireType"
+                    value="2"
+                    class="form-radio text-blue-600"
+                    :disabled="isReadOnly"
+                  />
+                  <span class="ml-2">Hours</span>
+                </label>
+              </div>
+            </div>
 
-        <div class="flex justify-end">
-        <button
-          type="button"
-          @click="closeModal"
-          class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="bg-blue-600 text-white py-2 px-4 rounded-lg"
-        >
-          Update
-            </button>
+            <div>
+              <label class="block text-gray-700">Expiry Time</label>
+              <input
+                v-model="editingRule.ExpireTime"
+                type="number"
+                class="w-full px-4 py-2 border rounded-lg"
+                :disabled="isReadOnly"
+              />
+            </div>
+
+            <div class="flex justify-end">
+              <button
+                type="button"
+                @click="closeModal"
+                class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded-lg"
+              >
+                Update
+              </button>
             </div>
           </form>
         </div>
       </div>
+
 
     </div>
   </div>
@@ -466,6 +473,7 @@ export default {
         { value: 6, label: 'Saturday' },
         { value: 7, label: 'Sunday' },
       ],
+      isReadOnly: true,
       editingRule: {
         Name: '',
         TicketType: '',
@@ -710,9 +718,8 @@ export default {
     },
 
    async updateRule() {
-      console.log('hereddddd prakrii')
       // if (!this.validateForm(this.editingRule)) return; // Validate before proceeding
-      console.log('editingRule', this.editingRule)
+      
       const transformedDates = this.editingRule.DesignatedDate.map(item => {
         return parseInt(item.value);
       });
@@ -720,7 +727,6 @@ export default {
         return parseInt(item.value);
       });
 
-      console.log(this.editingRule.TicketAmount, 'ticketamount')
       this.editingRule.DesignatedDays = JSON.stringify(transformedDays); // Store only `value` in DesignatedDays
       this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
 
