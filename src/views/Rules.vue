@@ -72,6 +72,25 @@
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Create New Rule</h3>
+          <div v-if="showErrorNotification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 w-80 p-4 bg-red-600 text-white rounded-lg shadow-lg flex items-center space-x-4 transition-all duration-300">
+            <!-- Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+            </svg>
+
+            <!-- Error message text -->
+            <div class="flex-1">
+              <p class="text-sm font-semibold">{{ errorMessage }}</p>
+            </div>
+
+            <!-- Close button -->
+            <button @click="showErrorNotification = false" class="text-white hover:text-gray-300 focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
           <form @submit.prevent="createRule" class="space-y-4">
             <!-- Rule Name -->
             <div>
@@ -85,13 +104,56 @@
 
             <!-- Ticket Type -->
             <div>
-              <label class="block text-gray-700">Ticket Type</label>
+              <label class="block text-gray-700">Rule Type</label>
               <select
                 v-model="newRule.TicketType"
                 class="form-select block w-full px-4 py-2 border rounded-lg"
               >
-                <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
+                <option v-for="ticket in ticketTypeList" :key="ticket.Type" :value="ticket.Type" @change="loadParameterTemplate()">{{ capitalizeFirstLetter(ticket.Type) }}</option>
               </select>
+            </div>
+               
+            <div v-if="newRule.parameterTemplate">
+              <div v-for="(field, fieldName) in newRule.parameterTemplate" :key="fieldName" class="space-y-4">
+                
+                <div v-if="Array.isArray(field) && fieldName === 'amountList'">
+                  <div v-for="(item, index) in field" :key="index" class="flex items-center space-x-4">
+                    
+                    <div v-for="(value, key) in item" :key="key" class="flex-1">
+                      <label class="block text-gray-700">{{ capitalizeFirstLetter(key) }}</label>
+                      <input
+                        v-model="newRule.parameterTemplate[fieldName][index][key]"
+                        type="number"
+                        :min="getMinValue(key)" 
+                        class="w-full px-4 py-2 border rounded-lg"
+                        :placeholder="key"
+                      />
+                    </div>
+
+                    <!-- Remove button (only if more than 1 item) -->
+                    <div v-if="newRule.parameterTemplate[fieldName].length > 1">
+                      <button
+                        type="button"
+                        class="bg-red-500 text-white py-2 px-4 rounded-lg"
+                        @click="removeItem(index)"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Add More functionality: Only add to the amountList -->
+                  <div v-if="newRule.parameterTemplate[fieldName].length < 5" class="flex items-center space-x-4 mt-2">
+                    <button
+                      type="button"
+                      class="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                      @click="addMore()"
+                    >
+                      Add More
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Ticket Amount -->
@@ -138,7 +200,6 @@
               </div>
             </div>
 
-            <!-- Show additional options if Designated Time is selected -->
             <div v-if="newRule.IssueFrequency == 1">
               <!-- Designated Date -->
               <div>
@@ -238,11 +299,30 @@
           </form>
         </div>
       </div>
-      
-      <!-- Edit Modal -->
       <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Update Rule</h3>
+          
+          <!-- Error Notification -->
+          <div v-if="showErrorNotification" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 w-80 p-4 bg-red-600 text-white rounded-lg shadow-lg flex items-center space-x-4 transition-all duration-300">
+            <!-- Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" />
+            </svg>
+
+            <!-- Error message text -->
+            <div class="flex-1">
+              <p class="text-sm font-semibold">{{ errorMessage }}</p>
+            </div>
+
+            <!-- Close button -->
+            <button @click="showErrorNotification = false" class="text-white hover:text-gray-300 focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
           <form @submit.prevent="updateRule" class="space-y-4">
             <!-- Rule Name -->
             <div>
@@ -256,13 +336,66 @@
 
             <!-- Ticket Type -->
             <div>
-              <label class="block text-gray-700">Ticket Type</label>
+              <label class="block text-gray-700">Rule Type</label>
               <select
                 v-model="editingRule.TicketType"
                 class="form-select block w-full px-4 py-2 border rounded-lg"
+                @change="loadParameterTemplate()"
               >
-                <option v-for="ticket in ticketTypeList" :key="ticket.value" :value="ticket.value">{{ ticket.label }}</option>
+                <option
+                  v-for="ticket in ticketTypeList"
+                  :key="ticket.Type"
+                  :value="ticket.Type"
+                >
+                  {{ capitalizeFirstLetter(ticket.Type) }}
+                </option>
               </select>
+            </div>
+
+            <!-- Parameter Template -->
+            <div v-if="editingRule.parameterTemplate">
+              <div
+                v-for="(field, fieldName) in editingRule.parameterTemplate"
+                :key="fieldName"
+                class="space-y-4"
+              >
+                <div v-if="Array.isArray(field) && fieldName === 'amountList'">
+                  <div v-for="(item, index) in field" :key="index" class="flex items-center space-x-4">
+                    <div v-for="(value, key) in item" :key="key" class="flex-1">
+                      <label class="block text-gray-700">{{ capitalizeFirstLetter(key) }}</label>
+                      <input
+                        v-model="editingRule.parameterTemplate[fieldName][index][key]"
+                        type="number"
+                        :min="getMinValue(key)"
+                        class="w-full px-4 py-2 border rounded-lg"
+                        :placeholder="key"
+                      />
+                    </div>
+
+                    <!-- Remove button (only if more than 1 item) -->
+                    <div v-if="editingRule.parameterTemplate[fieldName].length > 1">
+                      <button
+                        type="button"
+                        class="bg-red-500 text-white py-2 px-4 rounded-lg"
+                        @click="removeItemEdit(index)"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Add More functionality -->
+                  <div v-if="editingRule.parameterTemplate[fieldName].length < 5" class="flex items-center space-x-4 mt-2">
+                    <button
+                      type="button"
+                      class="bg-blue-500 text-white py-2 px-4 rounded-lg"
+                      @click="addMoreEdit()"
+                    >
+                      Add More
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Ticket Amount -->
@@ -285,7 +418,6 @@
                     v-model="editingRule.IssueFrequency"
                     value="0"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Everyday</span>
                 </label>
@@ -295,7 +427,6 @@
                     v-model="editingRule.IssueFrequency"
                     value="1"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Designated Time</span>
                 </label>
@@ -305,18 +436,17 @@
                     v-model="editingRule.IssueFrequency"
                     value="2"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Manual</span>
                 </label>
               </div>
             </div>
 
-            <!-- Show additional options if Designated Time is selected -->
+            <!-- Designated Time Options -->
             <div v-if="editingRule.IssueFrequency == 1">
               <div>
                 <label class="inline-flex items-center">
-                  <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" :disabled="isReadOnly" />
+                  <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
                   <span class="ml-2">Designated Date</span>
                 </label>
                 <multiselect
@@ -329,13 +459,12 @@
                   label="label"
                   track-by="value"
                   class="block w-full mt-2"
-                  :disabled="isReadOnly"
                 />
               </div>
 
               <div>
                 <label class="inline-flex items-center">
-                  <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" :disabled="isReadOnly" />
+                  <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
                   <span class="ml-2">Designated Weekday</span>
                 </label>
                 <multiselect
@@ -348,12 +477,11 @@
                   value="label"
                   track-by="value"
                   class="block w-full mt-2"
-                  :disabled="isReadOnly"
                 />
               </div>
             </div>
 
-            <!-- Expiry Type and Expiry Time -->
+            <!-- Expiry Type -->
             <div>
               <label class="block text-gray-700">Expiry Type</label>
               <div class="flex items-center space-x-4">
@@ -363,7 +491,6 @@
                     v-model="editingRule.ExpireType"
                     value="0"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Never</span>
                 </label>
@@ -373,7 +500,6 @@
                     v-model="editingRule.ExpireType"
                     value="1"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Days</span>
                 </label>
@@ -383,23 +509,23 @@
                     v-model="editingRule.ExpireType"
                     value="2"
                     class="form-radio text-blue-600"
-                    :disabled="isReadOnly"
                   />
                   <span class="ml-2">Hours</span>
                 </label>
               </div>
             </div>
 
+            <!-- Expiry Time -->
             <div>
               <label class="block text-gray-700">Expiry Time</label>
               <input
                 v-model="editingRule.ExpireTime"
                 type="number"
                 class="w-full px-4 py-2 border rounded-lg"
-                :disabled="isReadOnly"
               />
             </div>
 
+            <!-- Action Buttons -->
             <div class="flex justify-end">
               <button
                 type="button"
@@ -418,8 +544,6 @@
           </form>
         </div>
       </div>
-
-
     </div>
   </div>
 </template>
@@ -447,14 +571,13 @@ export default {
         DesignatedDays: [],
         ExpireType:"",
         ExpireTime:"",
-        Status:1
+        Status:1,
+        Template: null,
+        parameterTemplate: null,
       },
-      ticketTypeList:[
-        { value: 'login', label: 'Login' },
-        { value: 'register', label: 'Register' },
-        { value: 'deposit', label: 'Deposit' },
-        { value: 'turnover', label: 'Turnover' }
-      ],
+      parameterTemplate: null,
+      parameterTemplates: null,
+      ticketTypeList: [],
       issueFrequency: 'everyday',
       designatedDateSelected: false,
       designatedWeekdaySelected: false,
@@ -463,6 +586,7 @@ export default {
       designatedDates: [], 
       selectedWeekdays: [],
       selectedDates: [], 
+      showErrorNotification: false,
       dateOptions: Array.from({ length: 31 }, (_, i) => ({ value: i + 1, label: `Day ${i + 1}` })), 
       weekdayOptions: [
         { value: 1, label: 'Monday' },
@@ -483,6 +607,8 @@ export default {
         DesignatedDays: [],
         ExpireType: 0,
         ExpireTime: '',
+        Template: null,
+        parameterTemplate: null,
       },
       systemConfig: [],
       rules: [],
@@ -497,7 +623,11 @@ export default {
   },
 
 
-  watch: {
+  watch: 
+    { 'newRule.TicketType': function (newVal) {
+      console.log('newVal', newVal)
+      this.loadParameterTemplate();
+    },
     editingRule: {
       handler(newVal) {
         console.log('newVal', newVal)
@@ -527,6 +657,7 @@ export default {
   mounted() {
     this.getRules();
     this.getSystemConfig();
+    this.getRuleType();
   },
 
 
@@ -540,6 +671,94 @@ export default {
     },
   },
   methods: {
+    capitalizeFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  },
+    addMore() {
+    if (this.newRule.parameterTemplate && Array.isArray(this.newRule.parameterTemplate.amountList)) {
+      const firstItem = this.newRule.parameterTemplate.amountList[0];
+      
+      const newItem = {};
+
+      Object.keys(firstItem).forEach(key => {
+        if (key === 'ticketAmount') {
+          newItem[key] = 5; 
+        } else if (key === 'thresholdAmount') {
+          newItem[key] = 500;
+        } else {
+          newItem[key] = 0;
+        }
+      });
+
+      this.newRule.parameterTemplate.amountList.push(newItem);
+    }
+  },
+  removeItem(index) {
+    if (this.newRule.parameterTemplate.amountList.length > 1) {
+      this.newRule.parameterTemplate.amountList.splice(index, 1);
+    }
+  },
+  removeItemEdit(index) {
+    if (this.editingRule.parameterTemplate.amountList.length > 1) {
+      this.editingRule.parameterTemplate.amountList.splice(index, 1);
+    }
+  },
+  addMoreEdit() {
+  if (this.editingRule.parameterTemplate && Array.isArray(this.editingRule.parameterTemplate.amountList)) {
+    const firstItem = this.editingRule.parameterTemplate.amountList[0];
+    
+    const newItem = {};
+
+    Object.keys(firstItem).forEach(key => {
+      if (key === 'ticketAmount') {
+        newItem[key] = 5; 
+      } else if (key === 'thresholdAmount') {
+        newItem[key] = 500;
+      } else {
+        newItem[key] = 0;
+      }
+    });
+
+    this.editingRule.parameterTemplate.amountList.push(newItem);
+  }
+},
+
+
+  getMinValue(key) {
+    if (key === 'ticketAmount') {
+      return 5;  
+    } else if (key === 'thresholdAmount') {
+      return 500; 
+    }
+    return 0;  
+  },
+
+    loadParameterTemplate() {
+      const selectedTicketType = this.newRule.TicketType; 
+      console.log('selectedTicketType:', selectedTicketType);
+      const selectedTemplate = this.ticketTypeList.find(item => item.Type === selectedTicketType);
+      if (selectedTemplate) {
+        this.newRule.parameterTemplate = selectedTemplate.ParameterTemplate;
+      } else {
+        console.log('No template found for', selectedTicketType);
+      }
+    },
+    async getRuleType() {
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+          const response = await axios.get("/api/spinwin/ruleType", {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+          });
+          console.log('response',response)
+          this.parameterTemplates = response.data.ruleTypeList
+          this.ticketTypeList = response.data.ruleTypeList
+      } catch (error) {
+          console.error("Error fetching rule type:", error);
+      }
+      },
     async getSystemConfig(){
       const token = this.getAuthToken();
       if (!token) return;
@@ -627,8 +846,8 @@ export default {
           validPeriod: rule.ExpireTime,
           ExpireType:rule.ExpireType,
           DesignatedDate: rule.DesignatedDate,
-          DesignatedDays: rule.DesignatedDays
-         
+          DesignatedDays: rule.DesignatedDays,
+          parameterTemplate: rule.Template
         }));
       } catch (error) {
         console.error("Error fetching rules:", error);
@@ -649,8 +868,7 @@ export default {
    async createRule() {
       this.newRule.DesignatedDays = JSON.stringify(this.selectedDaysValues);
       this.newRule.DesignatedDate = JSON.stringify(this.selectedDatesValues);
-      console.log(this.newRule.DesignatedDays);
-      console.log(this.newRule.DesignatedDate);
+      this.newRule.parameterTemplate = JSON.stringify(this.newRule.parameterTemplate)
       if (!this.validateForm(this.newRule)) return;
       const token = this.getAuthToken();
       if (!token) return;
@@ -675,7 +893,21 @@ export default {
           };
           this.rules.push(createdRule);
           this.closeModal();
+          window.location.reload();
         }
+        else {
+          if(response.data.success == false){
+            this.errorMessage = response.data.message 
+            this.showErrorNotification = true;
+          }
+          console.error("Error creating rule:", response.data.message || "Unknown error");
+          
+          this.errorMessage = response.data.message || "Something went wrong, please try again.";
+          
+          this.showErrorNotification = true;
+        }
+
+        
         // window.location.reload();
         this.newRule = { 
           Id:"",
@@ -690,6 +922,8 @@ export default {
         
       } catch (error) {
         console.error("Error creating Rule:", error);
+        this.errorMessage = "An error occurred. Please try again later.";
+        this.showErrorNotification = true;
       }
     },
   
@@ -712,7 +946,8 @@ export default {
 
           ExpireType:rule.ExpireType,
           ExpireTime:rule.validPeriod,
-          status: rule.status }
+          status: rule.status,
+          parameterTemplate: JSON.parse(rule.parameterTemplate) }
       this.showEditModal = true;
       this.showCreateModal = false; 
     },
@@ -729,7 +964,7 @@ export default {
 
       this.editingRule.DesignatedDays = JSON.stringify(transformedDays); // Store only `value` in DesignatedDays
       this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
-
+      this.editingRule.parameterTemplate = JSON.stringify(this.editingRule.parameterTemplate)
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -748,9 +983,11 @@ export default {
           this.rules.splice(index, 1, response.user);
         }
         // window.location.reload();
-        this.editingRule = null;
-        window.location.reload()
+        // this.editingRule = null;
+        // window.location.reload()
         this.closeModal();
+        this.rules()
+        window.location.reload()
       } catch (error) {
         console.error("Error updating rule:", error);
       }

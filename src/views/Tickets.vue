@@ -68,7 +68,6 @@
             Last
           </button>
         </div>
-
         <!-- Modals for Create and Edit -->
         <!-- Create Modal -->
         <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -175,6 +174,7 @@
       editingTicket: null,
       tickets: [],
       rules:[],
+      ruleType: [],
       operators: [],
       showCreateModal: false,
       showEditModal: false,
@@ -331,6 +331,8 @@
           console.error("Error fetching rules:", error);
       }
       },
+
+    
   async createTicket() {
       if (!this.validateForm(this.newTicket)) return; 
       const token = this.getAuthToken();
