@@ -341,6 +341,7 @@
                 v-model="editingRule.TicketType"
                 class="form-select block w-full px-4 py-2 border rounded-lg"
                 @change="loadParameterTemplate()"
+                disabled
               >
                 <option
                   v-for="ticket in ticketTypeList"

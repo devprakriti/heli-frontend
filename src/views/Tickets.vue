@@ -20,7 +20,7 @@
           <thead class="bg-gray-100">
             <tr>
               <th class="border px-4 py-2 text-left">Operate</th>
-              <!-- <th class="border px-4 py-2 text-left">Status</th> -->
+              <th class="border px-4 py-2 text-left">Status</th>
               <th class="border px-4 py-2 text-left">Username</th>
               <th class="border px-4 py-2 text-left">TradeId</th>
               <th class="border px-4 py-2 text-left">Coupon</th>
@@ -29,6 +29,7 @@
           </thead>
           <tbody>
             <tr v-for="(row, index) in tickets" :key="index" class="hover:bg-gray-50">
+            
               <td class="border px-4 py-2 text-center">
                 <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
               </td>
@@ -40,6 +41,15 @@
                   </div>
                 </label>
               </td> -->
+              <td class="border px-4 py-2 text-center"> 
+                <button
+                  :class="getStatusClass(row.Status)"
+                  class="px-4 py-2 rounded text-white"
+                >
+                  {{ getStatusText(row.Status) }}
+                </button>
+              </td>
+
               <td class="border px-4 py-2">{{ row.Username }}</td>
               <td class="border px-4 py-2">{{ row.TradeId }}</td>
               <td class="border px-4 py-2">{{ row.Coupon }}</td>
@@ -199,15 +209,38 @@
 
   },
   methods: {
-      getAuthToken() {
+    getStatusClass(status) {
+      console.log(status, 'status')
+      const statusClasses = {
+        0: "bg-gray-500",
+        1: "bg-brown-500", // Brown class (use tailwind shades or custom CSS)
+        2: "bg-yellow-500",
+        3: "bg-green-500",
+        4: "bg-red-500",
+        5: "bg-white text-black border border-gray-300",
+      };
+      return statusClasses[status] || "bg-gray-500";
+    },
+    getStatusText(status) {
+      const statusTexts = {
+        0: "CREATED",
+        1: "DRAW",
+        2: "PROCESSING",
+        3: "SUCCESS",
+        4: "FAILED",
+        5: "MANUAL",
+      };
+      return statusTexts[status] || "UNKNOWN";
+    },
+    getAuthToken() {
       const token = localStorage.getItem("authToken"); 
       if (!token) {
           console.error("Authorization token not found");
           return null;
       }
       return token;
-      },
-      validateForm(rule) {
+    },
+    validateForm(rule) {
       this.errors = {
           userId: null,
           ruleId:  null,
@@ -231,15 +264,15 @@
           this.errors.memo = "memo is required";
           isValid = false;
       }
-    //   if (!rule.operator) {
-    //       this.errors.operator = "operator is required";
-    //       isValid = false;
-    //   }
+      //   if (!rule.operator) {
+      //       this.errors.operator = "operator is required";
+      //       isValid = false;
+      //   }
       return isValid;
-      },
+    },
 
       // Fetch the list of rules (GET request)
-      async getTickets() {
+    async getTickets() {
       const token = this.getAuthToken();
       if (!token) return;
 
