@@ -21,6 +21,7 @@
             <tr>
               <th class="border px-4 py-2 text-left">Operate</th>
               <th class="border px-4 py-2 text-left">Status</th>
+              <th class="border px-4 py-2 text-left">Reward</th>
               <th class="border px-4 py-2 text-left">Username</th>
               <th class="border px-4 py-2 text-left">TradeId</th>
               <th class="border px-4 py-2 text-left">Coupon</th>
@@ -49,7 +50,9 @@
                   {{ getStatusText(row.Status) }}
                 </button>
               </td>
-
+              <td class="border px-4 py-2 text-center"> 
+                  {{ getRewardTypeText(row) }}
+              </td>
               <td class="border px-4 py-2">{{ row.Username }}</td>
               <td class="border px-4 py-2">{{ row.TradeId }}</td>
               <td class="border px-4 py-2">{{ row.Coupon }}</td>
@@ -209,15 +212,16 @@
 
   },
   methods: {
+    
     getStatusClass(status) {
       console.log(status, 'status')
       const statusClasses = {
         0: "bg-gray-500",
-        1: "bg-brown-500", // Brown class (use tailwind shades or custom CSS)
+        1: "bg-blue-500",
         2: "bg-yellow-500",
         3: "bg-green-500",
         4: "bg-red-500",
-        5: "bg-white text-black border border-gray-300",
+        5: "bg-orange-300",
       };
       return statusClasses[status] || "bg-gray-500";
     },
@@ -228,9 +232,49 @@
         2: "PROCESSING",
         3: "SUCCESS",
         4: "FAILED",
-        5: "MANUAL",
+        5: "MANUAL"
       };
       return statusTexts[status] || "UNKNOWN";
+    },
+    getRewardTypeText(status) {
+      const rewardTypeMap = {
+        0: "NO_WIN",
+        1: "POINT",
+        2: "CREDIT",
+        3: "PHYSICAL",
+        4: "SPIN_TICKET"
+      };
+      
+      const rewardTypeText = rewardTypeMap[status.RewardType] || " "; 
+      return status.RewardAmount ? `${status.RewardAmount} ${rewardTypeText}` : rewardTypeText;
+
+      // let rewardAmount = ''
+      // if(status.RewardAmount){
+      //   rewardAmount = status.RewardAmount
+      // }
+      // if(status.RewardType == 0){
+      //   return rewardAmount + " NO_WIN";
+      // }
+      // else if(status.RewardType == 1)
+      // {
+      //   return rewardAmount+ " POINT";
+      // }
+      // else if(status.RewardType == 2)
+      // {
+      //   return rewardAmount + " CREDIT";
+      // }
+      // else if(status.RewardType == 3)
+      // {
+      //   return rewardAmount + " PHYSICAL"; 
+      // }
+      // else if(status.RewardType == 4)
+      // {
+      //   return rewardAmount + " SPIN_TICKET";
+      // }
+      // else{
+      //   return " ";
+      // }
+      
     },
     getAuthToken() {
       const token = localStorage.getItem("authToken"); 
@@ -289,7 +333,9 @@
             offset: offset,
           },
         });
-
+        // "Reward": null,
+        // "RewardType": null,
+        // "RewardAmount": null,
         const { ticketList, totalCount, totalPages } = response.data;
         console.log('response',response)
         this.tickets = ticketList.map(ticket => ({
@@ -298,6 +344,9 @@
           RuleId: ticket.RuleId,
           Memo: ticket.Memo,
           TradeId: ticket.TradeId,
+          Reward: ticket.Reward,
+          RewardType: ticket.RewardType,
+          RewardAmount: ticket.RewardAmount,
           Coupon: ticket.Coupon,
           Operator: ticket.AddOperator,
           Status: ticket.Status
