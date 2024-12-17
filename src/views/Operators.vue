@@ -119,7 +119,76 @@
 
       <!-- Edit Operator Modal -->
       <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <!-- Set the width of the modal here, e.g., w-1/2 for half, w-3/4 for three-quarters width -->
+        <!-- Modal Content -->
+        <div class="bg-white p-8 rounded-lg shadow-lg w-3/4 md:w-1/2">
+          <h3 class="text-2xl font-bold mb-6 text-center">Reset Password</h3>
+          
+          <!-- Form -->
+          <form @submit.prevent="updateOperator" class="space-y-6">
+            
+            <!-- Old Password Input -->
+            <!-- <div>
+              <label for="oldPassword" class="block text-sm font-semibold text-gray-700">Old Password</label>
+              <input
+                v-model="editingOperator.oldPassword"
+                id="oldPassword"
+                type="password"
+                placeholder="Enter your old password"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring focus:ring-green-300"
+              />
+              <span v-if="errors.oldPassword" class="text-red-500 text-sm">{{ errors.oldPassword }}</span>
+            </div> -->
+
+            <!-- New Password Input -->
+            <div>
+              <label for="newPassword" class="block text-sm font-semibold text-gray-700">New Password</label>
+              <input
+                v-model="editingOperator.password"
+                id="newPassword"
+                type="password"
+                placeholder="Enter a new password"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring focus:ring-green-300"
+              />
+              <span v-if="errors.password" class="text-red-500 text-sm">{{ errors.password }}</span>
+            </div>
+
+            <!-- Confirm New Password Input (optional, for confirmation) -->
+            <div>
+              <label for="confirmPassword" class="block text-sm font-semibold text-gray-700">Confirm New Password</label>
+              <input
+                v-model="editingOperator.confirmPassword"
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your new password"
+                class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring focus:ring-green-300"
+                @input="validatePasswords"
+              />
+              <span v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4">
+              <button
+                type="button"
+                @click="closeModal"
+                class="bg-gray-600 text-white py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200"
+              >
+                Update Password
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+
+     <!-- <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
       <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
           <h3 class="text-2xl font-bold mb-4">Edit Operator</h3>
           <form @submit.prevent="updateOperator" class="space-y-4">
@@ -170,7 +239,7 @@
       </div>
           </form>
       </div>
-      </div>
+      </div> -->
       
     </div>
   </div>
@@ -189,7 +258,10 @@ data() {
       phone: "",
       status: 1,
     },
-    editingOperator: null,
+    editingOperator: {
+      password:"",
+      confirmPassword: ""
+    },
     operators: [],
     showCreateModal: false,
     showEditModal: false,
@@ -197,6 +269,8 @@ data() {
       username: null,
       email: null,
       phone: null,
+      password: null,
+      confirmPassword: null
     },
   };
 },
@@ -256,6 +330,7 @@ methods: {
       console.log('response',response)
       this.operators = response.data.userList.map((user) => ({
         id: user.id,
+        password: user.password,
         username: user.username,
         email: user.email,
         phone: user.phone,
@@ -295,41 +370,83 @@ async createOperator() {
   },
 
   openEditModal(operator) {
-    this.editingOperator = { ...operator };
+    console.log(operator, 'operator')
+    this.editingOperator = { 
+      id: operator.id
+    };
     this.showEditModal = true;
     this.showCreateModal = false; // Close Create Modal if open
   },
 
-async updateOperator() {
-    if (!this.validateForm(this.editingOperator)) return; 
-    const token = this.getAuthToken();
-    if (!token) return;
-    try {
-      const response = await axios.put(
-        `/api/users/update/${this.editingOperator.id}`,
-        this.editingOperator,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log('response',response)
-      const index = this.operators.findIndex((op) => op.id === this.editingOperator.id);
-      if (index !== -1) {
-        this.operators.splice(index, 1, response.user);
+  async updateOperator() {
+  this.errors = {};
+  if (!this.validatePasswords(this.editingOperator.password, this.editingOperator.confirmPassword)) {
+    return;
+  }
+  const token = this.getAuthToken();
+  if (!token) return;
+
+  try {
+    const payload = {
+      id: this.editingOperator.id,
+      password: this.editingOperator.password,
+    };
+
+    const response = await axios.put(
+      `/api/users/password-reset/${this.editingOperator.id}`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-      window.location.reload();
-      this.editingOperator = null;
-     
-      this.closeModal();
-    } catch (error) {
-      console.error("Error updating operator:", error);
+    );
+    if (response.success == false) 
+    {
+      alert('Failed to update');
+      return;
     }
+    alert('Profile updated successfully');
+    this.editingOperator = null;
+    this.showEditModal = false
+  } catch (error) {
+    console.error("Error updating operator:", error);
+
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message);
+    } else {
+      alert('An error occurred while updating the password. Please try again.');
+    }
+  }
 },
-  toggleStatus(operator) {
+
+
+validatePasswords(password, confirmPassword) {
+  this.errors = {};
+  if (!password) {
+    this.errors.password = 'Password is required.';
+    return false;
+  }
+  if (password.length < 8) {
+    this.errors.password = 'Password must be at least 8 characters long.';
+    return false;
+  }
+  // const passwordRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  // if (!passwordRequirements.test(password)) {
+  //   this.errors.password =
+  //     'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.';
+  //   return false;
+  // }
+  if (password !== confirmPassword) {
+    this.errors.confirmPassword = 'Passwords do not match.';
+    return false;
+  }
+  return true;
+},
+
+toggleStatus(operator) {
     operator.status = !operator.status; 
-  },
+},
 
   // Close the modals
   closeModal() {

@@ -82,7 +82,7 @@ export default {
         });
         if (response.data.token) {
           localStorage.setItem("authToken", response.data.token);
-
+          localStorage.setItem('authUser', JSON.stringify(response.data.data)); 
           this.$router.push("/dashboard");
           setTimeout(() => {
             window.location.reload(); 

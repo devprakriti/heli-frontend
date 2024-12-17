@@ -5,6 +5,28 @@
          <h3 class="text-2xl font-semibold mb-4">List of Accounts</h3>
       </nav>
     </div>
+    <!-- Filter Section -->
+  <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+    <div class="flex space-x-4 mb-4">
+      <!-- Date Range Filter -->
+      <div class="flex-1">
+        <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+        <input type="date" id="start-date" v-model="filters.fromTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+
+      <div class="flex-1">
+        <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+        <input type="date" id="end-date" v-model="filters.toTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+
+      <!-- Search Filter -->
+      <div class="flex-1">
+        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+        <input type="text" id="search" v-model="filters.Username" placeholder="Search by AccountId or Username or Account" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+  </div>
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
@@ -57,6 +79,12 @@ export default {
   data() {
     return {
       accounts: [],
+      filters: {
+        Username: '',
+        fromTime: '',
+        toTime: '',
+        search: ''
+      },
       currentPage: 1,
       pageSize: 10,
       totalPages: 0,
@@ -66,6 +94,9 @@ export default {
   },
 
   watch: {
+    'filters.toTime': 'getAccounts',
+    'filters.fromTime': 'getAccounts',
+    'filters.Username': 'getAccounts'
   },
   mounted() {
     this.getAccounts();
@@ -94,6 +125,9 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           params: {
+            Username: this.filters.Username,
+            fromTime: this.filters.fromTime,
+            toTime: this.filters.toTime,
             page: this.currentPage,
             pageSize: this.pageSize,
             offset: offset,

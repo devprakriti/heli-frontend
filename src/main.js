@@ -3,6 +3,11 @@ import App from './App.vue';
 import router from './router'; // <-- Import Tailwind CSS
 import './assets/tailwind.css';  // This imports your Tailwind CSS file
 import 'vue-multiselect/dist/vue-multiselect.min.css';
+import VueDatePicker from 'vue-datepicker';
+
+// Register the component globally
+
+
 // createApp(App).use(router).mount('#app');
 
 
@@ -21,6 +26,7 @@ library.add(faEdit, faTrash, faExchangeAlt)
 const app = createApp(App)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
+app.component('VueDatePicker', VueDatePicker)
 app.use(router).mount('#app')
 
 
