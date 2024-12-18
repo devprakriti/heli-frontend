@@ -112,7 +112,12 @@ export default {
         }
         return token;
     },
-  
+    goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.getAccounts();
+      }
+    },
     async getAccounts() {
       console.log('accout')
       const token = this.getAuthToken();
