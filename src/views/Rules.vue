@@ -6,6 +6,29 @@
          <h3 class="text-2xl font-semibold mb-4">List of Rules</h3>
       </nav>
     </div>
+      <!-- Filter Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+        <div class="flex space-x-4 mb-4">
+          <!-- Date Range Filter -->
+          <div class="flex-1">
+            <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+            <input type="date" id="start-date" v-model="filters.fromTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <div class="flex-1">
+            <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+            <input type="date" id="end-date" v-model="filters.toTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Search Filter -->
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <input type="text" id="search" v-model="filters.Username" placeholder="Search by Name or TicketType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+
       <!-- Table Section -->
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <!-- Plus Button -->
@@ -67,6 +90,27 @@
           </tr>
         </tbody>
       </table>
+       <!-- Pagination -->
+       <div class="mt-6 flex justify-center items-center space-x-2">
+          <button @click="goToPage(1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
+            First
+          </button>
+          
+          <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
+            Prev
+          </button>
+          
+          <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
+          
+          <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
+            Next
+          </button>
+  
+          <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
+            Last
+          </button>
+        </div>
+
 
       <!-- Create Modal -->
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -562,6 +606,12 @@ export default {
       activeTab: 'settings', 
       statisticalProcedureEnabled: false,
       memberDisplayEnabled: false,
+      filters: {
+        Username: '',
+        fromTime: '',
+        toTime: '',
+        search: ''
+      },
       newRule: {
         Id:"",
         Name: "",
@@ -615,6 +665,10 @@ export default {
       rules: [],
       showCreateModal: false,
       showEditModal: false,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 0,
+      totalCount: 0, 
       errors: { 
         username: null,
         email: null,
@@ -623,9 +677,12 @@ export default {
     };
   },
 
-
   watch: 
-    { 'newRule.TicketType': function (newVal) {
+    { 
+    'filters.toTime': 'getRules',
+    'filters.fromTime': 'getRules',
+    'filters.Username': 'getRules',
+    'newRule.TicketType': function (newVal) {
       console.log('newVal', newVal)
       this.loadParameterTemplate();
     },
@@ -661,8 +718,6 @@ export default {
     this.getRuleType();
   },
 
-
-
   computed: {
     selectedDaysValues() {
       return this.selectedDesignatedDays.map(day => day.value);
@@ -672,6 +727,13 @@ export default {
     },
   },
   methods: {
+     goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.getTickets();
+      }
+    },
+
     capitalizeFirstLetter(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   },
@@ -828,14 +890,24 @@ export default {
     async getRules() {
       const token = this.getAuthToken();
       if (!token) return; 
+      const offset = (this.currentPage - 1) * this.pageSize;
       try {
         const response = await axios.get("/api/spinwin/rules", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            Username: this.filters.Username,
+            fromTime: this.filters.fromTime,
+            toTime: this.filters.toTime,
+            page: this.currentPage,
+            pageSize: this.pageSize,
+            offset: offset,
+          },
         });
+        const { ruleList, totalCount, totalPages } = response.data;
         console.log('response',response)
-        this.rules = response.data.ruleList.map((rule) => ({
+        this.rules = ruleList.map((rule) => ({
           id: rule.Id,
           status: rule.Status,
           name: rule.Name,
@@ -850,6 +922,8 @@ export default {
           DesignatedDays: rule.DesignatedDays,
           parameterTemplate: rule.Template
         }));
+        this.totalCount = totalCount;
+        this.totalPages = totalPages;
       } catch (error) {
         console.error("Error fetching rules:", error);
       }

@@ -6,7 +6,28 @@
           <h3 class="text-2xl font-semibold mb-4">List of Tickets</h3>
         </nav>
       </div>
-      
+        <!-- Filter Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+        <div class="flex space-x-4 mb-4">
+          <!-- Date Range Filter -->
+          <div class="flex-1">
+            <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+            <input type="date" id="start-date" v-model="filters.fromTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <div class="flex-1">
+            <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+            <input type="date" id="end-date" v-model="filters.toTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Search Filter -->
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <input type="text" id="search" v-model="filters.Username" placeholder="Search by TradeId or Username or Coupon" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
       <!-- Table Section -->
       <div class="bg-white p-6 rounded-lg shadow-lg relative">
         <!-- Plus Button -->
@@ -189,6 +210,12 @@
       rules:[],
       ruleType: [],
       operators: [],
+      filters: {
+        Username: '',
+        fromTime: '',
+        toTime: '',
+        search: ''
+      },
       showCreateModal: false,
       showEditModal: false,
       currentPage: 1,
@@ -203,6 +230,12 @@
           operator: null
       },
       };
+  },
+
+  watch:{
+    'filters.toTime': 'getTickets',
+    'filters.fromTime': 'getTickets',
+    'filters.Username': 'getTickets'
   },
 
   mounted() {
@@ -244,37 +277,9 @@
         3: "PHYSICAL",
         4: "SPIN_TICKET"
       };
-      
       const rewardTypeText = rewardTypeMap[status.RewardType] || " "; 
       return status.RewardAmount ? `${status.RewardAmount} ${rewardTypeText}` : rewardTypeText;
 
-      // let rewardAmount = ''
-      // if(status.RewardAmount){
-      //   rewardAmount = status.RewardAmount
-      // }
-      // if(status.RewardType == 0){
-      //   return rewardAmount + " NO_WIN";
-      // }
-      // else if(status.RewardType == 1)
-      // {
-      //   return rewardAmount+ " POINT";
-      // }
-      // else if(status.RewardType == 2)
-      // {
-      //   return rewardAmount + " CREDIT";
-      // }
-      // else if(status.RewardType == 3)
-      // {
-      //   return rewardAmount + " PHYSICAL"; 
-      // }
-      // else if(status.RewardType == 4)
-      // {
-      //   return rewardAmount + " SPIN_TICKET";
-      // }
-      // else{
-      //   return " ";
-      // }
-      
     },
     getAuthToken() {
       const token = localStorage.getItem("authToken"); 
@@ -319,23 +324,21 @@
     async getTickets() {
       const token = this.getAuthToken();
       if (!token) return;
-
       const offset = (this.currentPage - 1) * this.pageSize;
-
       try {
         const response = await axios.get("/api/spinwin/tickets", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
+            Username: this.filters.Username,
+            fromTime: this.filters.fromTime,
+            toTime: this.filters.toTime,
             page: this.currentPage,
             pageSize: this.pageSize,
             offset: offset,
           },
         });
-        // "Reward": null,
-        // "RewardType": null,
-        // "RewardAmount": null,
         const { ticketList, totalCount, totalPages } = response.data;
         console.log('response',response)
         this.tickets = ticketList.map(ticket => ({
