@@ -17,6 +17,7 @@
               v-model="filters.fromTime" 
               :showIcon="true"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+               :maxDate="maxDate"
             />
           </div>
 
@@ -28,6 +29,7 @@
               v-model="filters.toTime" 
               :showIcon="true"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+               :minDate="filters.fromTime" :maxDate="maxDate"
             />
           </div>
 
@@ -106,7 +108,7 @@ export default {
       pageSize: 10,
       totalPages: 0,
       totalCount: 0, 
-      
+      maxDate: null
     };
   },
 
@@ -115,6 +117,22 @@ export default {
     'filters.fromTime': 'getAccounts',
     'filters.Username': 'getAccounts'
   },
+  created() {
+  try {
+      // Assign maxDate and ensure it's a Date object
+      this.maxDate = new Date(); // Replace with actual value if needed
+
+      if (this.maxDate instanceof Date && !isNaN(this.maxDate)) {
+        this.maxYear = this.maxDate.getFullYear();
+      } else {
+        throw new Error('Invalid Date');
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+      this.maxYear = 'Invalid Date';
+    }
+
+},
   mounted() {
     this.getAccounts();
   },

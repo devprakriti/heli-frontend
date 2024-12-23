@@ -13,22 +13,27 @@
           <!-- Date Range Filter (Start Date) -->
           <div class="flex-1">
             <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+           
+           
             <Calendar 
               id="start-date" 
               v-model="filters.fromTime" 
               :showIcon="true"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              :maxDate="maxDate" 
             />
           </div>
 
           <!-- Date Range Filter (End Date) -->
           <div class="flex-1">
             <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+          
             <Calendar 
               id="end-date" 
               v-model="filters.toTime" 
               :showIcon="true"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+              :minDate="filters.fromTime" :maxDate="maxDate"
             />
           </div>
 
@@ -192,7 +197,7 @@
 
 <script>
 import axios from "axios";
-
+import moment from 'moment';
 export default {
 name: "AdminTickets",
 data() {
@@ -238,19 +243,38 @@ data() {
         memo: null,
         operator: null
     },
+    
+    // maxDate: moment().format('YYYY-MM-DD'),
+    maxDate: null
     };
 },
 
 watch:{
   'filters.toTime': 'getTickets',
   'filters.fromTime': 'getTickets',
-  'filters.Username': 'getTickets'
+  'filters.Username': 'getTickets',
 },
 
 mounted() {
     this.getTickets();
     this.getRules();
     this.getOperators();
+
+},
+created() {
+  try {
+      // Assign maxDate and ensure it's a Date object
+      this.maxDate = new Date(); // Replace with actual value if needed
+
+      if (this.maxDate instanceof Date && !isNaN(this.maxDate)) {
+        this.maxYear = this.maxDate.getFullYear();
+      } else {
+        throw new Error('Invalid Date');
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+      this.maxYear = 'Invalid Date';
+    }
 
 },
 methods: {
