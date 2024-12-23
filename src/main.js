@@ -7,6 +7,8 @@ import 'vue-multiselect/dist/vue-multiselect.min.css';
 import Aura from '@primevue/themes/aura'
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
+import PanelMenu from 'primevue/panelmenu';
+
 // createApp(App).use(router).mount('#app');
 
 
@@ -27,8 +29,10 @@ app.use(PrimeVue,{
     theme:{
         preset: Aura
     }
-})
+});
+app.use(PanelMenu);
 app.use(ToastService);
+app.component('PanelMenu', PanelMenu);
 app.component('font-awesome-icon', FontAwesomeIcon)
 // app.component('VueDatePicker', VueDatePicker)
 app.use(router).mount('#app')

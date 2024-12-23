@@ -6,27 +6,44 @@
       </nav>
     </div>
     <!-- Filter Section -->
-  <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-    <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
-    <div class="flex space-x-4 mb-4">
-      <!-- Date Range Filter -->
-      <div class="flex-1">
-        <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
-        <input type="date" id="start-date" v-model="filters.fromTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-      </div>
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+        <div class="flex space-x-4 mb-4">
+          <!-- Date Range Filter (Start Date) -->
+          <div class="flex-1">
+            <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+            <Calendar 
+              id="start-date" 
+              v-model="filters.fromTime" 
+              :showIcon="true"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
 
-      <div class="flex-1">
-        <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
-        <input type="date" id="end-date" v-model="filters.toTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-      </div>
+          <!-- Date Range Filter (End Date) -->
+          <div class="flex-1">
+            <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+            <Calendar 
+              id="end-date" 
+              v-model="filters.toTime" 
+              :showIcon="true"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
 
-      <!-- Search Filter -->
-      <div class="flex-1">
-        <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-        <input type="text" id="search" v-model="filters.Username" placeholder="Search by AccountId or Username or Account" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
-      </div>
-    </div>
-  </div>
+          <!-- Search Filter -->
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Username" 
+              placeholder="Search by TradeId or Username or Coupon" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+        </div>
+     </div>
+      
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
@@ -157,3 +174,32 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+table {
+  border-spacing: 0;
+}
+
+th, td {
+  color: #333333; 
+}
+
+th {
+  background-color: #f3f4f6;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb; 
+}
+
+button {
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+</style>

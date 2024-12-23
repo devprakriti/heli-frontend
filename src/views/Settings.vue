@@ -268,3 +268,32 @@ export default {
 };
 </script>
 
+
+<style scoped>
+table {
+  border-spacing: 0;
+}
+
+th, td {
+  color: #333333; 
+}
+
+th {
+  background-color: #f3f4f6;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb; 
+}
+
+button {
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+</style>
