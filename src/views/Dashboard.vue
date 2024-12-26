@@ -4,7 +4,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Card 1 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkOperator">
         <template #header>
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold">Operators</h3>
@@ -20,7 +20,7 @@
       </p-card>
 
       <!-- Card 2 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkAccounts">
         <template #header>
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold">Accounts</h3>
@@ -36,7 +36,7 @@
       </p-card>
 
       <!-- Card 3 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkRules">
         <template #header>
           <div class="flex justify-between items-center">
             <h3 class="text-lg font-semibold">Rules</h3>
@@ -79,6 +79,15 @@ export default {
     this.getAccounts()
   },
   methods:{
+    goToLinkOperator() {
+      window.location.href = '/operators'; // Replace with your desired URL
+    },
+    goToLinkAccounts() {
+      window.location.href = '/accounts'; // Replace with your desired URL
+    },
+    goToLinkRules() {
+      window.location.href = '/rules'; // Replace with your desired URL
+    },
     getAuthToken() {
         const token = localStorage.getItem("authToken"); 
         if (!token) {
