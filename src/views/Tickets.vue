@@ -8,7 +8,7 @@
     </div>
       <!-- Filter Section -->
       <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+        <h3 class="text-xl font-semibold mb-4">Filter Tickets</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
           <div class="flex-1">
@@ -61,20 +61,26 @@
       <table class="min-w-full table-auto border-collapse border border-gray-200">
       <thead class="bg-gray-100">
         <tr>
-          <th class="border px-4 py-2 text-left text-gray-800">Operate</th>
-          <th class="border px-4 py-2 text-left text-gray-800">Status</th>
-          <th class="border px-4 py-2 text-left text-gray-800">Reward</th>
+          <th class="border px-4 py-2 text-left text-gray-800">S.N</th>
           <th class="border px-4 py-2 text-left text-gray-800">Username</th>
+          <th class="border px-4 py-2 text-left text-gray-800">Reward</th>
           <th class="border px-4 py-2 text-left text-gray-800">TradeId</th>
           <th class="border px-4 py-2 text-left text-gray-800">Coupon</th>
           <th class="border px-4 py-2 text-left text-gray-800">Operator</th>
+          <th class="border px-4 py-2 text-left text-gray-800">Status</th>
+          <th class="border px-4 py-2 text-left text-gray-800">Action</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(row, index) in tickets" :key="index" class="hover:bg-gray-50">
-          <td class="border px-4 py-2 text-center">
-            <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
+          <td class="border px-4 py-2 text-gray-800">{{ index+1 }}</td>
+          <td class="border px-4 py-2 text-gray-800">{{ row.Username }}</td>
+          <td class="border px-4 py-2 text-center"> 
+            {{ getRewardTypeText(row) }}
           </td>
+          <td class="border px-4 py-2 text-gray-800">{{ row.TradeId }}</td>
+          <td class="border px-4 py-2 text-gray-800">{{ row.Coupon }}</td>
+          <td class="border px-4 py-2 text-gray-800">{{ row.Operator }}</td>
           <td class="border px-4 py-2 text-center"> 
             <button
               :class="getStatusClass(row.Status)"
@@ -83,13 +89,16 @@
               {{ getStatusText(row.Status) }}
             </button>
           </td>
-          <td class="border px-4 py-2 text-center"> 
-            {{ getRewardTypeText(row) }}
+          <td class="border px-4 py-2 text-center">
+            <Button
+                  icon="pi pi-pencil"
+                  class="p-button-text text-blue-500"
+                  @click="openEditModal(row)"
+                  label="Edit"
+                />
+                
           </td>
-          <td class="border px-4 py-2 text-gray-800">{{ row.Username }}</td>
-          <td class="border px-4 py-2 text-gray-800">{{ row.TradeId }}</td>
-          <td class="border px-4 py-2 text-gray-800">{{ row.Coupon }}</td>
-          <td class="border px-4 py-2 text-gray-800">{{ row.Operator }}</td>
+          
         </tr>
       </tbody>
     </table>

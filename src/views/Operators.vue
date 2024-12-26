@@ -18,22 +18,22 @@
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
-            <th class="border px-4 py-2 text-left">Operate</th>
-            <th class="border px-4 py-2 text-left">Status</th>
+            <th class="border px-4 py-2 text-left">S.N</th>
             <th class="border px-4 py-2 text-left">Username</th>
             <th class="border px-4 py-2 text-left">Email</th>
             <th class="border px-4 py-2 text-left">Phone</th>
+            <th class="border px-4 py-2 text-left">Status</th>
+            <th class="border px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
           <tr  v-for="(row, index) in operators" :key="index" class="hover:bg-gray-50">
+            <td class="border px-4 py-2">{{ index+1 }}</td>
+            <td class="border px-4 py-2">{{ row.username }}</td>
+            <td class="border px-4 py-2">{{ row.email }}</td>
+            <td class="border px-4 py-2">{{ row.phone }}</td>
             <td class="border px-4 py-2 text-center">
-              <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
-            </td>
-            <td class="border px-4 py-2 text-center">
-              
               <label class="flex items-center justify-center cursor-pointer">
-                
                   <input type="checkbox" v-model="row.status" class="sr-only"
                   @click= "toggleStatus(row)"  :checked="row.status"
                   >
@@ -53,11 +53,16 @@
                   ></span>
                 </div>
               </label>
-              
             </td>
-            <td class="border px-4 py-2">{{ row.username }}</td>
-            <td class="border px-4 py-2">{{ row.email }}</td>
-            <td class="border px-4 py-2">{{ row.phone }}</td>
+            <td class="border px-4 py-2 text-center">
+                <Button
+                  icon="pi pi-pencil"
+                  class="p-button-text text-blue-500"
+                  @click="openEditModal(row)"
+                  label="Edit"
+                />
+            </td>
+            
           </tr>
         </tbody>
       </table>

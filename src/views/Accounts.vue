@@ -54,7 +54,6 @@
             <th class="border px-4 py-2 text-left">AccountId</th>
             <th class="border px-4 py-2 text-left">Account</th>
             <th class="border px-4 py-2 text-left">Username</th>
-            <th class="border px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -65,34 +64,7 @@
             <td class="border px-4 py-2">{{ account.AccountId }}</td>
             <td class="border px-4 py-2">{{ account.Account }}</td>
             <td class="border px-4 py-2">{{ account.Username }}</td>
-            <td class="border px-4 py-2"> 
-              <Button
-                icon="pi pi-eye"
-                class="p-button-text text-blue-500"
-                @click="toggleDetails(account.AccountId)"
-                label="View"
-              />
-          </td>
-    
           </tr>
-          <tr v-if="expandedAccountId === account.AccountId">
-          <td colspan="5" class="border px-4 py-2">
-            <table class="min-w-full table-auto border-collapse border border-gray-300">
-              <thead class="bg-gray-200">
-                <tr>
-                  <th class="border px-4 py-2 text-left">Detail Name</th>
-                  <th class="border px-4 py-2 text-left">Detail Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(value, key) in account.details" :key="key">
-                  <td class="border px-4 py-2">{{ key }}</td>
-                  <td class="border px-4 py-2">{{ value }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
         </template>
         </tbody>
       </table>
@@ -168,11 +140,7 @@ export default {
   computed: {
   },
   methods: {
-    toggleDetails(accountId) {
-      console.log('accountId',accountId)
-      this.expandedAccountId =
-        this.expandedAccountId === accountId ? null : accountId;
-    },
+   
     getAuthToken() {
         const token = localStorage.getItem("authToken"); 
         if (!token) {

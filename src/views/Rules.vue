@@ -9,7 +9,7 @@
       <!-- Filter Section -->
           <!-- Filter Section -->
       <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
+        <h3 class="text-xl font-semibold mb-4">Filter Rules</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
           <div class="flex-1">
@@ -62,19 +62,19 @@
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
-            <th class="border px-4 py-2 text-left">Operate</th>
-            <th class="border px-4 py-2 text-left">Status</th>
+            <th class="border px-4 py-2 text-left">S.N</th>
             <th class="border px-4 py-2 text-left">Name</th>
             <th class="border px-4 py-2 text-left">Type of Condition</th>
+            <th class="border px-4 py-2 text-left">Status</th>
             <th class="border px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
           <template v-for="(row, index) in rules" :key="index">
             <tr class="hover:bg-gray-50">
-              <td class="border px-4 py-2 text-center">
-                <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
-              </td>
+              <td class="border px-4 py-2">{{ index+1 }}</td>
+              <td class="border px-4 py-2">{{ row.name }}</td>
+              <td class="border px-4 py-2">{{ row.type }}</td>
               <td class="border px-4 py-2 text-center">
                 <label class="flex items-center justify-center cursor-pointer">
                   <input
@@ -101,9 +101,14 @@
                   </div>
                 </label>
               </td>
-              <td class="border px-4 py-2">{{ row.name }}</td>
-              <td class="border px-4 py-2">{{ row.type }}</td>
               <td class="border px-4 py-2">
+                <Button
+                  icon="pi pi-pencil"
+                  class="p-button-text text-blue-500"
+                  @click="openEditModal(row)"
+                  label="Edit"
+                />
+
                 <Button
                   icon="pi pi-eye"
                   class="p-button-text text-blue-500"
