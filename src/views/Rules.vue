@@ -66,49 +66,77 @@
             <th class="border px-4 py-2 text-left">Status</th>
             <th class="border px-4 py-2 text-left">Name</th>
             <th class="border px-4 py-2 text-left">Type of Condition</th>
-            <th class="border px-4 py-2 text-left">Issue Time</th>
-            <th class="border px-4 py-2 text-left">Issue Threshold Amount</th>
-            <th class="border px-4 py-2 text-left">Sheets</th>
-            <th class="border px-4 py-2 text-left">Valid Period</th>
+            <th class="border px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in rules" :key="index" class="hover:bg-gray-50">
-            <td class="border px-4 py-2 text-center">
-              <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
-            </td>
-            <td class="border px-4 py-2 text-center">
-              
-              <label class="flex items-center justify-center cursor-pointer">
-                
-                  <input type="checkbox" v-model="row.status" class="sr-only"
-                  @click= "toggleStatus(row)"  :checked="row.status"
-                  >
-                <div
-                  :class="{
-                    'bg-blue-500': row.status,
-                    'bg-gray-300': !row.status
-                  }"
-                  class="relative inline-block h-6 w-12 rounded-full"
-                >
-                  <span
+          <template v-for="(row, index) in rules" :key="index">
+            <tr class="hover:bg-gray-50">
+              <td class="border px-4 py-2 text-center">
+                <button @click="openEditModal(row)" class="text-blue-500 hover:underline">✏️</button>
+              </td>
+              <td class="border px-4 py-2 text-center">
+                <label class="flex items-center justify-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    v-model="row.status"
+                    class="sr-only"
+                    @click="toggleStatus(row)"
+                    :checked="row.status"
+                  />
+                  <div
                     :class="{
-                      'translate-x-6': row.status,
-                      'translate-x-1': !row.status
+                      'bg-blue-500': row.status,
+                      'bg-gray-300': !row.status
                     }"
-                    class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                  ></span>
-                </div>
-              </label>
-              
-            </td>
-            <td class="border px-4 py-2">{{ row.name }}</td>
-            <td class="border px-4 py-2">{{ row.type }}</td>
-            <td class="border px-4 py-2">{{ row.issueTime }}</td>
-            <td class="border px-4 py-2">{{ row.issueThresholdAmount }}</td>
-            <td class="border px-4 py-2">{{ row.sheets }}</td>
-            <td class="border px-4 py-2">{{ row.validPeriod }}</td>
-          </tr>
+                    class="relative inline-block h-6 w-12 rounded-full"
+                  >
+                    <span
+                      :class="{
+                        'translate-x-6': row.status,
+                        'translate-x-1': !row.status
+                      }"
+                      class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
+                    ></span>
+                  </div>
+                </label>
+              </td>
+              <td class="border px-4 py-2">{{ row.name }}</td>
+              <td class="border px-4 py-2">{{ row.type }}</td>
+              <td class="border px-4 py-2">
+                <Button
+                  icon="pi pi-eye"
+                  class="p-button-text text-blue-500"
+                  @click="toggleDetails(row.id)"
+                  label="View"
+                />
+              </td>
+            </tr>
+            <tr v-if="expandedRuleId === row.id">
+              <td colspan="5" class="border px-4 py-2 bg-gray-50">
+                <table class="w-11/12 mx-auto border-collapse border border-gray-400 rounded-md shadow-sm bg-gray-100">
+                  <thead class="bg-blue-200">
+                    <tr>
+                      <th class="border px-4 py-2 text-left">Issue Frequency</th>
+                      <th class="border px-4 py-2 text-left">Ticket Amount</th>
+                      <th class="border px-4 py-2 text-left">Designated Date</th>
+                      <th class="border px-4 py-2 text-left">Designated Days</th>
+                      <th class="border px-4 py-2 text-left">Expire Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="border px-4 py-2">{{ row.issueTime }}</td>
+                      <td class="border px-4 py-2">{{ row.issueThresholdAmount }}</td>
+                      <td class="border px-4 py-2">{{ row.DesignatedDate }}</td>
+                      <td class="border px-4 py-2">{{ row.DesignatedDays }}</td>
+                      <td class="border px-4 py-2">{{ row.validPeriod }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
        <!-- Pagination -->
@@ -271,19 +299,10 @@
                 <label class="inline-flex items-center">
                   <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
                   <span class="ml-2">Designated Date</span>
-                </label>
-                <multiselect
-                  v-if="designatedDateSelected"
-                  v-model="selectedDesignatedDates"
-                  :options="dateOptions"
-                  :multiple="true"
-                  :close-on-select="false"
-                  placeholder="Select Dates"
-                  label="label"
-                  track-by="value"
-                  class="block w-full mt-2"
-                />
+                </label> 
+                  <MultiSelect v-if="designatedDateSelected" v-model="selectedDesignatedDates" :options="dateOptions" optionLabel="name" filter placeholder="Select Date":maxSelectedLabels="10" class="block w-full mt-2"/>
               </div>
+              
 
               <!-- Designated Weekday -->
               <div>
@@ -291,17 +310,7 @@
                   <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
                   <span class="ml-2">Designated Weekday</span>
                 </label>
-                <multiselect
-                  v-if="designatedWeekdaySelected"
-                  v-model="selectedDesignatedDays"
-                  :options="weekdayOptions"
-                  :multiple="true"
-                  :close-on-select="false"
-                  placeholder="Select Weekdays"
-                  label="label"
-                  track-by="value"
-                  class="block w-full mt-2"
-                />
+                <MultiSelect v-if="designatedWeekdaySelected" v-model="selectedDesignatedDays" :options="weekdayOptions" optionLabel="name" filter placeholder="Select Weekdays":maxSelectedLabels="10" class="block w-full mt-2"/>
               </div>
             
             </div>
@@ -515,17 +524,9 @@
                   <input type="checkbox" v-model="designatedDateSelected" class="form-checkbox" />
                   <span class="ml-2">Designated Date</span>
                 </label>
-                <multiselect
-                  v-if="designatedDateSelected"
-                  v-model="editingRule.DesignatedDate"
-                  :options="dateOptions"
-                  :multiple="true"
-                  :close-on-select="false"
-                  placeholder="Select Dates"
-                  label="label"
-                  track-by="value"
-                  class="block w-full mt-2"
-                />
+                
+                <MultiSelect v-if="editingRule.DesignatedDate" v-model="editingRule.DesignatedDate" :options="dateOptions" optionLabel="name" filter placeholder="Select Date":maxSelectedLabels="10" class="block w-full mt-2"/>
+
               </div>
 
               <div>
@@ -533,17 +534,7 @@
                   <input type="checkbox" v-model="designatedWeekdaySelected" class="form-checkbox" />
                   <span class="ml-2">Designated Weekday</span>
                 </label>
-                <multiselect
-                  v-if="designatedWeekdaySelected"
-                  v-model="editingRule.DesignatedDays"
-                  :options="weekdayOptions"
-                  :multiple="true"
-                  :close-on-select="false"
-                  placeholder="Select Weekdays"
-                  value="label"
-                  track-by="value"
-                  class="block w-full mt-2"
-                />
+                <MultiSelect v-if="designatedWeekdaySelected" v-model="editingRule.DesignatedDays" :options="weekdayOptions" optionLabel="name" filter placeholder="Select Date":maxSelectedLabels="10" class="block w-full mt-2"/>
               </div>
             </div>
 
@@ -658,16 +649,19 @@ export default {
       designatedDates: [], 
       selectedWeekdays: [],
       selectedDates: [], 
-      showErrorNotification: false,
-      dateOptions: Array.from({ length: 31 }, (_, i) => ({ value: i + 1, label: `Day ${i + 1}` })), 
+      showErrorNotification: false, 
+      dateOptions: Array.from({ length: 31 }, (_, i) => ({
+        code: i + 1,
+        name: `Day ${i + 1}`,
+      })),
       weekdayOptions: [
-        { value: 1, label: 'Monday' },
-        { value: 2, label: 'Tuesday' },
-        { value: 3, label: 'Wednesday' },
-        { value: 4, label: 'Thursday' },
-        { value: 5, label: 'Friday' },
-        { value: 6, label: 'Saturday' },
-        { value: 7, label: 'Sunday' },
+        { code: 1, name: 'Monday' },
+        { code: 2, name: 'Tuesday' },
+        { code: 3, name: 'Wednesday' },
+        { code: 4, name: 'Thursday' },
+        { code: 5, name: 'Friday' },
+        { code: 6, name: 'Saturday' },
+        { code: 7, name: 'Sunday' },
       ],
       isReadOnly: true,
       editingRule: {
@@ -695,7 +689,9 @@ export default {
         email: null,
         phone: null,
       },
-      maxDate: null
+      maxDate: null,
+      expandedRuleId: null,
+      selectedCities: [],
     };
   },
 
@@ -736,9 +732,7 @@ export default {
   },
   created() {
   try {
-      // Assign maxDate and ensure it's a Date object
-      this.maxDate = new Date(); // Replace with actual value if needed
-
+      this.maxDate = new Date();
       if (this.maxDate instanceof Date && !isNaN(this.maxDate)) {
         this.maxYear = this.maxDate.getFullYear();
       } else {
@@ -758,13 +752,19 @@ export default {
 
   computed: {
     selectedDaysValues() {
-      return this.selectedDesignatedDays.map(day => day.value);
+      return this.selectedDesignatedDays.map(day => day.code);
     },
     selectedDatesValues() {
-      return this.selectedDesignatedDates.map(date => date.value);
+      return this.selectedDesignatedDates.map(date => date.code);
     },
   },
   methods: {
+    toggleDetails(ruleId) {
+      console.log('ruleId',ruleId)
+      this.expandedRuleId =
+        this.expandedRuleId === ruleId ? null : ruleId;
+    },
+
      goToPage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
@@ -952,12 +952,12 @@ export default {
           type: rule.TicketType,
           issueTime: this.getIssueFrequencyLabel(rule.IssueFrequency),
           IssueFrequency: rule.IssueFrequency,
-          issueThresholdAmount: rule.TicketAmount,
+          issueThresholdAmount:rule.TicketAmount,
           sheets: 0,
           validPeriod: rule.ExpireTime,
           ExpireType:rule.ExpireType,
           DesignatedDate: rule.DesignatedDate,
-          DesignatedDays: rule.DesignatedDays,
+          DesignatedDays:  rule.DesignatedDays,
           parameterTemplate: rule.Template
         }));
         this.totalCount = totalCount;
@@ -1042,20 +1042,30 @@ export default {
   
     openEditModal(rule) {
       console.log('rule',rule)
+      const designatedDate = rule.DesignatedDate 
+        ? JSON.parse(rule.DesignatedDate) // Parse JSON string into an array
+        : [];
+      
+      const designatedDays = rule.DesignatedDays 
+        ? JSON.parse(rule.DesignatedDays) // Parse JSON string into an array
+        : [];
+      console.log('designatedDays',designatedDays,designatedDate)
       this.editingRule = { 
           Id:rule.id,
           Name: rule.name,
           TicketType: rule.type,
           TicketAmount: rule.issueThresholdAmount,
           IssueFrequency: rule.IssueFrequency,
-          DesignatedDate:this.dateOptions.filter((o) => {
-            const parsedDate = rule.DesignatedDate ? JSON.parse(rule.DesignatedDate) : [];
-            return Array.isArray(parsedDate) && parsedDate.includes(o.value);
-          }),
-          DesignatedDays:this.weekdayOptions.filter((o) => {
-            const parsedDay = rule.DesignatedDays ? JSON.parse(rule.DesignatedDays) : [];
-            return Array.isArray(parsedDay) && parsedDay.includes(o.value);
-          }),
+          DesignatedDate: designatedDate.map(d=>({
+            code: d,
+            name: `Day ${d}`
+          })),
+          // DesignatedDays: designatedDays.map(day => ({
+          //   code: day,
+          //   name: this.weekdayOptions[day], 
+          // })),
+          // this.weekdays.filter(day => this.selectedDays.includes(day.code))
+          DesignatedDays:this.weekdayOptions.filter(day => designatedDays.includes(day.code)),
 
           ExpireType:rule.ExpireType,
           ExpireTime:rule.validPeriod,
@@ -1066,16 +1076,14 @@ export default {
     },
 
    async updateRule() {
-      // if (!this.validateForm(this.editingRule)) return; // Validate before proceeding
-      
       const transformedDates = this.editingRule.DesignatedDate.map(item => {
-        return parseInt(item.value);
+        return parseInt(item.code);
       });
       const transformedDays = this.editingRule.DesignatedDays.map(item => {
-        return parseInt(item.value);
+        return parseInt(item.code);
       });
 
-      this.editingRule.DesignatedDays = JSON.stringify(transformedDays); // Store only `value` in DesignatedDays
+      this.editingRule.DesignatedDays = JSON.stringify(transformedDays);
       this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
       this.editingRule.parameterTemplate = JSON.stringify(this.editingRule.parameterTemplate)
       const token = this.getAuthToken();
@@ -1099,8 +1107,9 @@ export default {
         // this.editingRule = null;
         // window.location.reload()
         this.closeModal();
-        this.rules()
         window.location.reload()
+        this.rules()
+        
       } catch (error) {
         console.error("Error updating rule:", error);
       }

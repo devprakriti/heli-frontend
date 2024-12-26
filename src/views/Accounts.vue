@@ -54,17 +54,46 @@
             <th class="border px-4 py-2 text-left">AccountId</th>
             <th class="border px-4 py-2 text-left">Account</th>
             <th class="border px-4 py-2 text-left">Username</th>
+            <th class="border px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr  v-for="account,key in accounts"
-          :key="account.Id" class="hover:bg-gray-50">
+          <template v-for="(account, key) in accounts" :key="account.Id">
+          <tr class="hover:bg-gray-50">
             
             <td class="border px-4 py-2">{{ key+1 }}</td>
             <td class="border px-4 py-2">{{ account.AccountId }}</td>
             <td class="border px-4 py-2">{{ account.Account }}</td>
             <td class="border px-4 py-2">{{ account.Username }}</td>
+            <td class="border px-4 py-2"> 
+              <Button
+                icon="pi pi-eye"
+                class="p-button-text text-blue-500"
+                @click="toggleDetails(account.AccountId)"
+                label="View"
+              />
+          </td>
+    
           </tr>
+          <tr v-if="expandedAccountId === account.AccountId">
+          <td colspan="5" class="border px-4 py-2">
+            <table class="min-w-full table-auto border-collapse border border-gray-300">
+              <thead class="bg-gray-200">
+                <tr>
+                  <th class="border px-4 py-2 text-left">Detail Name</th>
+                  <th class="border px-4 py-2 text-left">Detail Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(value, key) in account.details" :key="key">
+                  <td class="border px-4 py-2">{{ key }}</td>
+                  <td class="border px-4 py-2">{{ value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        </template>
         </tbody>
       </table>
        <!-- Pagination -->
@@ -92,6 +121,7 @@
 </template>
 
 <script>
+import 'primeicons/primeicons.css'; // Import PrimeIcons
 import axios from "axios";
 export default {
   name: 'AdminSettings',
@@ -108,7 +138,8 @@ export default {
       pageSize: 10,
       totalPages: 0,
       totalCount: 0, 
-      maxDate: null
+      maxDate: null,
+      expandedAccountId: null,
     };
   },
 
@@ -119,9 +150,7 @@ export default {
   },
   created() {
   try {
-      // Assign maxDate and ensure it's a Date object
-      this.maxDate = new Date(); // Replace with actual value if needed
-
+      this.maxDate = new Date(); 
       if (this.maxDate instanceof Date && !isNaN(this.maxDate)) {
         this.maxYear = this.maxDate.getFullYear();
       } else {
@@ -139,6 +168,11 @@ export default {
   computed: {
   },
   methods: {
+    toggleDetails(accountId) {
+      console.log('accountId',accountId)
+      this.expandedAccountId =
+        this.expandedAccountId === accountId ? null : accountId;
+    },
     getAuthToken() {
         const token = localStorage.getItem("authToken"); 
         if (!token) {
