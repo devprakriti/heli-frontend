@@ -1,12 +1,13 @@
 <template>
-  <div class="flex h-screen justify-center items-center bg-gray-100">
+  <div v-if="!isAuthenticated" class="flex h-screen justify-center items-center bg-gray-100">
+   
     <div v-if="loading" class="flex justify-center items-center h-full">
       <div class="text-center">
         <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
         <p class="text-xl mt-2">Processing...</p>
       </div>
     </div>
-
+      
     <form v-else @submit.prevent="login" class="bg-white p-8 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
 
@@ -58,8 +59,13 @@ export default {
       errorMessage: "",
       emailError: false,
       passwordError: false,
-      loading: false,  // Add loading state
+      loading: false
     };
+  },
+  computed: {
+    isAuthenticated() {
+      return !!localStorage.getItem("authToken");
+    },
   },
   methods: {
     validateForm() {
@@ -93,6 +99,7 @@ export default {
           this.errorMessage = "Login failed. Please check your credentials.";
         }
       } catch (error) {
+        console.log('error',error)
         // Handle login error (e.g., server down, invalid credentials)
         this.loading = false;  // Stop loading
         this.errorMessage = error.response?.data?.message || "An error occurred during login.";

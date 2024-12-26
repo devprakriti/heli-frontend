@@ -10,7 +10,7 @@ import Test from '@/views/Test.vue';
 
 
 const routes = [
-  { path: '/', redirect: '/login' }, // This ensures that visiting '/' redirects to the login page
+  { path: '/', redirect: '/dashboard' }, // This ensures that visiting '/' redirects to the login page
   { path: '/login', name: 'Login', component: AdminLogin }, // Login page route
   { 
     path: '/dashboard',

@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="min-h-screen flex flex-col">
+   
     <header v-if="isAuthenticated && !loading" class="bg-blue-600 text-white p-4 flex justify-between items-center">
       <div class="flex items-center space-x-4">
         <button class="text-white bg-blue-500 p-2 rounded hover:bg-blue-400" @click="toggleSidebar">
