@@ -17,13 +17,13 @@
 
       <div class="mb-4">
         <input
-          v-model="email"
+          v-model="username"
           type="text"
-          placeholder="Email"
+          placeholder="Username"
           class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-          :class="{'border-red-500': emailError}"
+          :class="{'border-red-500': usernameError}"
         />
-        <p v-if="emailError" class="text-red-500 text-sm">Email is required</p>
+        <p v-if="usernameError" class="text-red-500 text-sm">username is required</p>
       </div>
 
       <div class="mb-6">
@@ -54,10 +54,10 @@ export default {
   name: "AdminLogin",
   data() {
     return {
-      email: "",
+      username: "",
       password: "",
       errorMessage: "",
-      emailError: false,
+      usernameError: false,
       passwordError: false,
       loading: false
     };
@@ -69,9 +69,9 @@ export default {
   },
   methods: {
     validateForm() {
-      this.emailError = !this.email;
+      this.usernameError = !this.username;
       this.passwordError = !this.password;
-      return !this.emailError && !this.passwordError;
+      return !this.usernameError && !this.passwordError;
     },
     async login() {
       this.errorMessage = "";
@@ -83,7 +83,7 @@ export default {
 
       try {
         const response = await axios.post('/api/auth/login', {
-          email: this.email,
+          username: this.username,
           password: this.password,
         });
         if (response.data.token) {

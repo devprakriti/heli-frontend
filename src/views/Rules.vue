@@ -56,16 +56,8 @@
         </div>
         <div class="flex space-x-4 mb-4">
           <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search By TicketType</label>
-            
-
-        <!-- <Select v-model="filters.TicketType" :options="ticketTypeList" optionLabel="Type" placeholder="Select a TicketType" @change="loadTicketFilter()"  :highlightOnSelect="false" /> -->
-  
-
-         
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By TicketType</label>   
             <Select v-model="filters.TicketType"  :options="ticketTypeList" showClear optionLabel="Type" placeholder="Select a TicketType" fluid />
-
-            
           </div>
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>

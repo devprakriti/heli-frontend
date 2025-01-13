@@ -36,17 +36,11 @@
               :minDate="filters.fromTime" :maxDate="maxDate"
             />
           </div>
-
-          <!-- Search Filter 
           <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-            <InputText 
-              id="search" 
-              v-model="filters.Username" 
-              placeholder="Search by TradeId or Username or Coupon" 
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
-            />
-          </div> -->
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
+            <Select v-model="filters.Status"  :options="statusTexts" showClear optionLabel="label" placeholder="Select a Status" fluid />
+            
+          </div>
         </div>
         <div class="flex space-x-4 mb-4">
           <div class="flex-1">
@@ -73,6 +67,15 @@
               id="search" 
               v-model="filters.Coupon" 
               placeholder="Search by Coupon" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by Operator</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Operator" 
+              placeholder="Search by Operator" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
             />
           </div>
@@ -247,7 +250,15 @@ data() {
         memo: "",
         operator: ""
     },
-    daysInMonth: Array.from({ length: 31 }, (_, i) => i + 1), 
+    daysInMonth: Array.from({ length: 31 }, (_, i) => i + 1),
+    statusTexts:[
+      {value: 0, label: "CREATED"},
+      {value: 1, label: "DRAW"},
+      {value: 2, label: "PROCESSING"},
+      {value: 3, label: "SUCCESS"},
+      {value: 4, label:"FAILED"},
+      {value: 5, label: "MANUAL"}
+    ],
     daysOfWeek: [
         { value: 1, label: 'Sunday' },
         { value: 2, label: 'Monday' },
@@ -266,6 +277,8 @@ data() {
       Username: '',
       TradeId: '',
       Coupon: '',
+      Operator:'',
+      Status: '',
       fromTime: '',
       toTime: '',
       search: ''
@@ -293,8 +306,10 @@ watch:{
   'filters.toTime': 'getTickets',
   'filters.fromTime': 'getTickets',
   'filters.Username': 'getTickets',
+  'filters.Status': 'getTickets',
   'filters.TradeId': 'getTickets',
   'filters.Coupon': 'getTickets',
+  'filters.Operator': 'getTickets'
 },
 
 mounted() {
@@ -305,9 +320,7 @@ mounted() {
 },
 created() {
   try {
-      // Assign maxDate and ensure it's a Date object
-      this.maxDate = new Date(); // Replace with actual value if needed
-
+      this.maxDate = new Date();
       if (this.maxDate instanceof Date && !isNaN(this.maxDate)) {
         this.maxYear = this.maxDate.getFullYear();
       } else {
@@ -409,6 +422,10 @@ methods: {
           Username: this.filters.Username,
           TradeId: this.filters.TradeId,
           Coupon: this.filters.Coupon,
+          Operator: this.filters.Operator,
+          ...(this.filters.Status !== null && this.filters.Status.code !== null
+    ? { Status: this.filters.Status.value }
+    : {}),
           fromTime: this.filters.fromTime,
           toTime: this.filters.toTime,
           page: this.currentPage,

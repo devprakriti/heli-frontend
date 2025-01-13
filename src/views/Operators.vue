@@ -6,6 +6,34 @@
          <h3 class="text-2xl font-semibold mb-4">List of Operators</h3>
       </nav>
     </div>
+     <!-- Filter Section -->
+     <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+        <h3 class="text-xl font-semibold mb-4">Filter Operators</h3>
+        <div class="flex space-x-4 mb-4">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by FullName</label>
+            <InputText 
+              id="search" 
+              v-model="filters.FullName" 
+              placeholder="Search by FullName" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Username" 
+              placeholder="Search by Username" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
+            <Select v-model="filters.Status"  :options="statusList" showClear optionLabel="name" placeholder="Select a Status" fluid />
+          </div>
+        </div>
+     </div>
       <!-- Table Section -->
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <!-- Plus Button -->
@@ -20,8 +48,7 @@
           <tr>
             <th class="border px-4 py-2 text-left">S.N</th>
             <th class="border px-4 py-2 text-left">Username</th>
-            <th class="border px-4 py-2 text-left">Email</th>
-            <th class="border px-4 py-2 text-left">Phone</th>
+            <th class="border px-4 py-2 text-left">FullName</th>
             <th class="border px-4 py-2 text-left">Status</th>
             <th class="border px-4 py-2 text-left">Action</th>
           </tr>
@@ -30,30 +57,33 @@
           <tr  v-for="(row, index) in operators" :key="index" class="hover:bg-gray-50">
             <td class="border px-4 py-2">{{ index+1 }}</td>
             <td class="border px-4 py-2">{{ row.username }}</td>
-            <td class="border px-4 py-2">{{ row.email }}</td>
-            <td class="border px-4 py-2">{{ row.phone }}</td>
+            <td class="border px-4 py-2">{{ row.fullname }}</td>
             <td class="border px-4 py-2 text-center">
-              <label class="flex items-center justify-center cursor-pointer">
-                  <input type="checkbox" v-model="row.status" class="sr-only"
-                  @click= "toggleStatus(row)"  :checked="row.status"
-                  >
-                <div
-                  :class="{
-                    'bg-blue-500': row.status,
-                    'bg-gray-300': !row.status
-                  }"
-                  class="relative inline-block h-6 w-12 rounded-full"
-                >
-                  <span
+                <label class="flex items-center justify-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    v-model="row.status"
+                    class="sr-only"
+                    @click="toggleStatus(row)"
+                    :checked="row.status"
+                  />
+                  <div
                     :class="{
-                      'translate-x-6': row.status,
-                      'translate-x-1': !row.status
+                      'bg-blue-500': row.status,
+                      'bg-gray-300': !row.status
                     }"
-                    class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                  ></span>
-                </div>
-              </label>
-            </td>
+                    class="relative inline-block h-6 w-12 rounded-full"
+                  >
+                    <span
+                      :class="{
+                        'translate-x-6': row.status,
+                        'translate-x-1': !row.status
+                      }"
+                      class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
+                    ></span>
+                  </div>
+                </label>
+              </td>
             <td class="border px-4 py-2 text-center">
                 <Button
                   icon="pi pi-pencil"
@@ -84,22 +114,12 @@
           </div>
           <div>
               <input
-              v-model="newOperator.email"
-              type="email"
-              placeholder="Operator Email"
+              v-model="newOperator.fullname"
+              type="text"
+              placeholder="Operator FullName"
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
               />
-              <span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
-
-          </div>
-          <div>
-              <input
-              v-model="newOperator.phone"
-              type="number"
-              placeholder="Operator Phone"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-              />
-              <span v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</span>
+              <span v-if="errors.fullname" class="text-red-500 text-sm">{{ errors.fullname }}</span>
 
           </div>
           <div class="flex justify-end">
@@ -257,10 +277,17 @@ export default {
 name: "AdminOperators",
 data() {
   return {
+    filters: {
+      Username:'',
+      FullName: '',
+      Status:''
+    },
+    statusList : ([
+        { name: 'Active', code: '1' },
+        { name: 'Inactive', code: '0' }]),
     newOperator: {
       username: "",
-      email: "",
-      phone: "",
+      fullname: "",
       status: 1,
     },
     editingOperator: {
@@ -270,16 +297,20 @@ data() {
     operators: [],
     showCreateModal: false,
     showEditModal: false,
-    errors: { // Initialize errors object
+    errors: { 
       username: null,
-      email: null,
-      phone: null,
+      fullname: null,
       password: null,
       confirmPassword: null
     },
   };
 },
-
+watch: 
+    { 
+    'filters.Username': 'getOperators',
+    'filters.FullName': 'getOperators',
+    'filters.Status': 'getOperators',
+    },
 mounted() {
   this.getOperators();
 },
@@ -295,8 +326,7 @@ methods: {
   validateForm(operator) {
     this.errors = {
       username: null,
-      email: null,
-      phone: null,
+      fullname: null
     };
 
     let isValid = true;
@@ -306,19 +336,19 @@ methods: {
       isValid = false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!operator.email) {
-      this.errors.email = "Email is required";
-      isValid = false;
-    } else if (!emailRegex.test(operator.email)) {
-      this.errors.email = "Invalid email format";
-      isValid = false;
-    }
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!operator.email) {
+    //   this.errors.email = "Email is required";
+    //   isValid = false;
+    // } else if (!emailRegex.test(operator.email)) {
+    //   this.errors.email = "Invalid email format";
+    //   isValid = false;
+    // }
 
-    if (!operator.phone) {
-      this.errors.phone = "Phone number is required";
-      isValid = false;
-    }
+    // if (!operator.phone) {
+    //   this.errors.phone = "Phone number is required";
+    //   isValid = false;
+    // }
 
     return isValid;
   },
@@ -331,15 +361,21 @@ methods: {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: {
+            Username: this.filters.Username,
+            FullName: this.filters.FullName,
+            ...(this.filters.Status !== null && this.filters.Status.code !== null
+            ? { Status: this.filters.Status.code }
+            : {}),
+          },
       });
       console.log('response',response)
       this.operators = response.data.userList.map((user) => ({
         id: user.id,
         password: user.password,
         username: user.username,
-        email: user.email,
-        phone: user.phone,
-        status: true,
+        fullname: user.fullname,
+        status: user.status,
       }));
     } catch (error) {
       console.error("Error fetching operators:", error);
@@ -367,7 +403,7 @@ async createOperator() {
       };
       this.operators.push(createdOperator);
       // window.location.reload();
-      this.newOperator = { username: "", email: "", phone: "", status: 1 };
+      this.newOperator = { username: "", fullname: "", status: 1 };
       this.closeModal();
     } catch (error) {
       console.error("Error creating operator:", error);
