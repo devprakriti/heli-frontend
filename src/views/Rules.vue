@@ -7,8 +7,8 @@
       </nav>
     </div> -->
       <!-- Filter Section -->
-          <!-- Filter Section -->
-      <div class="bg-white p-6 rounded-lg border mb-6">
+      <!-- Filter Section -->
+      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
         <h3 class="text-xl font-semibold mb-4">Filter Rules</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
@@ -34,8 +34,16 @@
               :minDate="filters.fromTime" :maxDate="maxDate"
             />
           </div>
-
-          <!-- Search Filter -->
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By Name</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Name" 
+              placeholder="Search by Name" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <!-- Search Filter 
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
@@ -44,7 +52,19 @@
               placeholder="Search by TradeId or Username or Coupon" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
             />
+          </div>-->
+        </div>
+        <div class="flex space-x-4 mb-4">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By TicketType</label>   
+            <Select v-model="filters.TicketType"  :options="ticketTypeList" showClear optionLabel="Type" placeholder="Select a TicketType" fluid />
           </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
+            <Select v-model="filters.Status"  :options="statusList" showClear optionLabel="name" placeholder="Select a Status" fluid />
+            
+          </div>
+       
         </div>
      </div>
       
@@ -581,10 +601,13 @@
 <script>
 import axios from "axios";
 import Multiselect from 'vue-multiselect';
-import CreateButton from '../components/CreateButton.vue'
+import CreateButton from '../components/CreateButton.vue';
+import Select from 'primevue/select';
+
 export default {
   components: {
-    Multiselect
+    Multiselect,
+    Select
   },
   name: 'AdminSettings',
   data() {
@@ -596,7 +619,9 @@ export default {
       statisticalProcedureEnabled: false,
       memberDisplayEnabled: false,
       filters: {
-        Username: '',
+        Name: '',
+        TicketType:'',
+        Status:'',
         fromTime: '',
         toTime: '',
         search: ''
@@ -631,6 +656,9 @@ export default {
         code: i + 1,
         name: `Day ${i + 1}`,
       })),
+   statusList : ([
+        { name: 'Active', code: '1' },
+        { name: 'Inactive', code: '0' }]),
       weekdayOptions: [
         { code: 1, name: 'Monday' },
         { code: 2, name: 'Tuesday' },
@@ -676,11 +704,15 @@ export default {
     { 
     'filters.toTime': 'getRules',
     'filters.fromTime': 'getRules',
-    'filters.Username': 'getRules',
+    'filters.Name': 'getRules',
+    'filters.TicketType': 'getRules',
+    'filters.Status': 'getRules',
     'newRule.TicketType': function (newVal) {
       console.log('newVal', newVal)
       this.loadParameterTemplate();
     },
+ 
+    
     editingRule: {
       handler(newVal) {
         console.log('newVal', newVal)
@@ -817,7 +849,12 @@ export default {
     }
     return 0;  
   },
-
+    loadTicketFilter(){
+      const selectedTicketType = this.filters.TicketType; 
+      console.log('selectedTicketType',selectedTicketType)
+      const selectedTemplate = this.ticketTypeList.find(item => item.Type === selectedTicketType);
+      console.log(selectedTemplate,'selectedTemplate')
+    },
     loadParameterTemplate() {
       const selectedTicketType = this.newRule.TicketType; 
       console.log('selectedTicketType:', selectedTicketType);
@@ -921,8 +958,16 @@ export default {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          
           params: {
-            Username: this.filters.Username,
+            Name: this.filters.Name,
+            ...(this.filters.TicketType !== null && this.filters.TicketType.Type !== null
+    ? { TicketType: this.filters.TicketType.Type }
+    : {}),
+    ...(this.filters.Status !== null && this.filters.Status.code !== null
+    ? { Status: this.filters.Status.code }
+    : {}),
+            
             fromTime: this.filters.fromTime,
             toTime: this.filters.toTime,
             page: this.currentPage,

@@ -67,6 +67,7 @@
               <span v-if="!isSidebarMinimized" class="ml-3">Tickets</span>
             </router-link>
           </li>
+          
         </ul>
       </aside>
 
@@ -95,18 +96,23 @@
     </div>
   </div>
 </template>
-
 <script>
+
 export default {
+
   data() {
     return {
       loading: false,
-      isSidebarMinimized: false, // Sidebar toggle state
+      isSidebarMinimized: false,
+      operatorMenuItems: [
+        { label: 'Create Operator', icon: 'pi pi-plus', command: () => this.$router.push('/operators/create') },
+        { label: 'Edit Operator', icon: 'pi pi-pencil', command: () => this.$router.push('/operators/edit') },
+      ],
     };
   },
   computed: {
     isAuthenticated() {
-      return !!localStorage.getItem("authToken");
+      return !!localStorage.getItem('authToken');
     },
     pageHeader() {
       const route = this.$route.path;
@@ -139,26 +145,17 @@ export default {
     async logout() {
       this.loading = true;
       setTimeout(() => {
-        localStorage.removeItem("authToken");
+        localStorage.removeItem('authToken');
         this.loading = false;
-        this.$router.push("/login");
+        this.$router.push('/login');
         window.location.reload();
       }, 1000);
     },
   },
   mounted() {
-    if (!localStorage.getItem("authToken")) {
-      this.$router.push("/login");
+    if (!localStorage.getItem('authToken')) {
+      this.$router.push('/login');
     }
   },
 };
 </script>
-
-<style scoped>
-.spinner-border {
-  border-top-color: transparent;
-  border-right-color: #3498db;
-  border-bottom-color: #3498db;
-  border-left-color: transparent;
-}
-</style>

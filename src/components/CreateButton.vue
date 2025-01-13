@@ -16,3 +16,10 @@ export default {
     }
 };
 </script>
+<style>
+.custom-absolute{
+  position: absolute !important;
+  top:16px;
+  right: 16px;
+}
+</style>
