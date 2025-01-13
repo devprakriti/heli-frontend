@@ -12,7 +12,7 @@
           </div>
           <span v-if="!isSidebarMinimized" class="text-base font-semibold">Menu</span>
         </div>
-        <ul class="space-y-3 mt-4 px-6 ">
+        <!-- <ul class="space-y-3 mt-4 px-6 ">
           <li>
             <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
               'bg-[#6b7280]': isActiveRoute('/dashboard'),
@@ -68,7 +68,89 @@
             </router-link>
           </li>
           
+        </ul> -->
+      
+        <ul class="space-y-3 mt-4 px-6">
+            <!-- Dashboard -->
+            <li>
+              <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                'bg-[#6b7280]': isActiveRoute('/dashboard'),
+                'hover:bg-gray-700': !isActiveRoute('/dashboard'),
+              }">
+                <span><i class="pi pi-home"></i></span>
+                <span v-if="!isSidebarMinimized" class="ml-3 text-base">Dashboard</span>
+              </router-link>
+            </li>
+
+            <!-- Settings -->
+            <li>
+              <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                'bg-[#6b7280]': isActiveRoute('/settings'),
+                'hover:bg-gray-700': !isActiveRoute('/settings'),
+              }">
+                <span><i class="pi pi-cog"></i></span>
+                <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
+              </router-link>
+            </li>
+            <li>
+                  <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/operators'),
+                    'hover:bg-gray-700': !isActiveRoute('/operators'),
+                  }">
+                    <span><i class="pi pi-user"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
+                  </router-link>
+                </li>
+
+            <!-- Spinwin (with submenus for Accounts and Rules) -->
+            <li>
+              <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSpinwin" :class="{
+                'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets'),
+                'hover:bg-gray-700': !isActiveRoute('/accounts') && !isActiveRoute('/tickets') && !isActiveRoute('/rules'),
+              }">
+                 <span><i class="pi pi-bullseye"></i></span>
+                <span v-if="!isSidebarMinimized" class="ml-3">Spinwin</span>
+                <span v-if="!isSidebarMinimized" class="ml-auto">
+                  <i class="pi" :class="isSpinwinOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                </span>
+              </div>
+              <ul v-if="isSpinwinOpen" class="ml-6 space-y-2 mt-4">
+                <li>
+                  <router-link to="/accounts" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/accounts'),
+                    'hover:bg-gray-700': !isActiveRoute('/accounts'),
+                  }">
+                    <span><i class="pi pi-users"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Accounts</span>
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/rules" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/rules'),
+                    'hover:bg-gray-700': !isActiveRoute('/rules'),
+                  }">
+                    <span><i class="pi pi-file"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Rules</span>
+                  </router-link>
+                </li>
+                <!-- Tickets -->
+                <li>
+                  <router-link to="/tickets" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/tickets'),
+                    'hover:bg-gray-700': !isActiveRoute('/tickets'),
+                  }">
+                    <span><i class="pi pi-ticket"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Tickets</span>
+                  </router-link>
+                </li>           
+              </ul>
+            </li>
+
+           
+
+            
         </ul>
+
       </aside>
 
       <!-- Main Content -->
@@ -102,6 +184,8 @@ export default {
 
   data() {
     return {
+      isSidebarMinimized: false,
+      isSpinwinOpen: false,
       loading: false,
       isSidebarMinimized: false,
       operatorMenuItems: [
@@ -116,7 +200,6 @@ export default {
     },
     pageHeader() {
       const route = this.$route.path;
-      // Return the appropriate header text based on the active route
       switch (route) {
         case '/dashboard':
           return 'Dashboard Overview';
@@ -131,11 +214,14 @@ export default {
         case '/tickets':
           return 'Tickets';
         default:
-          return 'Home'; // Fallback if no route matches
+          return 'Dashboard'; 
       }
     },
   },
   methods: {
+    toggleSpinwin() {
+    this.isSpinwinOpen = !this.isSpinwinOpen;
+  },
     toggleSidebar() {
       this.isSidebarMinimized = !this.isSidebarMinimized;
     },
