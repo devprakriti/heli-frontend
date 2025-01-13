@@ -210,23 +210,15 @@
       
       <!-- Pagination -->
       <div class="mt-6 flex justify-center items-center space-x-2">
-        <button @click="goToPage(1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-          First
-        </button>
+        <Button @click="goToPage(1)" :disabled="currentPage === 1" label="First" />
         
-        <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-          Prev
-        </button>
+        <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
         
         <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
         
-        <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-          Next
-        </button>
+        <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" label="Next" />
 
-        <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-          Last
-        </button>
+        <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" label="Last" />
       </div>
       <!-- Modals for Create and Edit -->
       <!-- Create Modal -->
