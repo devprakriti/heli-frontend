@@ -1,6 +1,5 @@
 <template>
   <div id="app" class="min-h-screen flex flex-col">
-   
     <header v-if="isAuthenticated && !loading" class="bg-blue-600 text-white p-4 flex justify-between items-center">
       <div class="flex items-center space-x-4">
         <button class="text-white bg-blue-500 p-2 rounded hover:bg-blue-400" @click="toggleSidebar">
@@ -67,19 +66,6 @@
           </li>
           <li>
             <router-link
-              to="/operators"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/operators'),
-                'hover:bg-gray-700': !isActiveRoute('/operators'),
-              }"
-            >
-              <span>👨‍🔧</span>
-              <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link
               to="/rules"
               class="flex items-center py-2 px-4 rounded transition-all"
               :class="{
@@ -104,6 +90,61 @@
               <span v-if="!isSidebarMinimized" class="ml-3">Tickets</span>
             </router-link>
           </li>
+          <li>
+            <router-link
+              to="/operators"
+              class="flex items-center py-2 px-4 rounded transition-all"
+              :class="{
+                'bg-blue-500': isActiveRoute('/operators'),
+                'hover:bg-gray-700': !isActiveRoute('/operators'),
+              }"
+            >
+              <span>👨‍🔧</span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Operator</span>
+            </router-link>
+          </li>
+          <li class="relative">
+            <!-- Dropdown Button -->
+            <div
+              class="flex items-center py-2 px-4 rounded cursor-pointer transition-all"
+              @click="toggleOperatorsDropdown"
+              :class="{
+                'bg-blue-500': isActiveRoute('/operators'),
+                'hover:bg-gray-700': !isActiveRoute('/operators'),
+              }"
+            >
+              <span>👨‍🔧</span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
+              <span class="ml-auto" v-if="!isSidebarMinimized">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+
+            <!-- Dropdown Menu -->
+            <ul
+              v-if="isOperatorsDropdownOpen"
+              class="bg-gray-700 rounded shadow-lg mt-2 transition-all overflow-hidden"
+            >
+              <li>
+                <router-link
+                  to="/operators/create"
+                  class="block py-2 px-4 hover:bg-gray-600 transition-all text-white"
+                >
+                  Create Operator
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/operators/edit"
+                  class="block py-2 px-4 hover:bg-gray-600 transition-all text-white"
+                >
+                  Edit Operator
+                </router-link>
+              </li>
+            </ul>
+          </li>
         </ul>
       </aside>
 
@@ -120,18 +161,23 @@
     </div>
   </div>
 </template>
-
 <script>
+
 export default {
+
   data() {
     return {
       loading: false,
-      isSidebarMinimized: false, // Sidebar toggle state
+      isSidebarMinimized: false,
+      operatorMenuItems: [
+        { label: 'Create Operator', icon: 'pi pi-plus', command: () => this.$router.push('/operators/create') },
+        { label: 'Edit Operator', icon: 'pi pi-pencil', command: () => this.$router.push('/operators/edit') },
+      ],
     };
   },
   computed: {
     isAuthenticated() {
-      return !!localStorage.getItem("authToken");
+      return !!localStorage.getItem('authToken');
     },
   },
   methods: {
@@ -144,26 +190,17 @@ export default {
     async logout() {
       this.loading = true;
       setTimeout(() => {
-        localStorage.removeItem("authToken");
+        localStorage.removeItem('authToken');
         this.loading = false;
-        this.$router.push("/login");
+        this.$router.push('/login');
         window.location.reload();
       }, 1000);
     },
   },
   mounted() {
-    if (!localStorage.getItem("authToken")) {
-      this.$router.push("/login");
+    if (!localStorage.getItem('authToken')) {
+      this.$router.push('/login');
     }
   },
 };
 </script>
-
-<style scoped>
-.spinner-border {
-  border-top-color: transparent;
-  border-right-color: #3498db;
-  border-bottom-color: #3498db;
-  border-left-color: transparent;
-}
-</style>

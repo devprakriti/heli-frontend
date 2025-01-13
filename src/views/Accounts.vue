@@ -33,13 +33,42 @@
             />
           </div>
 
-          <!-- Search Filter -->
+          <!-- Search Filter 
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
               id="search" 
               v-model="filters.Username" 
               placeholder="Search by TradeId or Username or Coupon" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>-->
+        </div>
+        <div class="flex space-x-4 mb-4">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <InputText 
+              id="search" 
+              v-model="filters.AccountId" 
+              placeholder="Search by AccountId" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Account" 
+              placeholder="Search by Account" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Username" 
+              placeholder="Search by Username" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
             />
           </div>
@@ -102,6 +131,8 @@ export default {
       accounts: [],
       filters: {
         Username: '',
+        Account:'',
+        AccountId:'',
         fromTime: '',
         toTime: '',
         search: ''
@@ -118,7 +149,9 @@ export default {
   watch: {
     'filters.toTime': 'getAccounts',
     'filters.fromTime': 'getAccounts',
-    'filters.Username': 'getAccounts'
+    'filters.Username': 'getAccounts',
+    'filters.Account': 'getAccounts',
+    'filters.AccountId': 'getAccounts'
   },
   created() {
   try {
@@ -168,6 +201,8 @@ export default {
           },
           params: {
             Username: this.filters.Username,
+            Account: this.filters.Account,
+            AccountId: this.filters.AccountId,
             fromTime: this.filters.fromTime,
             toTime: this.filters.toTime,
             page: this.currentPage,

@@ -37,13 +37,42 @@
             />
           </div>
 
-          <!-- Search Filter -->
+          <!-- Search Filter 
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
               id="search" 
               v-model="filters.Username" 
               placeholder="Search by TradeId or Username or Coupon" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div> -->
+        </div>
+        <div class="flex space-x-4 mb-4">
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by TradeId</label>
+            <InputText 
+              id="search" 
+              v-model="filters.TradeId" 
+              placeholder="Search by TradeId" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Username" 
+              placeholder="Search by Username" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+            />
+          </div>
+          <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700">Search by Coupon</label>
+            <InputText 
+              id="search" 
+              v-model="filters.Coupon" 
+              placeholder="Search by Coupon" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
             />
           </div>
@@ -235,6 +264,8 @@ data() {
     operators: [],
     filters: {
       Username: '',
+      TradeId: '',
+      Coupon: '',
       fromTime: '',
       toTime: '',
       search: ''
@@ -262,6 +293,8 @@ watch:{
   'filters.toTime': 'getTickets',
   'filters.fromTime': 'getTickets',
   'filters.Username': 'getTickets',
+  'filters.TradeId': 'getTickets',
+  'filters.Coupon': 'getTickets',
 },
 
 mounted() {
@@ -374,6 +407,8 @@ methods: {
         },
         params: {
           Username: this.filters.Username,
+          TradeId: this.filters.TradeId,
+          Coupon: this.filters.Coupon,
           fromTime: this.filters.fromTime,
           toTime: this.filters.toTime,
           page: this.currentPage,
