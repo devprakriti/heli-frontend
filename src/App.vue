@@ -102,7 +102,6 @@
                   </router-link>
                 </li>
 
-            <!-- Spinwin (with submenus for Accounts and Rules) -->
             <li>
               <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSpinwin" :class="{
                 'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets'),
