@@ -1,13 +1,13 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Tab Navigation -->
-    <div class="border-b border-gray-300 mb-6">
+    <!-- <div class="border-b border-gray-300 mb-6">
       <nav class="flex space-x-4">
         <h3 class="text-2xl font-semibold mb-4">List of Tickets</h3>
       </nav>
-    </div>
+    </div> -->
       <!-- Filter Section -->
-      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <div class="bg-white p-6 rounded-lg border mb-6">
         <h3 class="text-xl font-semibold mb-4">Filter Tickets</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
@@ -50,15 +50,12 @@
         </div>
      </div>
     <!-- Table Section -->
-    <div class="bg-white p-6 rounded-lg shadow-lg relative">
+    <div class="bg-white p-6 rounded-lg border relative">
       <!-- Plus Button -->
-      <button @click="openCreateModal" class="absolute top-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-md hover:bg-blue-600">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
       
-      <table class="min-w-full table-auto border-collapse border border-gray-200">
+      <CreateButton @open-modal="openCreateModal" />
+      
+      <!-- <table class="min-w-full table-auto border-collapse border border-gray-200">
       <thead class="bg-gray-100">
         <tr>
           <th class="border px-4 py-2 text-left text-gray-800">S.N</th>
@@ -101,8 +98,82 @@
           
         </tr>
       </tbody>
-    </table>
+      </table> -->
      
+      <!-- <Table :items="items" :columns="tableColumns" @update-status="toggleStatus" @edit-operator="openEditModal">
+        <template #modal>
+          <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
+          <h3 class="text-2xl font-bold mb-4">Create New Ticket</h3>
+          <form @submit.prevent="createTicket" class="space-y-4">
+            <div>
+              <label class="block text-gray-700">User</label>
+              <input v-model="newTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Rule</label>
+              <div class="relative">
+                <select v-model="newTicket.ruleId" class="form-select block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option v-for="rule in rules" :key="rule.Id" :value="rule.Id">{{ rule.Name }}</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-gray-700">Quantity</label>
+              <input v-model="newTicket.quantity" type="number" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <span v-if="errors.quantity" class="text-red-500 text-sm">{{ errors.quantity }}</span>
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Memo</label>
+              <input v-model="newTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="button" @click="closeModal" class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
+              <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Create</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
+          <h3 class="text-2xl font-bold mb-4">Edit Ticket</h3>
+          <form @submit.prevent="updateTicket" class="space-y-4">
+            <div>
+              <label class="block text-gray-700">User</label>
+              <input v-model="editingTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Rule</label>
+              <div class="relative">
+                <select v-model="editingTicket.ruleId" class="form-select block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option v-for="rule in rules" :key="rule.Id" :value="rule.Id">{{ rule.Name }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-gray-700">Memo</label>
+              <input v-model="editingTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
+            </div>
+
+            <div class="flex justify-end">
+              <button type="button" @click="closeModal" class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
+              <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+        </template>
+      </Table> -->
       
       
       <!-- Pagination -->
@@ -207,10 +278,14 @@
 <script>
 import axios from "axios";
 import moment from 'moment';
+import CreateButton from '../components/CreateButton.vue'
+import Table from "../components/Table.vue";
 export default {
 name: "AdminTickets",
 data() {
     return {
+    items: null,
+    tableColumns: null,
     newTicket: {
         userId: "",
         ruleId:  "",
@@ -396,7 +471,28 @@ methods: {
         Operator: ticket.AddOperator,
         Status: ticket.Status
       }));
-
+      this.items = ticketList.map(ticket => ({
+        Id: ticket.Id,
+        Username: ticket.Username,
+        RuleId: ticket.RuleId,
+        Memo: ticket.Memo,
+        TradeId: ticket.TradeId,
+        Reward: ticket.Reward,
+        RewardType: ticket.RewardType,
+        RewardAmount: ticket.RewardAmount,
+        Coupon: ticket.Coupon,
+        Operator: ticket.AddOperator,
+        Status: ticket.Status
+      }));
+      this.tableColumns = [
+          { field: 'Username', header: 'Username' },
+          { field: 'Reward', header: 'Reward' },
+          { field: 'TradeId', header: 'TradeId' },
+          { field: 'Coupon', header: 'Coupon' },
+          { field: 'Operator', header: 'Operator' },
+          { field: 'Status', header: 'Status' },
+          { field: 'Action', header: 'Action' },
+        ];
       this.totalCount = totalCount;
       this.totalPages = totalPages;
 

@@ -1,14 +1,14 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Tab Navigation -->
-    <div class="border-b border-gray-300 mb-6">
+    <!-- <div class="border-b border-gray-300 mb-6">
       <nav class="flex space-x-4">
          <h3 class="text-2xl font-semibold mb-4">List of Rules</h3>
       </nav>
-    </div>
+    </div> -->
       <!-- Filter Section -->
           <!-- Filter Section -->
-      <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <div class="bg-white p-6 rounded-lg border mb-6">
         <h3 class="text-xl font-semibold mb-4">Filter Rules</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
@@ -50,14 +50,9 @@
       
 
       <!-- Table Section -->
-      <div class="bg-white p-6 rounded-lg shadow-lg relative">
+      <div class="bg-white p-6 rounded-lg border relative">
       <!-- Plus Button -->
-
-      <button @click="openCreateModal" class="absolute top-4 right-4 bg-blue-500 text-white p-2 rounded-full shadow-md hover:bg-blue-600">
-        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
+      <CreateButton @open-modal="openCreateModal" />
 
       <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
@@ -72,54 +67,32 @@
         <tbody>
           <template v-for="(row, index) in rules" :key="index">
             <tr class="hover:bg-gray-50">
-              <td class="border px-4 py-2">{{ index+1 }}</td>
+              <td class="border px-4 py-2">{{ index + 1 }}</td>
               <td class="border px-4 py-2">{{ row.name }}</td>
               <td class="border px-4 py-2">{{ row.type }}</td>
               <td class="border px-4 py-2 text-center">
-                <label class="flex items-center justify-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    v-model="row.status"
-                    class="sr-only"
-                    @click="toggleStatus(row)"
-                    :checked="row.status"
-                  />
-                  <div
-                    :class="{
-                      'bg-blue-500': row.status,
-                      'bg-gray-300': !row.status
-                    }"
-                    class="relative inline-block h-6 w-12 rounded-full"
-                  >
-                    <span
-                      :class="{
-                        'translate-x-6': row.status,
-                        'translate-x-1': !row.status
-                      }"
-                      class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                    ></span>
-                  </div>
-                </label>
+                  <ToggleSwitch :model-value="!!row.status"
+                            @change="toggleStatus(row)" />
               </td>
-              <td class="border px-4 py-2">
+              <td class="border px-2 py-2 space-x-0">
                 <Button
                   icon="pi pi-pencil"
-                  class="p-button-text text-blue-500"
+                  class="p-button-text"
                   @click="openEditModal(row)"
                   label="Edit"
                 />
 
                 <Button
                   icon="pi pi-eye"
-                  class="p-button-text text-blue-500"
+                  class="p-button-text "
                   @click="toggleDetails(row.id)"
                   label="View"
                 />
               </td>
             </tr>
             <tr v-if="expandedRuleId === row.id">
-              <td colspan="5" class="border px-4 py-2 bg-gray-50">
-                <table class="w-11/12 mx-auto border-collapse border border-gray-400 rounded-md shadow-sm bg-gray-100">
+              <td colspan="5" >
+                <table class="w-full mx-auto border-collapse border border-gray-400 rounded-md shadow-sm">
                   <thead class="bg-blue-200">
                     <tr>
                       <th class="border px-4 py-2 text-left">Issue Frequency</th>
@@ -144,25 +117,19 @@
           </template>
         </tbody>
       </table>
+
        <!-- Pagination -->
        <div class="mt-6 flex justify-center items-center space-x-2">
-          <button @click="goToPage(1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            First
-          </button>
+          <Button @click="goToPage(1)" :disabled="currentPage === 1" label="First" />
           
-          <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Prev
-          </button>
+          <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
           
-          <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
+          <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{  totalPages === 0 ? 1 : totalPages }}</span>
           
-          <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Next
-          </button>
+          <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0" label="Next" />
   
-          <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Last
-          </button>
+          <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages || totalPages === 0" label="Last" />
+
         </div>
 
 
@@ -196,7 +163,7 @@
               <input
                 v-model="newRule.Name"
                 type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-slate-300 "
               />
             </div>
 
@@ -378,6 +345,7 @@
           </form>
         </div>
       </div>
+
       <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Update Rule</h3>
@@ -409,7 +377,7 @@
               <input
                 v-model="editingRule.Name"
                 type="text"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-slate-300 "
               />
             </div>
 
@@ -613,6 +581,7 @@
 <script>
 import axios from "axios";
 import Multiselect from 'vue-multiselect';
+import CreateButton from '../components/CreateButton.vue'
 export default {
   components: {
     Multiselect
@@ -620,6 +589,9 @@ export default {
   name: 'AdminSettings',
   data() {
     return {
+      items: null,
+      tableColumns: null,
+      extendedTable: false,
       activeTab: 'settings', 
       statisticalProcedureEnabled: false,
       memberDisplayEnabled: false,
@@ -763,11 +735,18 @@ export default {
       return this.selectedDesignatedDates.map(date => date.code);
     },
   },
+  computed: {
+    filteredExtendedItems() {
+      if (!this.expandedRuleId) return [];
+      return this.items.filter((item) => item.id === this.expandedRuleId);
+    },
+  },
   methods: {
     toggleDetails(ruleId) {
       console.log('ruleId',ruleId)
       this.expandedRuleId =
         this.expandedRuleId === ruleId ? null : ruleId;
+        this.extendedTable = this.expandedRuleId === ruleId ? true : false;
     },
 
      goToPage(page) {
@@ -848,6 +827,9 @@ export default {
       } else {
         console.log('No template found for', selectedTicketType);
       }
+    },
+    logRow(row, index) {
+      console.log('Row:', row, 'Index:', index);
     },
     async getRuleType() {
       const token = this.getAuthToken();
@@ -965,6 +947,34 @@ export default {
           DesignatedDays:  rule.DesignatedDays,
           parameterTemplate: rule.Template
         }));
+        this.items = ruleList.map((rule) => ({
+          id: rule.Id,
+          status: rule.Status,
+          name: rule.Name,
+          type: rule.TicketType,
+          issueTime: this.getIssueFrequencyLabel(rule.IssueFrequency),
+          IssueFrequency: rule.IssueFrequency,
+          issueThresholdAmount:rule.TicketAmount,
+          sheets: 0,
+          validPeriod: rule.ExpireTime,
+          ExpireType:rule.ExpireType,
+          DesignatedDate: rule.DesignatedDate,
+          DesignatedDays:  rule.DesignatedDays,
+          parameterTemplate: rule.Template
+        }));
+        this.tableColumns = [
+          { field: 'name', header: 'Name' },
+          { field: 'type', header: 'Type' },
+          { field: 'status', header: 'Status' },
+          { field: 'action', header: 'Action' },
+        ];
+        this.expandedTableColumns = [
+          { field: 'issueTime', header: 'Issue Frequency' },
+          { field: 'issueThresholdAmount', header: 'Ticket Amount' },
+          { field: 'DesignatedDate', header: 'DesignatedDate' },
+          { field: 'DesignatedDays', header: 'DesignatedDays' },
+          { field: 'validPeriod', header: 'Expire Time' },
+        ];
         this.totalCount = totalCount;
         this.totalPages = totalPages;
       } catch (error) {
@@ -1192,26 +1202,16 @@ table {
   border-spacing: 0;
 }
 
-th, td {
-  color: #333333; 
-}
-
 th {
   background-color: #f3f4f6;
+  color: #3f3f46;
 }
-
+td {
+  color: black;
+  font-weight: 500;
+}
 tbody tr:hover {
   background-color: #f9fafb; 
 }
 
-button {
-  font-size: 14px;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-button:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
 </style>

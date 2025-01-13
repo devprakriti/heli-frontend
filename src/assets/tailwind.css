@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 /* eslint-disable */
 /* stylelint-disable */
 @tailwind base;
@@ -5,3 +7,22 @@
 @tailwind utilities;
 /* eslint-enable */
 /* stylelint-enable */
+
+/* Importing Roboto font from Google Fonts */
+
+/* Applying the font globally to the body */
+
+html {
+    font-size: 15px; 
+  }
+
+body {
+    font-family: "Geist", serif;
+}
+a, button{
+    text-decoration: none !important;
+}
+
+.p-card-body{
+    padding: 0 !important;
+}

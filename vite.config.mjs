@@ -23,7 +23,7 @@ export default defineConfig({
     port: 8080, 
     proxy: {
         '/api': {
-        target: 'https://cmsapi.luckyluy.net',
+        target: 'http://localhost:3000/',
         changeOrigin: true,
         rewrite: (path)=> path.replace(/^\/api/,''), 
         secure: false,

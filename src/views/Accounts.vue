@@ -1,53 +1,55 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
-    <div class="border-b border-gray-300 mb-6">
+    <!-- <div class="border-b border-gray-300 mb-6">
       <nav class="flex space-x-4">
          <h3 class="text-2xl font-semibold mb-4">List of Accounts</h3>
       </nav>
-    </div>
+    </div> -->
     <!-- Filter Section -->
-    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+    <div class="bg-white p-6 rounded-lg border mb-6">
         <h3 class="text-xl font-semibold mb-4">Filter Accounts</h3>
         <div class="flex space-x-4 mb-4">
           <!-- Date Range Filter (Start Date) -->
           <div class="flex-1">
-            <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+            <label for="start-date" class="block text-sm font-medium ">Start Date</label>
             <Calendar 
               id="start-date" 
               v-model="filters.fromTime" 
               :showIcon="true"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+              placeholder="Pick a date"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm placeholder:font-light focus:ring-slate-300 focus:border-slate-300" 
                :maxDate="maxDate"
             />
           </div>
 
           <!-- Date Range Filter (End Date) -->
           <div class="flex-1">
-            <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+            <label for="end-date" class="block text-sm font-medium ">End Date</label>
             <Calendar 
               id="end-date" 
               v-model="filters.toTime" 
               :showIcon="true"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+              placeholder="Pick a date"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm placeholder:font-light focus:ring-slate-300 focus:border-slate-300" 
                :minDate="filters.fromTime" :maxDate="maxDate"
             />
           </div>
 
           <!-- Search Filter -->
           <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+            <label for="search" class="block text-sm font-medium ">Search</label>
             <InputText 
               id="search" 
               v-model="filters.Username" 
               placeholder="Search by TradeId or Username or Coupon" 
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm placeholder:font-light focus:ring-slate-300 focus:border-slate-300" 
             />
           </div>
         </div>
      </div>
       
-    <div class="bg-white p-6 rounded-lg shadow-lg relative">
-      <table class="min-w-full table-auto border-collapse border border-gray-200">
+    <div class="bg-white p-6 rounded-lg border relative">
+      <!-- <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
             <th class="border px-4 py-2 text-left">S.N</th>
@@ -67,26 +69,19 @@
           </tr>
         </template>
         </tbody>
-      </table>
+      </table> -->
+      <Table :items="items" :columns="tableColumns" />
        <!-- Pagination -->
        <div class="mt-6 flex justify-center items-center space-x-2">
-          <button @click="goToPage(1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            First
-          </button>
+          <Button @click="goToPage(1)" :disabled="currentPage === 1" label="First" />
           
-          <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Prev
-          </button>
+          <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
           
-          <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
+          <span class=" font-semibold ">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages }}</span>
           
-          <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Next
-          </button>
+          <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0" label="Next" />
   
-          <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" class="px-4 py-2 text-sm font-semibold bg-blue-500 text-white rounded-full hover:bg-blue-600 transition ease-in-out duration-200 disabled:bg-gray-300">
-            Last
-          </button>
+          <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages || totalPages === 0" label="Last" />
         </div>
     </div>
   </div>
@@ -95,10 +90,13 @@
 <script>
 import 'primeicons/primeicons.css'; // Import PrimeIcons
 import axios from "axios";
+import Table from '../components/Table.vue'
 export default {
   name: 'AdminSettings',
   data() {
     return {
+      items: null,
+      tableColumns: null,
       accounts: [],
       filters: {
         Username: '',
@@ -177,13 +175,24 @@ export default {
         });
 
         const { accountList, totalCount, totalPages } = response.data;
+        console.log(totalPages,"totalPages")
         this.accounts = accountList.map((account) => ({
           Id: account.Id,
           AccountId: account.AccountId,
           Account: account.Account,
           Username: account.Username
         }
-      ));        
+      ));  
+        this.items = response.data.accountList.map((account) => ({
+          AccountId: account.AccountId,
+          Account: account.Account,
+          Username: account.Username
+        }));
+        this.tableColumns = [
+          { field: 'AccountId', header: 'AccountId' },
+          { field: 'Account', header: 'Account' },
+          { field: 'Username', header: 'Username' },
+        ];      
         this.totalCount = totalCount;
         this.totalPages = totalPages;
       } catch (error) {

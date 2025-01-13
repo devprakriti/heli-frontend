@@ -1,106 +1,69 @@
 <template>
   <div id="app" class="min-h-screen flex flex-col">
-   
-    <header v-if="isAuthenticated && !loading" class="bg-blue-600 text-white p-4 flex justify-between items-center">
-      <div class="flex items-center space-x-4">
-        <button class="text-white bg-blue-500 p-2 rounded hover:bg-blue-400" @click="toggleSidebar">
-          <span v-if="isSidebarMinimized">▶</span>
-          <span v-else>◀</span>
-        </button>
-        <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-      </div>
-      <div class="flex items-center space-x-4">
-        <span>Welcome, Admin</span>
-        <button class="bg-red-500 px-4 py-2 rounded hover:bg-red-600" @click="logout">Logout</button>
-      </div>
-    </header>
-
     <div class="flex flex-1 bg-gray-800">
       <!-- Sidebar -->
-      <aside
-        v-if="isAuthenticated && !loading"
-        :class="`bg-gray-800 text-white p-6 transition-all duration-300 ${isSidebarMinimized ? 'w-16' : 'w-64'}`"
-        class="h-full"
-      >
-        <div class="flex items-center space-x-4">
-          <span v-if="!isSidebarMinimized" class="text-lg font-bold">Menu</span>
+      <aside v-if="isAuthenticated && !loading"
+        :class="`bg-primary-700 text-white pb-6 transition-all duration-300 ${isSidebarMinimized ? 'w-24' : 'w-64'}`"
+        class="h-full">
+        <div class="flex items-center space-x-5 py-6 border-b border-gray-600 px-6 ">
+          <div class="text-white p-0 cursor-pointer" @click="toggleSidebar">
+            <span v-if="isSidebarMinimized"><i class="pi pi-angle-right text-white  text-base"></i></span>
+            <span v-else><i class="pi pi-angle-left text-white text-base"></i></span>
+          </div>
+          <span v-if="!isSidebarMinimized" class="text-base font-semibold">Menu</span>
         </div>
-        <ul class="space-y-2 mt-4">
+        <ul class="space-y-3 mt-4 px-6 ">
           <li>
-            <router-link
-              to="/dashboard"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/dashboard'),
-                'hover:bg-gray-700': !isActiveRoute('/dashboard'),
-              }"
-            >
-              <span>🏠</span>
-              <span v-if="!isSidebarMinimized" class="ml-3">Dashboard</span>
+            <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/dashboard'),
+              'hover:bg-gray-700': !isActiveRoute('/dashboard'),
+            }">
+              <span><i class="pi pi-home"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3 text-base">Dashboard</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/settings"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/settings'),
-                'hover:bg-gray-700': !isActiveRoute('/settings'),
-              }"
-            >
-              <span>⚙️</span>
+            <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/settings'),
+              'hover:bg-gray-700': !isActiveRoute('/settings'),
+            }">
+              <span><i class="pi pi-cog"></i></span>
               <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/accounts"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/accounts'),
-                'hover:bg-gray-700': !isActiveRoute('/accounts'),
-              }"
-            >
-              <span>👥</span>
+            <router-link to="/accounts" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/accounts'),
+              'hover:bg-gray-700': !isActiveRoute('/accounts'),
+            }">
+              <span><i class="pi pi-users"></i></span>
               <span v-if="!isSidebarMinimized" class="ml-3">Accounts</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/operators"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/operators'),
-                'hover:bg-gray-700': !isActiveRoute('/operators'),
-              }"
-            >
-              <span>👨‍🔧</span>
+            <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/operators'),
+              'hover:bg-gray-700': !isActiveRoute('/operators'),
+            }">
+              <span><i class="pi pi-user "></i></span>
               <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/rules"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/rules'),
-                'hover:bg-gray-700': !isActiveRoute('/rules'),
-              }"
-            >
-              <span>⚖️</span>
+            <router-link to="/rules" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/rules'),
+              'hover:bg-gray-700': !isActiveRoute('/rules'),
+            }">
+              <span><i class="pi pi-file"></i></span>
               <span v-if="!isSidebarMinimized" class="ml-3">Rules</span>
             </router-link>
           </li>
           <li>
-            <router-link
-              to="/tickets"
-              class="flex items-center py-2 px-4 rounded transition-all"
-              :class="{
-                'bg-blue-500': isActiveRoute('/tickets'),
-                'hover:bg-gray-700': !isActiveRoute('/tickets'),
-              }"
-            >
-              <span>🎫</span>
+            <router-link to="/tickets" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/tickets'),
+              'hover:bg-gray-700': !isActiveRoute('/tickets'),
+            }">
+              <span><i class="pi pi-ticket"></i></span>
               <span v-if="!isSidebarMinimized" class="ml-3">Tickets</span>
             </router-link>
           </li>
@@ -108,8 +71,20 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 p-6 bg-gray-100">
-        <div v-if="loading" class="flex justify-center items-center h-full">
+      <main class="flex-1 bg-gray-100">
+
+        <header v-if="isAuthenticated && !loading"
+          class=" text-black border-b bg-white backdrop-blur-xl px-6 py-3 flex justify-between items-center">
+          <div class="flex items-center space-x-4">
+            <h1 class="text-xl font-semibold">{{ pageHeader }}</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-slate-400">Welcome, Admin</span>
+            <button class="bg-red-500 text-sm px-4 py-2 text-white rounded hover:bg-red-600"
+              @click="logout">Logout</button>
+          </div>
+        </header>
+        <div v-if="loading" class="flex justify-center items-center h-full p-6">
           <div class="text-center">
             <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status"></div>
             <p class="text-xl mt-2">Processing...</p>
@@ -132,6 +107,26 @@ export default {
   computed: {
     isAuthenticated() {
       return !!localStorage.getItem("authToken");
+    },
+    pageHeader() {
+      const route = this.$route.path;
+      // Return the appropriate header text based on the active route
+      switch (route) {
+        case '/dashboard':
+          return 'Dashboard Overview';
+        case '/settings':
+          return 'Settings';
+        case '/accounts':
+          return 'Accounts';
+        case '/operators':
+          return 'Operators';
+        case '/rules':
+          return 'Rules';
+        case '/tickets':
+          return 'Tickets';
+        default:
+          return 'Home'; // Fallback if no route matches
+      }
     },
   },
   methods: {

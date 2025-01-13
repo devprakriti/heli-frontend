@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, './dist')));
 
 
 app.use('/api', createProxyMiddleware({
-    target: 'https://cmsapi.luckyluy.net',
+    target: 'http://localhost:3000',
     changeOrigin: true,
 }));
 

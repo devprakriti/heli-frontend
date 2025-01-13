@@ -1,51 +1,50 @@
 <template>
   <div class="p-6">
-    <h2 class="text-3xl font-bold mb-6 text-center">Dashboard Overview</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <!-- Card 1 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkOperator">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer" @click="goToLinkOperator">
         <template #header>
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold">Operators</h3>
-            <i class="pi pi-users text-blue-500 text-3xl"></i>
+            <h3 class="font-medium">Operators</h3>
+            <i class="pi pi-users text-blue-500" :style="{ fontSize: '1.2rem' }"></i>
           </div>
         </template>
         <template #content>
-          <div class="text-center">
-            <p class="text-5xl font-bold text-gray-800 mb-2">{{totalList.operatorList}}</p>
-            <p class="text-sm text-gray-500">Total Operators</p>
+          <div class="text-left mt-4">
+            <p class="text-4xl font-bold text-gray-800 mb-1 text-left">{{totalList.operatorList}}</p>
+            <p class="text-sm text-gray-500 text-left">Total Operators</p>
           </div>
         </template>
       </p-card>
 
       <!-- Card 2 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkAccounts">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer" @click="goToLinkAccounts">
         <template #header>
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold">Accounts</h3>
-            <i class="pi pi-ticket text-green-500 text-3xl"></i>
+            <h3 class="font-medium">Accounts</h3>
+            <i class="pi pi-ticket text-green-500" :style="{ fontSize: '1.2rem' }"></i>
           </div>
         </template>
         <template #content>
-          <div class="text-center">
-            <p class="text-5xl font-bold text-gray-800 mb-2">{{totalList.accountList}}</p>
+          <div class="text-left mt-4">
+            <p class="text-4xl font-bold text-gray-800 mb-1">{{totalList.accountList}}</p>
             <p class="text-sm text-gray-500">Total Accounts</p>
           </div>
         </template>
       </p-card>
 
       <!-- Card 3 -->
-      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300" @click="goToLinkRules">
+      <p-card class="shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer" @click="goToLinkRules">
         <template #header>
           <div class="flex justify-between items-center">
-            <h3 class="text-lg font-semibold">Rules</h3>
-            <i class="pi pi-sliders-h text-purple-500 text-3xl"></i>
+            <h3 class="font-medium">Rules</h3>
+            <i class="pi pi-sliders-h text-purple-500" :style="{ fontSize: '1.2rem' }"></i>
           </div>
         </template>
         <template #content>
-          <div class="text-center">
-            <p class="text-5xl font-bold text-gray-800 mb-2">{{totalList.ruleList}}</p>
+          <div class="text-left mt-4">
+            <p class="text-4xl font-bold text-gray-800 mb-1">{{totalList.ruleList}}</p>
             <p class="text-sm text-gray-500">Active Rules</p>
           </div>
         </template>
