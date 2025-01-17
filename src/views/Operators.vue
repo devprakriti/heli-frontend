@@ -1,34 +1,27 @@
 <template>
   <div class="p-6 bg-gray-50 min-h-screen">
     <!-- Tab Navigation -->
-     <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
-        <h3 class="text-xl font-semibold mb-4">Filter Operators</h3>
-        <div class="flex space-x-4 mb-4">
-          <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search by FullName</label>
-            <InputText 
-              id="search" 
-              v-model="filters.FullName" 
-              placeholder="Search by FullName" 
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
-            />
-          </div>
-          <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
-            <InputText 
-              id="search" 
-              v-model="filters.Username" 
-              placeholder="Search by Username" 
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
-            />
-          </div>
-          <div class="flex-1">
-            <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
-            <Select v-model="filters.Status"  :options="statusList" showClear optionLabel="name" placeholder="Select a Status" fluid />
-          </div>
+    <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+      <h3 class="text-xl font-semibold mb-4">Filter Operators</h3>
+      <div class="flex space-x-4 mb-4">
+        <div class="flex-1">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search by Fullname</label>
+          <InputText id="search" v-model="filters.Fullname" placeholder="Search by Fullname"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
-     </div>
-      <!-- Table Section -->
+        <div class="flex-1">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
+          <InputText id="search" v-model="filters.Username" placeholder="Search by Username"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+        </div>
+        <div class="flex-1">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
+          <Select v-model="filters.Status" :options="statusList" showClear optionLabel="name"
+            placeholder="Select a Status" fluid />
+        </div>
+      </div>
+    </div>
+    <!-- Table Section -->
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <!-- Plus Button -->
       <CreateButton @open-modal="openCreateModal" />
@@ -38,7 +31,7 @@
           <tr>
             <th class="border px-4 py-2 text-left">S.N</th>
             <th class="border px-4 py-2 text-left">Username</th>
-            <th class="border px-4 py-2 text-left">FullName</th>
+            <th class="border px-4 py-2 text-left">Fullname</th>
             <th class="border px-4 py-2 text-left">Status</th>
             <th class="border px-4 py-2 text-left">Action</th>
           </tr>
@@ -82,7 +75,7 @@
           </tr>
         </tbody>
       </table> -->
-      
+
       <Table :items="items" :columns="tableColumns" @update-status="toggleStatus" @edit-operator="openEditModal">
         <!-- Edit Operator Modal -->
         <template #modal>
@@ -94,7 +87,7 @@
               <form @submit.prevent="updateOperator" class="space-y-6">
                 <div>
                   <label for="newPassword" class="block font-medium mb-2">New Password</label>
-                  <input  v-model="editingOperator.password" id="newPassword" type="password"
+                  <input v-model="editingOperator.password" id="newPassword" type="password"
                     placeholder="Enter a new password"
                     class="w-full px-4 py-3 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
                   <span v-if="errors.password" class="text-red-500 text-sm">{{ errors.password }}</span>
@@ -109,19 +102,29 @@
                   <span v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</span>
                 </div>
                 <div class="flex justify-end space-x-4">
-                  <Button type="button" @click="closeModal"
-                  severity="secondary"
-                    label="Cancel"/>
-                 
-                  <Button type="submit"
-                     label="Update Password"/>
+                  <Button type="button" @click="closeModal" severity="secondary" label="Cancel" />
+
+                  <Button type="submit" label="Update Password" />
                 </div>
               </form>
             </div>
           </div>
         </template>
       </Table>
-      
+      <div class="mt-6 flex justify-center items-center space-x-2">
+        <Button @click="goToPage(1)" :disabled="currentPage === 1" label="First" />
+
+        <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
+
+        <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages
+          }}</span>
+
+        <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0"
+          label="Next" />
+
+        <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages || totalPages === 0" label="Last" />
+
+      </div>
       <!-- Create Operator Modal -->
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <!-- Set the width of the modal here, similar to the Edit modal -->
@@ -133,14 +136,10 @@
                 class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.username" class="text-red-500 text-sm">{{ errors.username }}</span>
 
-          </div>
-          <div>
-              <input
-              v-model="newOperator.fullname"
-              type="text"
-              placeholder="Operator FullName"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-              />
+            </div>
+            <div>
+              <input v-model="newOperator.fullname" type="text" placeholder="Operator Fullname"
+                class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.fullname" class="text-red-500 text-sm">{{ errors.fullname }}</span>
 
             </div>
@@ -215,45 +214,50 @@ import Button from 'primevue/button';
 import Table from '../components/Table.vue'
 import CreateButton from '../components/CreateButton.vue'
 export default {
-name: "AdminOperators",
-data() {
-  return {
-    items: null,
-    tableColumns: null,
-    filters: {
-      Username:'',
-      FullName: '',
-      Status:''
-    },
-    statusList : ([
+  name: "AdminOperators",
+  data() {
+    return {
+      items: null,
+      tableColumns: null,
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 0,
+      totalCount: 0,
+      filters: {
+        Username: '',
+        Fullname: '',
+        Status: ''
+      },
+      statusList: [
         { name: 'Active', code: '1' },
-        { name: 'Inactive', code: '0' }]),
-    newOperator: {
-      username: "",
-      fullname: "",
-      status: 1,
-    },
-    editingOperator: {
-      password:"",
-      confirmPassword: ""
-    },
-    operators: [],
-    showCreateModal: false,
-    showEditModal: false,
-    errors: { 
-      username: null,
-      fullname: null,
-      password: null,
-      confirmPassword: null
-    },
-  };
-},
-watch: 
-    { 
+        { name: 'Inactive', code: '0' }
+      ],
+      newOperator: {
+        username: "",
+        fullname: "",
+        status: 1,
+      },
+      editingOperator: {
+        password: "",
+        confirmPassword: ""
+      },
+      operators: [],
+      showCreateModal: false,
+      showEditModal: false,
+      errors: {
+        username: null,
+        fullname: null,
+        password: null,
+        confirmPassword: null
+      },
+    };
+  },
+  watch:
+  {
     'filters.Username': 'getOperators',
-    'filters.FullName': 'getOperators',
+    'filters.Fullname': 'getOperators',
     'filters.Status': 'getOperators',
-    },
+  },
 
   mounted() {
     this.getOperators();
@@ -270,8 +274,7 @@ watch:
     validateForm(operator) {
       this.errors = {
         username: null,
-        email: null,
-        phone: null,
+        fullname: null,
       };
 
       let isValid = true;
@@ -280,53 +283,96 @@ watch:
         this.errors.username = "Username is required";
         isValid = false;
       }
-
+      console.log(isValid,"first1")
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!operator.email) {
-        this.errors.email = "Email is required";
+      if (!operator.fullname) {
+        this.errors.fullname = "Fullname is required";
         isValid = false;
-      } else if (!emailRegex.test(operator.email)) {
-        this.errors.email = "Invalid email format";
-        isValid = false;
-      }
-
-      if (!operator.phone) {
-        this.errors.phone = "Phone number is required";
+      } else if (!emailRegex.test(operator.fullname)) {
+        this.errors.fullname = "Invalid fullname format";
         isValid = false;
       }
-
       return isValid;
+    },
+    goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.getOperators();
+      }
     },
 
     async getOperators() {
       const token = this.getAuthToken();
       if (!token) return;
+      const offset = (this.currentPage - 1) * this.pageSize;
       try {
         const response = await axios.get("/api/users", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          params: {
+            Username: this.filters.Username,
+            Fullname: this.filters.Fullname,
+            ...(this.filters.Status !== null && this.filters.Status.code !== null
+              ? { Status: this.filters.Status.code }
+              : {}),
+            page: this.currentPage,
+            pageSize: this.pageSize,
+            offset: offset,
+          },
         });
-        console.log('response', response)
-        this.operators = response.data.userList.map((user) => ({
+        const {userList, totalCount, totalPages } = response?.data;
+        this.operators = userList.map((user) => ({
           id: user.id,
           password: user.password,
           fullname: user.fullname,
-          status: true,
+          status: user.status,
         }));
-        this.items = response.data.userList.map((user) => ({
+        this.items = userList.map((user) => ({
           id: user.id,
           password: user.password,
           username: user.username,
           fullname: user.fullname,
-          status: true,
+          status: user.status,
         }));
         this.tableColumns = [
           { field: 'username', header: 'Username' },
           { field: 'fullname', header: 'Fullname' },
           { field: 'status', header: 'Status' },
           { field: 'action', header: 'Action' },
-        ];    
+        ];
+        this.totalCount = totalCount;
+        this.totalPages = totalPages;
+        const createdOperator = {
+          id: response?.data?.user?.id,
+          ...this.newOperator,
+          status: true,
+        };
+        this.operators.push(createdOperator);
+        // window.location.reload();
+        this.newOperator = { username: "", fullname: "", status: 1 };
+        this.closeModal();
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
+    async createOperator() {
+      console.log("clicked",this.newOperator)
+      if (!this.validateForm(this.newOperator)) return; 
+    const token = this.getAuthToken();
+    if (!token) return;
+    try {
+      console.log("triggerred")
+      const response = await axios.post(
+        "/api/users/create",
+        this.newOperator,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('response',response)
       const createdOperator = {
         id: response.data.user.id,
         ...this.newOperator,
@@ -340,96 +386,117 @@ watch:
       console.error("Error creating operator:", error);
     }
   },
-
-  openEditModal(operator) {
-    console.log(operator, 'operator')
-    this.editingOperator = { 
-      id: operator.id
-    };
-    this.showEditModal = true;
-    this.showCreateModal = false; // Close Create Modal if open
-  },
-  async updateOperator() {
-  this.errors = {};
-  if (!this.validatePasswords(this.editingOperator.password, this.editingOperator.confirmPassword)) {
-    return;
-  }
-  const token = this.getAuthToken();
-  if (!token) return;
-
-  try {
-    const payload = {
-      id: this.editingOperator.id,
-      password: this.editingOperator.password,
-    };
-
-    const response = await axios.put(
-      `/api/users/password-reset/${this.editingOperator.id}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    openEditModal(operator) {
+      console.log(operator, 'operator')
+      this.editingOperator = {
+        id: operator.id
+      };
+      this.showEditModal = true;
+      this.showCreateModal = false; // Close Create Modal if open
+    },
+    async updateOperator() {
+      this.errors = {};
+      if (!this.validatePasswords(this.editingOperator.password, this.editingOperator.confirmPassword)) {
+        return;
       }
-    );
-    if (response.success == false) 
-    {
-      alert('Failed to update');
-      return;
-    }
-    alert('Profile updated successfully');
-    this.editingOperator = null;
-    this.showEditModal = false
-  } catch (error) {
-    console.error("Error updating operator:", error);
+      const token = this.getAuthToken();
+      if (!token) return;
 
-    if (error.response && error.response.data && error.response.data.message) {
-      alert(error.response.data.message);
-    } else {
-      alert('An error occurred while updating the password. Please try again.');
-    }
-  }
-},
+      try {
+        const payload = {
+          id: this.editingOperator.id,
+          password: this.editingOperator.password,
+        };
+
+        const response = await axios.put(
+          `/api/users/password-reset/${this.editingOperator.id}`,
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.success == false) {
+          alert('Failed to update');
+          return;
+        }
+        alert('Profile updated successfully');
+        this.editingOperator = null;
+        this.showEditModal = false
+      } catch (error) {
+        console.error("Error updating operator:", error);
+
+        if (error.response && error.response.data && error.response.data.message) {
+          alert(error.response.data.message);
+        } else {
+          alert('An error occurred while updating the password. Please try again.');
+        }
+      }
+    },
 
 
-validatePasswords(password, confirmPassword) {
-  this.errors = {};
-  if (!password) {
-    this.errors.password = 'Password is required.';
-    return false;
-  }
-  if (password.length < 8) {
-    this.errors.password = 'Password must be at least 8 characters long.';
-    return false;
-  }
-  // const passwordRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-  // if (!passwordRequirements.test(password)) {
-  //   this.errors.password =
-  //     'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.';
-  //   return false;
-  // }
-  if (password !== confirmPassword) {
-    this.errors.confirmPassword = 'Passwords do not match.';
-    return false;
-  }
-  return true;
-},
+    validatePasswords(password, confirmPassword) {
+      this.errors = {};
+      if (!password) {
+        this.errors.password = 'Password is required.';
+        return false;
+      }
+      if (password.length < 8) {
+        this.errors.password = 'Password must be at least 8 characters long.';
+        return false;
+      }
+      // const passwordRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      // if (!passwordRequirements.test(password)) {
+      //   this.errors.password =
+      //     'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.';
+      //   return false;
+      // }
+      if (password !== confirmPassword) {
+        this.errors.confirmPassword = 'Passwords do not match.';
+        return false;
+      }
+      return true;
+    },
 
-toggleStatus(operator) {
-    operator.status = !operator.status; 
-},
+    async toggleStatus(row) {
+      row.status = !row.status;
+      try {
+        const token = this.getAuthToken();
+        if (!token) return;
 
-  // Close the modals
-  closeModal() {
-    this.showCreateModal = false;
-    this.showEditModal = false;
+        const response = await axios.put(
+          `/api/users/updateStatus/${row.id}`,
+          { ...row },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log('User status updated successfully:', response.data);
+        this.getOperators();
+        alert('User status updated successfully');
+      }
+      catch (error) {
+        console.error("Error updating rule status:", error);
+        alert('Failed to update user status. Please try again.');
+      }
+    },
+
+    // Close the modals
+    closeModal() {
+      this.showCreateModal = false;
+      this.showEditModal = false;
+    },
+
+    // Open the create modal
+    openCreateModal() {
+      this.showCreateModal = true;
+      this.showEditModal = false;
+    },
+
+
   },
-
-  // Open the create modal
-  openCreateModal() {
-    this.showCreateModal = true;
-    this.showEditModal = false; 
-  },
-},
 };
 </script>

@@ -87,7 +87,7 @@
       
       <CreateButton @open-modal="openCreateModal" />
       
-       <table class="min-w-full table-auto border-collapse border border-gray-200">
+       <!-- <table class="min-w-full table-auto border-collapse border border-gray-200">
       <thead class="bg-gray-100">
         <tr>
           <th class="border px-4 py-2 text-left text-gray-800">S.N</th>
@@ -130,17 +130,19 @@
           
         </tr>
       </tbody>
-      </table> 
+      </table>  -->
      
-      <!-- <Table :items="items" :columns="tableColumns" @update-status="toggleStatus" @edit-operator="openEditModal">
+      <Table :items="items" :columns="tableColumns"  :get-status="getStatusClass" 
+       :get-statusText="getStatusText"
+       :get-rewardText="getRewardTypeText"   @edit-operator="openEditModal">
         <template #modal>
           <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-2/5 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Create New Ticket</h3>
           <form @submit.prevent="createTicket" class="space-y-4">
             <div>
-              <label class="block text-gray-700">User</label>
-              <input v-model="newTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">User</label>
+              <input v-model="newTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
             </div>
 
@@ -153,32 +155,32 @@
               </div>
             </div>
             <div>
-              <label class="block text-gray-700">Quantity</label>
-              <input v-model="newTicket.quantity" type="number" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Quantity</label>
+              <input v-model="newTicket.quantity" type="number" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.quantity" class="text-red-500 text-sm">{{ errors.quantity }}</span>
             </div>
 
             <div>
-              <label class="block text-gray-700">Memo</label>
-              <input v-model="newTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Memo</label>
+              <input v-model="newTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
             </div>
 
-            <div class="flex justify-end">
-              <button type="button" @click="closeModal" class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
-              <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Create</button>
+            <div class="flex justify-end gap-x-3">
+              <Button type="button" @click="closeModal" label="Cancel" severity="secondary" />
+              <Button type="submit" label="Create"/>
             </div>
           </form>
         </div>
       </div>
 
       <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-2/5">
           <h3 class="text-2xl font-bold mb-4">Edit Ticket</h3>
           <form @submit.prevent="updateTicket" class="space-y-4">
             <div>
-              <label class="block text-gray-700">User</label>
-              <input v-model="editingTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">User</label>
+              <input v-model="editingTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
             </div>
 
@@ -192,20 +194,20 @@
             </div>
 
             <div>
-              <label class="block text-gray-700">Memo</label>
-              <input v-model="editingTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Memo</label>
+              <input v-model="editingTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
             </div>
 
-            <div class="flex justify-end">
-              <button type="button" @click="closeModal" class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
-              <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Save</button>
+            <div class="flex justify-end gap-x-3">
+              <Button type="button" @click="closeModal" label="Cancel" severity="secondary" />
+              <Button type="submit" label="Save"/>
             </div>
           </form>
         </div>
       </div>
         </template>
-      </Table> -->
+      </Table>
       
       
       <!-- Pagination -->
@@ -214,21 +216,23 @@
         
         <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
         
-        <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages }}</span>
+        <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages
+          }}</span>
         
         <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" label="Next" />
 
         <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages" label="Last" />
       </div>
       <!-- Modals for Create and Edit -->
+
       <!-- Create Modal -->
-      <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
+      <!-- <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-2/5 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Create New Ticket</h3>
           <form @submit.prevent="createTicket" class="space-y-4">
             <div>
-              <label class="block text-gray-700">User</label>
-              <input v-model="newTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">User</label>
+              <input v-model="newTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
             </div>
 
@@ -241,14 +245,14 @@
               </div>
             </div>
             <div>
-              <label class="block text-gray-700">Quantity</label>
-              <input v-model="newTicket.quantity" type="number" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Quantity</label>
+              <input v-model="newTicket.quantity" type="number" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.quantity" class="text-red-500 text-sm">{{ errors.quantity }}</span>
             </div>
 
             <div>
-              <label class="block text-gray-700">Memo</label>
-              <input v-model="newTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Memo</label>
+              <input v-model="newTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
             </div>
 
@@ -258,16 +262,16 @@
             </div>
           </form>
         </div>
-      </div>
+      </div> -->
 
       <!-- Edit Modal -->
-      <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
+      <!-- <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-2/5">
           <h3 class="text-2xl font-bold mb-4">Edit Ticket</h3>
           <form @submit.prevent="updateTicket" class="space-y-4">
             <div>
-              <label class="block text-gray-700">User</label>
-              <input v-model="editingTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">User</label>
+              <input v-model="editingTicket.userId" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.userId" class="text-red-500 text-sm">{{ errors.userId }}</span>
             </div>
 
@@ -281,8 +285,8 @@
             </div>
 
             <div>
-              <label class="block text-gray-700">Memo</label>
-              <input v-model="editingTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+              <label class="block font-medium mb-2">Memo</label>
+              <input v-model="editingTicket.memo" type="text" class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.memo" class="text-red-500 text-sm">{{ errors.memo }}</span>
             </div>
 
@@ -292,7 +296,8 @@
             </div>
           </form>
         </div>
-      </div>
+      </div> -->
+
     </div>
   </div>
 </template>
@@ -433,8 +438,8 @@ methods: {
       4: "SPIN_TICKET"
     };
     const rewardTypeText = rewardTypeMap[status.RewardType] || " "; 
+    console.log(status.RewardAmount,rewardTypeText,"rewardTypeText")
     return status.RewardAmount ? `${status.RewardAmount} ${rewardTypeText}` : rewardTypeText;
-
   },
   getAuthToken() {
     const token = localStorage.getItem("authToken"); 
@@ -535,7 +540,7 @@ methods: {
           { field: 'Coupon', header: 'Coupon' },
           { field: 'Operator', header: 'Operator' },
           { field: 'Status', header: 'Status' },
-          { field: 'Action', header: 'Action' },
+          { field: 'action', header: 'Action' },
         ];
       this.totalCount = totalCount;
       this.totalPages = totalPages;
