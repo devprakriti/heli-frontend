@@ -84,13 +84,45 @@
 
             <!-- Settings -->
             <li>
-              <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
-                'bg-[#6b7280]': isActiveRoute('/settings'),
-                'hover:bg-gray-700': !isActiveRoute('/settings'),
+              <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSettings" :class="{
+                'bg-[#6b7280]':isActiveRoute('/profilesettings') || isActiveRoute('/groups') || isActiveRoute('/roles'),
+                'hover:bg-gray-700': !isActiveRoute('/profilesettings') && !isActiveRoute('/groups') && !isActiveRoute('/roles'),
               }">
-                <span><i class="pi pi-cog"></i></span>
+                 <span><i class="pi pi-cog"></i></span>
                 <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
-              </router-link>
+                <span v-if="!isSidebarMinimized" class="ml-auto">
+                  <i class="pi" :class="isSettingOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                </span>
+              </div>
+              <ul v-if="isSettingOpen" class="ml-6 space-y-2 mt-4">
+                <li>
+                  <router-link to="/profilesettings" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/profilesettings'),
+                    'hover:bg-gray-700': !isActiveRoute('/profilesettings'),
+                  }">
+                    <span><i class="pi pi-user-edit"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Profile</span>
+                  </router-link>
+                </li>   
+                <li>
+                  <router-link to="/groups" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/groups'),
+                    'hover:bg-gray-700': !isActiveRoute('/groups'),
+                  }">
+                    <span><i class="pi pi-users"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Group</span>
+                  </router-link>
+                </li>  
+                <li>
+                  <router-link to="/roles" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/roles'),
+                    'hover:bg-gray-700': !isActiveRoute('/roles'),
+                  }">
+                    <span><i class="pi pi-user-minus"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Role</span>
+                  </router-link>
+                </li>         
+              </ul>
             </li>
             <li>
                   <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
@@ -104,8 +136,8 @@
 
             <li>
               <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSpinwin" :class="{
-                'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets'),
-                'hover:bg-gray-700': !isActiveRoute('/accounts') && !isActiveRoute('/tickets') && !isActiveRoute('/rules'),
+                'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets') || isActiveRoute('/settings'),
+                'hover:bg-gray-700': !isActiveRoute('/accounts') && !isActiveRoute('/tickets') && !isActiveRoute('/rules') && !isActiveRoute('/settings'),
               }">
                  <span><i class="pi pi-bullseye"></i></span>
                 <span v-if="!isSidebarMinimized" class="ml-3">Spinwin</span>
@@ -114,6 +146,16 @@
                 </span>
               </div>
               <ul v-if="isSpinwinOpen" class="ml-6 space-y-2 mt-4">
+                <li>
+                  <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                    'bg-[#6b7280]': isActiveRoute('/settings'),
+                    'hover:bg-gray-700': !isActiveRoute('/settings'),
+                  }">
+                    <span><i class="pi pi-cog"></i></span>
+                    <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
+                  </router-link>
+                 </li>
+
                 <li>
                   <router-link to="/accounts" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/accounts'),
@@ -185,12 +227,9 @@ export default {
     return {
       isSidebarMinimized: false,
       isSpinwinOpen: false,
+      isSettingOpen: false,
       loading: false,
-      isSidebarMinimized: false,
-      operatorMenuItems: [
-        { label: 'Create Operator', icon: 'pi pi-plus', command: () => this.$router.push('/operators/create') },
-        { label: 'Edit Operator', icon: 'pi pi-pencil', command: () => this.$router.push('/operators/edit') },
-      ],
+      isSidebarMinimized: false
     };
   },
   computed: {
@@ -204,6 +243,12 @@ export default {
           return 'Dashboard Overview';
         case '/settings':
           return 'Settings';
+        case '/profilesettings':
+          return 'Profile Settings';
+        case '/groups':
+          return 'Group';
+        case '/roles':
+          return 'Role';
         case '/accounts':
           return 'Accounts';
         case '/operators':
@@ -220,7 +265,10 @@ export default {
   methods: {
     toggleSpinwin() {
     this.isSpinwinOpen = !this.isSpinwinOpen;
-  },
+    },
+    toggleSettings(){
+    this.isSettingOpen = !this.isSettingOpen;
+    },
     toggleSidebar() {
       this.isSidebarMinimized = !this.isSidebarMinimized;
     },

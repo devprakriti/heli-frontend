@@ -3,8 +3,11 @@ import AdminLogin from '@/views/Login.vue';
 import AdminDashboard from '@/views/Dashboard.vue';
 import AdminSettings from '@/views/Settings.vue';
 import AdminOperators from '@/views/Operators.vue';
+import AdminGroup from '@/views/Group.vue';
+import AdminRole from '@/views/Role.vue';
 import AdminTickets from '@/views/Tickets.vue'
 import Rules from '@/views/Rules.vue';
+import ProfileSettings from '@/views/ProfileSettings.vue';
 import AdminAccounts from  '@/views/Accounts.vue';
 import Test from '@/views/Test.vue';
 
@@ -24,6 +27,30 @@ const routes = [
     path: '/settings', 
     name: 'Settings',
     component: AdminSettings,
+    meta: {
+      requiresAuth: true  // Only allow access to authenticated users
+    }
+  },
+  { 
+    path: '/profilesettings', 
+    name: 'ProfileSettings',
+    component: ProfileSettings,
+    meta: {
+      requiresAuth: true  // Only allow access to authenticated users
+    }
+  },
+  { 
+    path: '/groups', 
+    name: 'Group',
+    component: AdminGroup,
+    meta: {
+      requiresAuth: true  // Only allow access to authenticated users
+    }
+  },
+  { 
+    path: '/roles', 
+    name: 'Role',
+    component: AdminRole,
     meta: {
       requiresAuth: true  // Only allow access to authenticated users
     }

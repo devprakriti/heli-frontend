@@ -24,45 +24,7 @@
     </div>
 
 
-    <div class="bg-white p-6 rounded-lg border mb-6">
-      <div class="border-b border-gray-200 mb-6">
-        <nav class="flex space-x-4">
-          <h3 class="text-xl font-semibold mb-4">Profile Settings</h3>
-        </nav>
-      </div>
-      <div class="flex justify-between items-center ">
-        <form @submit.prevent="updateProfile" class="space-y-6 w-full">
-          <!-- New Password Input -->
-          <div class="flex gap-6">
-              <div class="w-1/2">
-                <label for="newPassword" class="block text-sm font-semibold text-gray-700 mb-1">New Password</label>
-                <input v-model="profileData.newPassword" id="newPassword" type="password"
-                  placeholder="Enter your new password"
-                  class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring focus:ring-green-300"
-                  @input="validatePasswords" />
-                <span v-if="errors.newPassword" class="text-red-500 text-sm">{{ errors.newPassword }}</span>
-              </div>
-    
-              <!-- Confirm Password Input -->
-              <div class="w-1/2">
-                <label for="confirmPassword" class="block text-sm font-semibold text-gray-700 mb-1">Confirm New Password</label>
-                <input v-model="profileData.confirmPassword" id="confirmPassword" type="password"
-                  placeholder="Confirm your new password"
-                  class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring focus:ring-green-300"
-                  @input="validatePasswords" />
-                <span v-if="errors.confirmPassword" class="text-red-500 text-sm">{{ errors.confirmPassword }}</span>
-              </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end space-x-4">
-            <Button type="button" severity="secondary" @click="cancelUpdate" label="Cancel" />
-            <Button type="submit" label="Update Profile" 
-              :disabled="errors.newPassword || errors.confirmPassword"/>
-          </div>
-        </form>
-      </div>
-    </div>
+   
   </div>
 </template>
 
