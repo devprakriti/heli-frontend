@@ -106,7 +106,8 @@
           
           <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
           
-          <span class=" font-semibold ">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages }}</span>
+          <span class=" font-semibold ">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages
+          }}</span>
           
           <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0" label="Next" />
   

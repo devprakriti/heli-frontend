@@ -102,7 +102,7 @@ export default {
         console.log('error',error)
         // Handle login error (e.g., server down, invalid credentials)
         this.loading = false;  // Stop loading
-        this.errorMessage = error.response?.data?.message || "An error occurred during login.";
+        this.errorMessage = error.response.data.message || "An error occurred during login.";
       }
     },
   },
