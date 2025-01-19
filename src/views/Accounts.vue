@@ -50,7 +50,8 @@
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
-              id="search" 
+              id="search"
+              type="search" autocomplete="off" 
               v-model="filters.AccountId" 
               placeholder="Search by AccountId" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -60,6 +61,7 @@
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
               id="search" 
+              type="search" autocomplete="off"
               v-model="filters.Account" 
               placeholder="Search by Account" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -69,6 +71,7 @@
             <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
             <InputText 
               id="search" 
+              type="search" autocomplete="off"
               v-model="filters.Username" 
               placeholder="Search by Username" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -129,12 +132,12 @@ export default {
       tableColumns: null,
       accounts: [],
       filters: {
-        Username: '',
-        Account:'',
-        AccountId:'',
-        fromTime: '',
-        toTime: '',
-        search: ''
+        Username: null,
+        Account:null,
+        AccountId:null,
+        fromTime: null,
+        toTime: null,
+        search:null
       },
       currentPage: 1,
       pageSize: 10,

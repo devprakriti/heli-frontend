@@ -19,6 +19,7 @@
               id="start-date" 
               v-model="filters.fromTime" 
               :showIcon="true"
+              placeholder="Pick a date"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
               :maxDate="maxDate" 
             />
@@ -32,6 +33,7 @@
               id="end-date" 
               v-model="filters.toTime" 
               :showIcon="true"
+              placeholder="Pick a date"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
               :minDate="filters.fromTime" :maxDate="maxDate"
             />
@@ -46,6 +48,7 @@
           <div class="flex-1">
             <label for="search" class="block text-sm font-medium text-gray-700">Search by TradeId</label>
             <InputText 
+            type="search" autocomplete="off"
               id="search" 
               v-model="filters.TradeId" 
               placeholder="Search by TradeId" 
@@ -56,6 +59,7 @@
             <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
             <InputText 
               id="search" 
+              type="search" autocomplete="off"
               v-model="filters.Username" 
               placeholder="Search by Username" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -65,6 +69,7 @@
             <label for="search" class="block text-sm font-medium text-gray-700">Search by Coupon</label>
             <InputText 
               id="search" 
+              type="search" autocomplete="off"
               v-model="filters.Coupon" 
               placeholder="Search by Coupon" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -74,6 +79,7 @@
             <label for="search" class="block text-sm font-medium text-gray-700">Search by Operator</label>
             <InputText 
               id="search" 
+              type="search" autocomplete="off"
               v-model="filters.Operator" 
               placeholder="Search by Operator" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" 
@@ -346,14 +352,14 @@ data() {
     ruleType: [],
     operators: [],
     filters: {
-      Username: '',
-      TradeId: '',
-      Coupon: '',
-      Operator:'',
-      Status: '',
-      fromTime: '',
-      toTime: '',
-      search: ''
+      Username: null,
+      TradeId: null,
+      Coupon: null,
+      Operator:null,
+      Status: null,
+      fromTime: null,
+      toTime: null,
+      search: null
     },
     showCreateModal: false,
     showEditModal: false,
