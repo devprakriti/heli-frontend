@@ -1,9 +1,10 @@
 <template>
-    {{ console.log(showNoData,"showNoData") }}
+    {{ console.log(items, "showNoData") }}
     <div class="card">
         <!-- Loader -->
-          <!-- Loader -->
-          <div v-if="(!items || items.length === 0) && !showNoData" class="flex justify-center items-center min-h-[550px]">
+        <!-- Loader -->
+        <div v-if="(!items || items.length === 0) && !showNoData"
+            class="flex justify-center items-center min-h-[550px]">
             <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" animationDuration=".7s" />
         </div>
 
@@ -11,7 +12,7 @@
         <div v-else-if="showNoData" class="flex justify-center items-center min-h-[550px]">
             <p class="text-gray-500 text-lg">No items found</p>
         </div>
-        
+
         <div v-else>
             <DataTable :value="items" :key="items.length" tableStyle="min-width: 50rem" showGridlines>
                 <Column header="S.N">
@@ -48,17 +49,21 @@
                 <!-- Status Column -->
                 <Column v-if="columns?.some(col => col.field === 'status')" header="Status" body-class="text-center">
                     <template #body="slotProps">
-                        {{ console.log(slotProps,"slotProps?.data.status") }}
+                        {{ console.log(slotProps, "slotProps?.data.status") }}
                         <ToggleSwitch :model-value="!!parseInt(slotProps?.data.status, 10)"
                             @change="emitStatusChange(slotProps?.data)" />
                     </template>
                 </Column>
 
                 <!-- Action Column -->
-                <Column v-if="columns?.some(col => col.field === 'action')" header="Action" body-class="text-center">
+                <Column v-if="columns?.some(col => col.field === 'action')" :class="{ 'custom-width': showAssign }"  header="Action" body-class="text-center">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" class="p-button-text " @click="emitEdit(slotProps?.data)"
                             label="Edit" />
+                        <Button v-if="showAssign" icon="pi pi-users" class="p-button-text"
+                            @click="emitAssignUser(slotProps?.data)" label="Assign User" />
+                        <Button v-if="showAssign" icon="pi pi-plus-circle" class="p-button-text"
+                            @click="emitAssignRole(slotProps?.data)" label="Assign Role" />
                     </template>
                 </Column>
             </DataTable>
@@ -98,8 +103,12 @@ export default {
             type: Function,
             required: false,
         },
+        showAssign: {
+            type: Boolean,
+            default: false, // By default, the Assign User button is not shown
+        },
     },
-    emits: ['update-status', 'edit-operator', 'edit-details', 'get-rewardType', 'get-statusText', 'get-status'],
+    emits: ['update-status', 'edit-operator', 'edit-details', 'get-rewardType', 'get-statusText', 'get-status', 'assign-user', 'assign-role'],
     data() {
         return {
             showNoData: false,
@@ -111,6 +120,12 @@ export default {
         },
         emitEdit(row) {
             this.$emit('edit-operator', row);
+        },
+        emitAssignUser(row) {
+            this.$emit('assign-user', row)
+        },
+        emitAssignRole(row) {
+            this.$emit('assign-role', row)
         },
         getRewardTypeText(data) {
             const rewardTypeMap = {
@@ -126,19 +141,19 @@ export default {
     },
     watch: {
         items: {
-            immediate: true, 
+            immediate: true,
             handler(newItems) {
-                console.log(newItems,!newItems || newItems.length === 0,"newItems")
+                console.log(newItems, !newItems || newItems.length === 0, "newItems")
                 if (!newItems || newItems.length === 0) {
-                setTimeout(() => {
-                    if (!this.items || this.items.length === 0) {
-                        console.log("triggerred")
-                        this.showNoData = true;
-                    }
-                }, 1000);
-            } else {
-                this.showNoData = false; 
-            }
+                    setTimeout(() => {
+                        if (!this.items || this.items.length === 0) {
+                            console.log("triggerred")
+                            this.showNoData = true;
+                        }
+                    }, 1000);
+                } else {
+                    this.showNoData = false;
+                }
             },
         },
     },
@@ -153,5 +168,21 @@ export default {
 
 tbody tr:hover {
     background-color: #f9fafb !important;
+}
+
+.custom-width {
+  width: 40%;
+}
+
+
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    height: 1.1rem;
+    width: 1.1rem;
+    border-radius: 50em;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23a1a1aa' stroke-linecap='round' stroke-width='2.3' d='M20 20L4 4m16 0L4 20'/%3E%3C/svg%3E") no-repeat 50% 50%;
+    background-size: contain;
+    opacity: 1;
+    cursor: pointer;
 }
 </style>

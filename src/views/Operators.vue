@@ -6,12 +6,12 @@
       <div class="flex space-x-4 mb-4">
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search by Fullname</label>
-          <InputText id="search" v-model="filters.Fullname" placeholder="Search by Fullname"
+          <InputText id="search" type="search" autocomplete="off" v-model="filters.Fullname" placeholder="Search by Fullname"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
-          <InputText id="search" v-model="filters.Username" placeholder="Search by Username"
+          <InputText id="search" type="search" autocomplete="off" v-model="filters.Username" placeholder="Search by Username"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div class="flex-1">
@@ -224,9 +224,9 @@ export default {
       totalPages: 0,
       totalCount: 0,
       filters: {
-        Username: '',
-        Fullname: '',
-        Status: ''
+        Username: null,
+        Fullname: null,
+        Status: null
       },
       statusList: [
         { name: 'Active', code: '1' },

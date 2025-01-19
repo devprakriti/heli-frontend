@@ -28,7 +28,7 @@
         </div>
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search By Name</label>
-          <InputText id="search" v-model="filters.Name" placeholder="Search by Name"
+          <InputText  type="search" autocomplete="off"  id="search" v-model="filters.Name" placeholder="Search by Name"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <!-- Search Filter 
@@ -480,12 +480,12 @@ export default {
       statisticalProcedureEnabled: false,
       memberDisplayEnabled: false,
       filters: {
-        Name: '',
-        TicketType: '',
-        Status: '',
-        fromTime: '',
-        toTime: '',
-        search: ''
+        Name: null,
+        TicketType: null,
+        Status: null,
+        fromTime: null,
+        toTime: null,
+        search: null
       },
       newRule: {
         Id: "",
@@ -1077,19 +1077,17 @@ export default {
       }
     },
     getWeekdayNames(daysArray) {
-      const parsedDays = JSON.parse(daysArray)  
-      if (parsedDays?.length > 0) {
+      const parsedDays = JSON.parse(daysArray) 
+      if (Array.isArray(parsedDays) && parsedDays?.length > 0) {
         const dayNames = this.weekdayOptions
           .filter(day => parsedDays?.includes(day.code))
           .map(day => day.name);
         return dayNames.join(', '); 
       }
-      return ''; 
     },
     getDesignatedDate(dateArray) {
-      const parsedDays = JSON.parse(dateArray)  
-      console.log(parsedDays,"parsedDays")
-      return parsedDays.length> 0 ? parsedDays.join(', ') : ''
+      const parsedDate = JSON.parse(dateArray)  
+      return (Array.isArray(parsedDate) && parsedDate.length) > 0 ? parsedDate.join(', ') : ''
     },
     async toggleStatus(row) {
       row.status = !row.status;
@@ -1143,7 +1141,8 @@ th {
 
 td {
   color: black;
-  font-weight: 500;
+  font-weight: 400;
+  padding: 11.25px 15px;
 }
 
 tbody tr:hover {
