@@ -108,21 +108,55 @@
       </div>
       <!-- Modals for Create and Edit -->
       <!-- Create Modal -->
-      <Drawer v-if="openAssignUserDrawer" v-model:visible="showAssignUserDrawer" header="List of Operators"
+      <!-- <Drawer v-if="openAssignUserDrawer" v-model:visible="showAssignUserDrawer" header="List of Operators"
         position="right">
         <div v-for="operator of operators" :key="operator.id" class="flex items-center gap-2">
           <Checkbox v-model="form.operators" :inputId="operator.id" name="operator" :value="operator.id" />
           <label :for="operator.id">{{ operator.username }}</label>
         </div>
+      </Drawer> -->
+      <Drawer
+        v-if="openAssignUserDrawer"
+        v-model:visible="showAssignUserDrawer"
+        header="Assign Operators"
+        class="!w-full md:!w-80 lg:!w-[30rem] custom-drawer"
+        position="right"
+      >
+        <div class="content-scrollable border rounded-md p-4">
+          <div class="p-fluid grid gap-2">
+            <div
+              v-for="(operator, index) in operators"
+              :key="operator.id"
+              class="col-12 md:col-6 module-container border-b border-gray-300 pb-2"
+            >
+              <!-- operator Item -->
+              <div class="operator-item flex align-items-center gap-2">
+                <Checkbox
+                  v-model="operatorForm.operatorList"
+                  :inputId="'operator-' + operator.id"
+                  :value="operator.id"
+                />
+                <label :for="'operator-' + operator.id">
+                  <span class="operator-index font-bold">{{ index + 1 }}.</span> {{ operator.username }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span v-if="errors.operatorList" class="text-red-500 text-sm">
+          {{ errors.operatorList }}
+        </span>
+        <div class="save-button">
+          <Button  
+            label="Save"
+            icon="pi pi-save"
+            :loading="isSaving"
+            class="p-button-primary"
+            @click="onSaveOperator()"
+          />
+        </div>
       </Drawer>
 
-      <!-- <Drawer v-if="openAssignRoleDrawer" v-model:visible="showAssignRoleDrawer" header="List of Roles"
-        position="right">
-        <div v-for="role of roles" :key="role.id" class="flex items-center gap-2">
-          <Checkbox v-model="form.roles" :inputId="role.id" name="role" :value="role.id" />
-          <label :for="role.id">{{ role.name }}</label>
-        </div>
-      </Drawer> -->
       <Drawer
         v-if="openAssignRoleDrawer"
         v-model:visible="showAssignRoleDrawer"
@@ -130,42 +164,40 @@
         class="!w-full md:!w-80 lg:!w-[30rem] custom-drawer"
         position="right"
       >
-    <!-- Scrollable Content -->
-    <div class="content-scrollable border rounded-md p-4">
-      <div class="p-fluid grid gap-2">
-        <div
-          v-for="(role, index) in roles"
-          :key="role.id"
-          class="col-12 md:col-6 module-container border-b border-gray-300 pb-2"
-        >
-          <!-- Role Item -->
-          <div class="role-item flex align-items-center gap-2">
-            <Checkbox
-              v-model="roleForm.roleList"
-              :inputId="'role-' + role.id"
-              :value="role.id"
-            />
-            <label :for="'role-' + role.id">
-              <span class="role-index font-bold">{{ index + 1 }}.</span> {{ role.name }}
-            </label>
+        <div class="content-scrollable border rounded-md p-4">
+          <div class="p-fluid grid gap-2">
+            <div
+              v-for="(role, index) in roles"
+              :key="role.id"
+              class="col-12 md:col-6 module-container border-b border-gray-300 pb-2"
+            >
+              <!-- Role Item -->
+              <div class="role-item flex align-items-center gap-2">
+                <Checkbox
+                  v-model="roleForm.roleList"
+                  :inputId="'role-' + role.id"
+                  :value="role.id"
+                />
+                <label :for="'role-' + role.id">
+                  <span class="role-index font-bold">{{ index + 1 }}.</span> {{ role.name }}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <span v-if="errors.roleList" class="text-red-500 text-sm">
-      {{ errors.roleList }}
-    </span>
-    <!-- Sticky Save Button -->
-    <div class="save-button">
-      <Button  
-        label="Save"
-        icon="pi pi-save"
-        :loading="isSaving"
-        class="p-button-primary"
-        @click="onSave()"
-      />
-    </div>
-  </Drawer>
+        <span v-if="errors.roleList" class="text-red-500 text-sm">
+          {{ errors.roleList }}
+        </span>
+        <div class="save-button">
+          <Button  
+            label="Save"
+            icon="pi pi-save"
+            :loading="isSaving"
+            class="p-button-primary"
+            @click="onSave()"
+          />
+        </div>
+      </Drawer>
 
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
@@ -231,6 +263,11 @@ export default {
       form: {
         operators: []
       },
+      operatorForm: {
+        operatorList: [],
+        group_id: null,
+        group_name: null
+      },
       roleForm: {
         roleList: [],
         group_id: null,
@@ -255,7 +292,8 @@ export default {
       totalCount: 0,
       errors: {
         name: null,
-        roleList: null
+        roleList: null,
+        operatorList: null
       },
       isSaving: false,
     };
@@ -407,6 +445,38 @@ export default {
         console.error("Error saving roles:", error.response?.data || error.message || error);
       }
   },
+  async getGroupOperator(groupId){
+    const token = this.getAuthToken();
+    if (!token) {
+      console.log("No authorization token found. Save request aborted.");
+      return;
+    }
+    try {
+        const response = await axios.get("/api/groupOperator", {
+          params:{
+            group_id: groupId
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response.data.groupOperatorList);
+        if (response.data.success) { 
+          const operatorIds = response.data.groupOperatorList.map((item) => item.Operator_id);
+          this.operatorForm = {
+            operatorList: operatorIds,
+            group_id: groupId,
+            group_name: 'RiskTool',
+          };
+
+        } else {
+          console.error("Failed to fetch operators. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving operators:", error.response?.data || error.message || error);
+      }
+  },
     goToPage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
@@ -426,7 +496,68 @@ export default {
       }
       return isValid;
   },
-    async onSave() {
+  validateOperatorForm(operator) {
+      this.errors = {
+        operatorList: null
+      };
+
+      let isValid = true;
+
+      if (!operator.operatorList) {
+          this.errors.operatorList = "Operator is required";
+          isValid = false;
+      }
+      return isValid;
+  },
+  async onSaveOperator() {
+      if (!this.validateOperatorForm(this.operatorForm)) {
+        console.log("Form validation failed. Save request aborted.");
+        return;
+      }
+      const token = this.getAuthToken();
+      if (!token) {
+        console.log("No authorization token found. Save request aborted.");
+        return;
+      }
+
+      if (!this.operatorForm.operatorList || this.operatorForm.operatorList.length === 0) {
+        console.log("No operator selected. Save request aborted.");
+        return;
+      }
+      if (this.isSaving) {
+        console.log("Save is already in progress. Please wait.");
+        return;
+      }
+      this.isSaving = true;
+      try {
+        console.log("Saving operator:", this.operatorForm.roleList);
+        const response = await axios.post("/api/groupOperator/create", this.operatorForm, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response);
+        if (response.data.success) {
+          console.log("Operators saved successfully.");
+          this.showAssignUserDrawer = false;
+          this.operatorForm = {
+            operatorList: [],
+            group_id: null,
+            group_name: null,
+          };
+
+          this.originalOperatorList = [...this.operatorForm.operatorList];
+        } else {
+          console.error("Failed to save operators. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving roles:", error.response?.data || error.message || error);
+      } finally {
+        this.isSaving = false;
+      }
+  },
+  async onSave() {
       if (!this.validateRoleForm(this.roleForm)) {
         console.log("Form validation failed. Save request aborted.");
         return;
@@ -521,7 +652,10 @@ export default {
     },
     openAssignUserDrawer(group) {
       console.log('editingGroup', group)
+      this.operatorForm.group_id = toRaw(group).Id
+      const groupId = toRaw(group).Id
       this.showAssignUserDrawer = true;
+      this.getGroupOperator(groupId)     
     },
     openAssignRoleDrawer(group) {
       console.log('editingGroup', group)
