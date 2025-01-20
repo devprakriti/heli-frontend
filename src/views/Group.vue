@@ -108,21 +108,97 @@
       </div>
       <!-- Modals for Create and Edit -->
       <!-- Create Modal -->
-      <Drawer v-if="openAssignUserDrawer" v-model:visible="showAssignUserDrawer" header="List of Operators"
+      <!-- <Drawer v-if="openAssignUserDrawer" v-model:visible="showAssignUserDrawer" header="List of Operators"
         position="right">
         <div v-for="operator of operators" :key="operator.id" class="flex items-center gap-2">
           <Checkbox v-model="form.operators" :inputId="operator.id" name="operator" :value="operator.id" />
           <label :for="operator.id">{{ operator.username }}</label>
         </div>
-      </Drawer>
-
-      <Drawer v-if="openAssignRoleDrawer" v-model:visible="showAssignRoleDrawer" header="List of Roles"
-        position="right">
-        <div v-for="role of roles" :key="role.id" class="flex items-center gap-2">
-          <Checkbox v-model="form.roles" :inputId="role.id" name="role" :value="role.id" />
-          <label :for="role.id">{{ role.name }}</label>
+      </Drawer> -->
+      <Drawer
+        v-if="openAssignUserDrawer"
+        v-model:visible="showAssignUserDrawer"
+        header="Assign Operators"
+        class="!w-full md:!w-80 lg:!w-[30rem] custom-drawer"
+        position="right"
+      >
+        <div class="content-scrollable border rounded-md p-4">
+          <div class="p-fluid grid gap-2">
+            <div
+              v-for="(operator, index) in operators"
+              :key="operator.id"
+              class="col-12 md:col-6 module-container border-b border-gray-300 pb-2"
+            >
+              <!-- operator Item -->
+              <div class="operator-item flex align-items-center gap-2">
+                <Checkbox
+                  v-model="operatorForm.operatorList"
+                  :inputId="'operator-' + operator.id"
+                  :value="operator.id"
+                />
+                <label :for="'operator-' + operator.id">
+                  <span class="operator-index font-bold">{{ index + 1 }}.</span> {{ operator.username }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span v-if="errors.operatorList" class="text-red-500 text-sm">
+          {{ errors.operatorList }}
+        </span>
+        <div class="save-button">
+          <Button  
+            label="Save"
+            icon="pi pi-save"
+            :loading="isSaving"
+            class="p-button-primary"
+            @click="onSaveOperator()"
+          />
         </div>
       </Drawer>
+
+      <Drawer
+        v-if="openAssignRoleDrawer"
+        v-model:visible="showAssignRoleDrawer"
+        header="Assign Roles"
+        class="!w-full md:!w-80 lg:!w-[30rem] custom-drawer"
+        position="right"
+      >
+        <div class="content-scrollable border rounded-md p-4">
+          <div class="p-fluid grid gap-2">
+            <div
+              v-for="(role, index) in roles"
+              :key="role.id"
+              class="col-12 md:col-6 module-container border-b border-gray-300 pb-2"
+            >
+              <!-- Role Item -->
+              <div class="role-item flex align-items-center gap-2">
+                <Checkbox
+                  v-model="roleForm.roleList"
+                  :inputId="'role-' + role.id"
+                  :value="role.id"
+                />
+                <label :for="'role-' + role.id">
+                  <span class="role-index font-bold">{{ index + 1 }}.</span> {{ role.name }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span v-if="errors.roleList" class="text-red-500 text-sm">
+          {{ errors.roleList }}
+        </span>
+        <div class="save-button">
+          <Button  
+            label="Save"
+            icon="pi pi-save"
+            :loading="isSaving"
+            class="p-button-primary"
+            @click="onSave()"
+          />
+        </div>
+      </Drawer>
+
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2 max-h-screen overflow-y-auto">
           <h3 class="text-2xl font-bold mb-4">Create New Group</h3>
@@ -172,6 +248,7 @@
 <script>
 import axios from "axios";
 import moment from 'moment';
+import { toRaw } from 'vue';
 import CreateButton from '../components/CreateButton.vue'
 import Table from "../components/Table.vue";
 export default {
@@ -186,8 +263,15 @@ export default {
       form: {
         operators: []
       },
+      operatorForm: {
+        operatorList: [],
+        group_id: null,
+        group_name: null
+      },
       roleForm: {
-        roles: []
+        roleList: [],
+        group_id: null,
+        group_name: null
       },
       editingGroup: null,
       groups: [],
@@ -203,22 +287,28 @@ export default {
       showEditModal: false,
       currentPage: 1,
       pageSize: 10,
+      originalRoleList: [],
       totalPages: 0,
       totalCount: 0,
       errors: {
-        name: null
+        name: null,
+        roleList: null,
+        operatorList: null
       },
+      isSaving: false,
     };
   },
 
   watch: {
-    'filters.Name': 'getGroups'
+    'filters.Name': 'getGroups',
+    // 'roleForm.group_id': 'getGroupRole'
   },
 
   mounted() {
     this.getGroups();
     this.getOperators();
     this.getRoles();
+    // this.getGroupRole();
 
   },
   created() {
@@ -321,40 +411,236 @@ export default {
         console.error("Error fetching groups:", error);
       }
     },
+    async getGroupRole(groupId){
+    const token = this.getAuthToken();
+    if (!token) {
+      console.log("No authorization token found. Save request aborted.");
+      return;
+    }
+    try {
+        const response = await axios.get("/api/groupRole", {
+          params:{
+            group_id: groupId
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response.data.groupRoleList);
+        if (response.data.success) {
+          // const groupId = response.data.groupRoleList[0]?.Group_id || null; 
+          const roleIds = response.data.groupRoleList.map((item) => item.Role_id);
+
+          this.roleForm = {
+            roleList: roleIds,
+            group_id: groupId,
+            group_name: 'RiskTool',
+          };
+
+        } else {
+          console.error("Failed to fetch roles. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving roles:", error.response?.data || error.message || error);
+      }
+  },
+  async getGroupOperator(groupId){
+    const token = this.getAuthToken();
+    if (!token) {
+      console.log("No authorization token found. Save request aborted.");
+      return;
+    }
+    try {
+        const response = await axios.get("/api/groupOperator", {
+          params:{
+            group_id: groupId
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response.data.groupOperatorList);
+        if (response.data.success) { 
+          const operatorIds = response.data.groupOperatorList.map((item) => item.Operator_id);
+          this.operatorForm = {
+            operatorList: operatorIds,
+            group_id: groupId,
+            group_name: 'RiskTool',
+          };
+
+        } else {
+          console.error("Failed to fetch operators. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving operators:", error.response?.data || error.message || error);
+      }
+  },
     goToPage(page) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         this.getGroups();
       }
     },
+    validateRoleForm(role) {
+      this.errors = {
+        roleList: null
+      };
 
+      let isValid = true;
 
-    async createGroup() {
-      if (!this.validateForm(this.newGroup)) return;
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-        const response = await axios.post(
-          "/api/groups/create",
-          this.newGroup,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.data.success == true) {
-          this.closeModal();
-          this.newGroup = {
-            name: ""
-          };
-          this.closeModal();
-          window.location.reload();
-        }
-      } catch (error) {
-        console.error("Error creating Group:", error);
+      if (!role.roleList) {
+          this.errors.roleList = "Role is required";
+          isValid = false;
       }
+      return isValid;
+  },
+  validateOperatorForm(operator) {
+      this.errors = {
+        operatorList: null
+      };
+
+      let isValid = true;
+
+      if (!operator.operatorList) {
+          this.errors.operatorList = "Operator is required";
+          isValid = false;
+      }
+      return isValid;
+  },
+  async onSaveOperator() {
+      if (!this.validateOperatorForm(this.operatorForm)) {
+        console.log("Form validation failed. Save request aborted.");
+        return;
+      }
+      const token = this.getAuthToken();
+      if (!token) {
+        console.log("No authorization token found. Save request aborted.");
+        return;
+      }
+
+      if (!this.operatorForm.operatorList || this.operatorForm.operatorList.length === 0) {
+        console.log("No operator selected. Save request aborted.");
+        return;
+      }
+      if (this.isSaving) {
+        console.log("Save is already in progress. Please wait.");
+        return;
+      }
+      this.isSaving = true;
+      try {
+        console.log("Saving operator:", this.operatorForm.roleList);
+        const response = await axios.post("/api/groupOperator/create", this.operatorForm, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response);
+        if (response.data.success) {
+          console.log("Operators saved successfully.");
+          this.showAssignUserDrawer = false;
+          this.operatorForm = {
+            operatorList: [],
+            group_id: null,
+            group_name: null,
+          };
+
+          this.originalOperatorList = [...this.operatorForm.operatorList];
+        } else {
+          console.error("Failed to save operators. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving roles:", error.response?.data || error.message || error);
+      } finally {
+        this.isSaving = false;
+      }
+  },
+  async onSave() {
+      if (!this.validateRoleForm(this.roleForm)) {
+        console.log("Form validation failed. Save request aborted.");
+        return;
+      }
+      const token = this.getAuthToken();
+      if (!token) {
+        console.log("No authorization token found. Save request aborted.");
+        return;
+      }
+
+      if (!this.roleForm.roleList || this.roleForm.roleList.length === 0) {
+        console.log("No roles selected. Save request aborted.");
+        return;
+      }
+
+      if (this.isSaving) {
+        console.log("Save is already in progress. Please wait.");
+        return;
+      }
+      this.isSaving = true;
+      try {
+        console.log("Saving roles:", this.roleForm.roleList);
+        const response = await axios.post("/api/groupRole/create", this.roleForm, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("API Response:", response);
+        if (response.data.success) {
+          console.log("Roles saved successfully.");
+          
+          this.showAssignRoleDrawer = false;
+          this.roleForm = {
+            roleList: [],
+            group_id: null,
+            group_name: null,
+          };
+
+          this.originalRoleList = [...this.roleForm.roleList];
+        } else {
+          console.error("Failed to save permissions. API responded with success: false.");
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving roles:", error.response?.data || error.message || error);
+      } finally {
+        this.isSaving = false;
+      }
+  },
+  async createGroup() {
+    if (!this.validateForm(this.newGroup)) return;
+    const token = this.getAuthToken();
+    if (!token) return;
+
+    try {
+        const response = await axios.post(
+            "/api/groups/create",
+            this.newGroup,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+        if (response.data.success) {
+            console.log("Group created successfully.");
+            if (response.data.group) {
+                this.groups.push(response.data.groups);
+            } else {
+                console.warn("Created group data is not available in the response.");
+            }
+            this.newGroup = { name: "" };
+            this.closeModal();
+        } else {
+            console.error("Failed to create group. API responded with success: false.");
+        }
+    } catch (error) {
+        console.error("Error creating group:", error);
+    }
     },
+
     openEditModal(group) {
       console.log('editingGroup', group)
       this.editingGroup = {
@@ -366,39 +652,49 @@ export default {
     },
     openAssignUserDrawer(group) {
       console.log('editingGroup', group)
+      this.operatorForm.group_id = toRaw(group).Id
+      const groupId = toRaw(group).Id
       this.showAssignUserDrawer = true;
+      this.getGroupOperator(groupId)     
     },
     openAssignRoleDrawer(group) {
       console.log('editingGroup', group)
+      this.roleForm.group_id = toRaw(group).Id
+      const groupId = toRaw(group).Id
       this.showAssignRoleDrawer = true;
+      this.getGroupRole(groupId)
     },
 
     async updateGroup() {
-      if (!this.validateForm(this.editingGroup)) return;
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-        const response = await axios.put(
-          `/api/groups/update/${this.editingGroup.id}`,
-          this.editingGroup,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log('response', response)
-        const index = this.groups.findIndex((op) => op.id === this.editingGroup.id);
-        if (index !== -1) {
-          this.groups.splice(index, 1, response.user);
-        }
-        window.location.reload();
-        this.editingGroup = null;
+        if (!this.validateForm(this.editingGroup)) return;
+        const token = this.getAuthToken();
+        if (!token) return;
 
-        this.closeModal();
-      } catch (error) {
-        console.error("Error updating group:", error);
-      }
+        try {
+            const response = await axios.put(
+                `/api/groups/update/${this.editingGroup.id}`,
+                this.editingGroup,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("Response:", response);
+            if (response.data.success) {
+              const index = this.groups.findIndex((op) => op.id === this.editingGroup.id);
+              if (index !== -1) {
+                this.groups.splice(index, 1, response.groups);
+              }
+              window.location.reload();
+              this.editingGroup = null;
+              this.closeModal();
+            } else {
+                console.error("Failed to update group. API responded with success: false.");
+            }
+        } catch (error) {
+            console.error("Error updating group:", error);
+        }
     },
 
     closeModal() {
@@ -415,6 +711,34 @@ export default {
 
 
 <style scoped>
+.custom-drawer {
+      display: flex;
+      flex-direction: column;
+      height: 100%; /* Full height */
+    }
+
+.content-scrollable {
+  overflow-y: auto;
+  max-height: calc(100vh - 10rem); /* Adjust based on your layout */
+}
+
+.role-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-index {
+  font-weight: bold;
+}
+
+.save-button {
+  position: sticky;
+  bottom: 0;
+  padding: 1rem;
+  background: white;
+  z-index: 10;
+}
 table {
   border-spacing: 0;
 }

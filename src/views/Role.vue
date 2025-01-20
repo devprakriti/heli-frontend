@@ -172,7 +172,8 @@
       },
       form:{
         permissionsList: [],
-        group_id: null
+        role_id: null,
+        role_name: null
       },
       permissionform:{
         permissions: []
@@ -206,19 +207,27 @@
   },
   
   watch:{
-    'filters.Name': 'getRoles'
+    'filters.Name': 'getRoles',
+    // 'showAssignPermissionDrawer': 'getRolePermission'
   },
   
   mounted() {
       this.getRoles();
       this.getOperators();
       this.getPermissions();
-     
-  
+      this.getRolePermission();
   },
   created() {
   },
   methods: {
+    getAuthToken() {
+      const token = localStorage.getItem("authToken"); 
+      if (!token) {
+          console.error("Authorization token not found");
+          return null;
+      }
+      return token;
+    },
     isSaveDisabled() {
       console.log('here',this.form.permissionsList.length === this.originalPermissionsList.length &&
       this.form.permissionsList.every((id) => this.originalPermissionsList.includes(id)))
@@ -250,7 +259,7 @@
       console.error("Error creating operator:", error);
     }
   },
-    async getOperators() {
+  async getOperators() {
       const token = this.getAuthToken();
       if (!token) return;
       try {
@@ -272,65 +281,103 @@
     }
   },
   async onSave() {
+      if (!this.validatePermissionForm(this.form)) {
+        console.log("Form validation failed. Save request aborted.");
+        return;
+      }
+      const token = this.getAuthToken();
+      if (!token) {
+        console.log("No authorization token found. Save request aborted.");
+        return;
+      }
+
       if (!this.form.permissionsList || this.form.permissionsList.length === 0) {
         console.log("No permissions selected. Save request aborted.");
-        return; 
+        return;
       }
-      if (this.isSaving) return; 
+
+      if (this.isSaving) {
+        console.log("Save is already in progress. Please wait.");
+        return;
+      }
       this.isSaving = true;
       try {
         console.log("Saving permissions:", this.form.permissionsList);
-        // Simulate a network request with a delay
+        const response = await axios.post("/api/rolePermission/create", this.form, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("API Response:", response);
+        if (response.data.success) {
+          console.log("Permissions saved successfully.");
+          
+          this.showAssignPermissionDrawer = false;
+          this.form = {
+            permissionsList: [],
+            role_id: null,
+            role_name: null,
+          };
+
+          this.originalPermissionsList = [...this.form.permissionsList];
+        } else {
+          console.error("Failed to save permissions. API responded with success: false.");
+        }
+
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        this.originalPermissionsList = [...this.form.permissionsList]; 
-        console.log("Permissions saved successfully.");
       } catch (error) {
-        console.error("Error saving permissions:", error);
+        console.error("Error saving permissions:", error.response?.data || error.message || error);
       } finally {
-        this.isSaving = false; 
+        this.isSaving = false;
       }
-    },
-
-  // async onSave(){
-  //   if (!this.validatePermissionForm(this.form)) return; 
-  //     const token = this.getAuthToken();
-  //     if (!token) return;
-  //     try {
-  //         const response = await axios.post(
-  //         "/api/roles/create",
-  //         this.form,
-  //         {
-  //             headers: {
-  //             Authorization: `Bearer ${token}`,
-  //             },
-  //         }
-  //         );
-  //         if(response.data.success == true){
-  //          this.closeModal();
-  //          this.form = { 
-  //             permissionsList: []
-  //           };
-  //         this.closeModal();
-  //         window.location.reload();
-  //         }
-  //     } catch (error) {
-  //         console.error("Error creating Role Permission:", error);
-  //     }
-      
-  // },
-  openAssignPermissionDrawer(group){
-      this.form.group_id = toRaw(group).Id
-      this.showAssignPermissionDrawer = true;
   },
-
-  getAuthToken() {
-    const token = localStorage.getItem("authToken"); 
+  async getRolePermission(roleId){
+    const token = this.getAuthToken();
     if (!token) {
-        console.error("Authorization token not found");
-        return null;
+      console.log("No authorization token found. Save request aborted.");
+      return;
     }
-    return token;
+    console.log('role permission', roleId)
+    try {
+        const response = await axios.get("/api/rolePermission", {
+          params:{
+            role_id: roleId
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("API Response:", response.data.rolePermissionList);
+        if (response.data.success) {
+          console.log('response', response.data.success)
+          // const roleId = response.data.rolePermissionList[0]?.Role_id || null; 
+          const permissionIds = response.data.rolePermissionList.map((item) => item.Permission_id);
+
+          this.form = {
+            permissionsList: permissionIds,
+            role_id: roleId,
+            role_name: 'User',
+          };
+        } else {
+          console.error("Failed to fetch permissions. API responded with success: false.");
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error("Error saving permissions:", error.response?.data || error.message || error);
+      }
   },
+  
+  openAssignPermissionDrawer(role){ 
+      const roleId = toRaw(role).Id
+      this.role_id = this.form.role_id,
+      this.role_name =  'User',
+      this.showAssignPermissionDrawer = true;
+      this.getRolePermission(roleId)  
+
+  },
+
+  
   validateForm(role) {
     this.errors = {
       name: null
@@ -393,32 +440,40 @@
     },
   
     
-  async createRole() {
-      if (!this.validateForm(this.newRole)) return; 
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-          const response = await axios.post(
-          "/api/roles/create",
-          this.newRole,
-          {
-              headers: {
-              Authorization: `Bearer ${token}`,
-              },
+    async createRole() {
+          if (!this.validateForm(this.newRole)) return;
+          const token = this.getAuthToken();
+          if (!token) return;
+          try {
+              const response = await axios.post(
+                  "/api/roles/create",
+                  this.newRole,
+                  {
+                      headers: {
+                          Authorization: `Bearer ${token}`,
+                      },
+                  }
+              );
+              console.log("Response:", response);
+              if (response.data.success) {
+                  console.log("Role created successfully.");
+                  this.newRole = { name: "" };
+                  this.showCreateModal = false;
+                  if (response.data.role) {
+                      this.roles.push(response.data.roles); 
+                  } else {
+                      console.warn("Created role data is not available in the response.");
+                  }
+              } else {
+                  console.error("Failed to create role. API responded with success: false.");
+              }
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+
+          } catch (error) {
+              console.error("Error creating role:", error);
           }
-          );
-          if(response.data.success == true){
-           this.closeModal();
-           this.newRole = { 
-              name: ""
-            };
-          this.closeModal();
-          window.location.reload();
-          }
-      } catch (error) {
-          console.error("Error creating Role:", error);
-      }
-      },  
+      },
+
       openEditModal(role) {
       console.log('editingRole',role)
       this.editingRole = { 
@@ -445,11 +500,10 @@
           console.log('response',response)
           const index = this.roles.findIndex((op) => op.id === this.editingRole.id);
           if (index !== -1) {
-          this.roles.splice(index, 1, response.user);
+          this.roles.splice(index, 1, response.roles);
           }
           window.location.reload();
           this.editingRole = null;
-      
           this.closeModal();
       } catch (error) {
           console.error("Error updating role:", error);
