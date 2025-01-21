@@ -1,5 +1,5 @@
 <template>
-    {{ console.log(items, "showNoData") }}
+    {{ console.log(slotProps, "showNoData") }}
     <div class="card">
         <!-- Loader -->
         <!-- Loader -->
@@ -14,8 +14,8 @@
         </div>
 
         <div v-else>
-            <DataTable :value="items" :key="items.length" tableStyle="min-width: 50rem" showGridlines>
-                <Column header="S.N">
+            <DataTable :value="tableItems" :key="items.length" tableStyle="min-width: 50rem" showGridlines>
+                <Column :style="{ width: '10%' }" header="S.N">
                     <template #body="slotProps">
                         {{ slotProps.index + 1 }}
                     </template>
@@ -58,12 +58,12 @@
                 <!-- Action Column -->
                 <Column v-if="columns?.some(col => col.field === 'action')" :class="{ 'custom-width': showAssign }"  header="Action" body-class="text-center">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" class="p-button-text " @click="emitEdit(slotProps?.data)"
+                        <Button v-tooltip.top="{ value: 'Edit'}" icon="pi pi-pencil" class="p-button-text" @click="emitEdit(slotProps?.data)"
                             label="Edit" />
-                        <Button v-if="showAssign" icon="pi pi-users" class="p-button-text"
-                            @click="emitAssignUser(slotProps?.data)" label="Assign User" />
-                        <Button v-if="showAssign" icon="pi pi-plus-circle" class="p-button-text"
-                            @click="emitAssignRole(slotProps?.data)" label="Assign Role" />
+                        <Button v-if="showAssign" v-tooltip.top="{ value: 'Assign User'}" icon="pi pi-users" class="p-button-text"
+                            @click="emitAssignUser(slotProps?.data)"/>
+                        <Button v-if="showAssign" v-tooltip.top="{ value: 'Assign Role'}" icon="pi pi-plus-circle" class="p-button-text"
+                            @click="emitAssignRole(slotProps?.data)" />
                     </template>
                 </Column>
             </DataTable>
@@ -113,6 +113,11 @@ export default {
         return {
             showNoData: false,
         };
+    },
+    computed: {
+        tableItems() {
+        return this.items.map((item, i) => ({ rowNumber: i + 1, ...item }));
+        },
     },
     methods: {
         emitStatusChange(status) {
@@ -171,7 +176,7 @@ tbody tr:hover {
 }
 
 .custom-width {
-  width: 40%;
+  width: 20%;
 }
 
 
