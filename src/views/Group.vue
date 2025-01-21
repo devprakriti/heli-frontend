@@ -468,7 +468,6 @@ export default {
             group_id: groupId,
             group_name: 'RiskTool',
           };
-
         } else {
           console.error("Failed to fetch operators. API responded with success: false.");
         }

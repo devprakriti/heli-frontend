@@ -4,7 +4,6 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 const port = process.env.PORT || 5003;
 
-// Serve static files from the Vue.js build folder
 app.use(express.static(path.join(__dirname, './dist')));
 
 
