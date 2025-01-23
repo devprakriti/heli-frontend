@@ -306,15 +306,15 @@ export default {
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
       try {
-        const response = await axios.get("/api/users", {
+        const response = await axios.get("/api/users/userDetailList", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            Username: this.filters.Username,
-            Fullname: this.filters.Fullname,
+            username: this.filters.Username,
+            fullname: this.filters.Fullname,
             ...(this.filters.Status !== null && this.filters.Status.code !== null
-              ? { Status: this.filters.Status.code }
+              ? { status: this.filters.Status.code }
               : {}),
             page: this.currentPage,
             pageSize: this.pageSize,
@@ -322,8 +322,10 @@ export default {
           },
         });
         const {userList, totalCount, totalPages } = response?.data;
+        console.log('userList',userList)
         this.operators = userList.map((user) => ({
           id: user.id,
+          username: user.username,
           password: user.password,
           fullname: user.fullname,
           status: user.status,
