@@ -23,8 +23,8 @@ export default defineConfig({
     port: 8080, 
     proxy: {
         '/api': {
-        // target: 'https://cmsapi.luckyluy.net',
-        target: 'http://127.0.0.1:3000',
+        target: 'https://cmsapi.fairgame888.com',
+        // target: 'http://127.0.0.1:3000',
         changeOrigin: true,
         rewrite: (path)=> path.replace(/^\/api/,''), 
         secure: false,
