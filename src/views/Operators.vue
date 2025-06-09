@@ -6,12 +6,14 @@
       <div class="flex space-x-4 mb-4">
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search by Fullname</label>
-          <InputText id="search" type="search" autocomplete="off" v-model="filters.Fullname" placeholder="Search by Fullname"
+          <InputText id="search" type="search" autocomplete="off" v-model="filters.Fullname"
+            placeholder="Search by Fullname"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search by Username</label>
-          <InputText id="search" type="search" autocomplete="off" v-model="filters.Username" placeholder="Search by Username"
+          <InputText id="search" type="search" autocomplete="off" v-model="filters.Username"
+            placeholder="Search by Username"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
         <div class="flex-1">
@@ -141,7 +143,23 @@
               <input v-model="newOperator.fullname" type="text" placeholder="Operator Fullname"
                 class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.fullname" class="text-red-500 text-sm">{{ errors.fullname }}</span>
-
+            </div>
+            <div class="space-y-4">
+              <div class="flex gap-4">
+                <p>Groups:</p>
+                <div v-for="group in groups" :key="group.Id" class="flex gap-1.5 items-center">
+                  <RadioButton v-model="form.group_id" :inputId="'group-' + group.Id" :value="group.Id" :name="group.Name"
+                    @change="handleGroupChange(group.Id)" />
+                  <label :for="'group-' + group.Id">{{ group.Name }}</label>
+                </div>
+              </div>
+              <div v-if="form.group_id" class="flex gap-2">
+                <p>Roles:</p>
+                <div v-for="role in roles" :key="role.Id" class="flex gap-1.5 items-center">
+                  <RadioButton v-model="form.role_id" :inputId="'role-' + role.Id" :value="role.Id" :name="role.Name" />
+                  <label :for="'role-' + role.Id">{{ role.Name }}</label>
+                </div>
+              </div>
             </div>
             <div class="flex justify-end gap-x-3">
               <Button type="button" label="Cancel" severity="secondary" @click="closeModal" />
@@ -244,6 +262,13 @@ export default {
       operators: [],
       showCreateModal: false,
       showEditModal: false,
+      roles: [],
+      groups: [],
+      form: {
+        group_id: null,
+        role_id: null,
+        operator_id: null
+      },
       errors: {
         username: null,
         fullname: null,
@@ -260,7 +285,9 @@ export default {
   },
 
   mounted() {
-    this.getOperators();
+    this.getOperators(),
+      this.getGroups(),
+      this.getRoles()
   },
   methods: {
     getAuthToken() {
@@ -283,7 +310,6 @@ export default {
         this.errors.username = "Username is required";
         isValid = false;
       }
-      console.log(isValid,"first1")
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!operator.fullname) {
         this.errors.fullname = "Fullname is required";
@@ -306,7 +332,7 @@ export default {
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
       try {
-        const response = await axios.get("/api/users/userDetailList", {
+        const response = await axios.get("/api/users", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -322,7 +348,6 @@ export default {
           },
         });
         const {userList, totalCount, totalPages } = response?.data;
-        console.log('userList',userList)
         this.operators = userList.map((user) => ({
           id: user.id,
           username: user.username,
@@ -332,7 +357,6 @@ export default {
         }));
         this.items = userList.map((user) => ({
           id: user.id,
-          password: user.password,
           username: user.username,
           fullname: user.fullname,
           status: user.status,
@@ -358,38 +382,75 @@ export default {
         console.error("Error creating operator:", error);
       }
     },
-    async createOperator() {
-      console.log("clicked",this.newOperator)
-      if (!this.validateForm(this.newOperator)) return; 
-    const token = this.getAuthToken();
-    if (!token) return;
-    try {
-      console.log("triggerred")
-      const response = await axios.post(
-        "/api/users/create",
-        this.newOperator,
-        {
+    async getGroups() {
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+        const response = await axios.get("/api/groups", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
-      );
-      console.log('response',response)
-      const createdOperator = {
-        id: response.data.user.id,
-        ...this.newOperator,
-        status: true,
-      };
-      this.operators.push(createdOperator);
-      // window.location.reload();
-      this.newOperator = { username: "", fullname: "", status: 1 };
-      this.closeModal();
-    } catch (error) {
-      console.error("Error creating operator:", error);
-    }
-  },
+        });
+        this.groups = response?.data?.groupList;
+
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
+    async getRoles() {
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+        const response = await axios.get("/api/roles", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.roles = response?.data?.roleList;
+
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
+    async createOperator() {
+      if (!this.validateForm(this.newOperator)) return;
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+        const response = await axios.post(
+          "/api/users/create",
+          this.newOperator,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const createdOperator = {
+          id: response.data.user[0].Id,
+          ...this.newOperator,
+          status: true,
+        };
+        // window.location.reload();
+        this.form.operator_id = createdOperator.id;
+        await axios.post(
+          "/api/operatorGroupRole/create",
+          this.form,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        this.getOperators();
+        this.newOperator = { username: "", fullname: "", status: 1 };
+        this.form = { group_id: null, role_id: null, operator_id: null };
+        this.closeModal();
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
     openEditModal(operator) {
-      console.log(operator, 'operator')
       this.editingOperator = {
         id: operator.id
       };
@@ -440,6 +501,8 @@ export default {
 
     validatePasswords(password, confirmPassword) {
       this.errors = {};
+      const password1 = this.editingOperator.password;
+      const confirmPassword1 = this.editingOperator.confirmPassword;
       if (!password) {
         this.errors.password = 'Password is required.';
         return false;
@@ -454,7 +517,7 @@ export default {
       //     'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.';
       //   return false;
       // }
-      if (password !== confirmPassword) {
+      if (password1 !== confirmPassword1) {
         this.errors.confirmPassword = 'Passwords do not match.';
         return false;
       }
@@ -476,7 +539,6 @@ export default {
             },
           }
         );
-        console.log('User status updated successfully:', response.data);
         this.getOperators();
         alert('User status updated successfully');
       }
@@ -485,19 +547,19 @@ export default {
         alert('Failed to update user status. Please try again.');
       }
     },
-
-    // Close the modals
     closeModal() {
       this.showCreateModal = false;
       this.showEditModal = false;
+      this.form.group_id = null;
+      this.form.role_id = null;
     },
-
-    // Open the create modal
     openCreateModal() {
       this.showCreateModal = true;
       this.showEditModal = false;
     },
-
+    handleGroupChange(groupId) {
+      this.form.group_id = groupId;
+    },
 
   },
 };

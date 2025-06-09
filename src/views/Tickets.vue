@@ -315,6 +315,7 @@ import axios from "axios";
 import moment from 'moment';
 import CreateButton from '../components/CreateButton.vue'
 import Table from "../components/Table.vue";
+
 export default {
 name: "AdminTickets",
 data() {
@@ -394,7 +395,6 @@ mounted() {
     this.getTickets();
     this.getRules();
     this.getOperators();
-
 },
 created() {
   try {
@@ -413,7 +413,6 @@ created() {
 methods: {
   
   getStatusClass(status) {
-    console.log(status, 'status')
     const statusClasses = {
       0: "bg-gray-500",
       1: "bg-blue-500",
@@ -444,7 +443,6 @@ methods: {
       4: "SPIN_TICKET"
     };
     const rewardTypeText = rewardTypeMap[status.RewardType] || " "; 
-    console.log(status.RewardAmount,rewardTypeText,"rewardTypeText")
     return status.RewardAmount ? `${status.RewardAmount} ${rewardTypeText}` : rewardTypeText;
   },
   getAuthToken() {
@@ -512,7 +510,6 @@ methods: {
         },
       });
       const { ticketList, totalCount, totalPages } = response.data;
-      console.log('response',response)
       this.tickets = ticketList.map(ticket => ({
         Id: ticket.Id,
         Username: ticket.Username,
@@ -573,7 +570,6 @@ methods: {
             Authorization: `Bearer ${token}`,
         },
         });
-        console.log('response',response)
         this.operators = response.data.userList.map((user) => ({
         id: user.id,
         username: user.username,
@@ -594,7 +590,6 @@ methods: {
             Authorization: `Bearer ${token}`,
         },
         });
-        console.log('response',response)
         this.rules = response.data.ruleList.map((rule) => ({
         Id: rule.Id,
         Name: rule.Name,
@@ -625,8 +620,6 @@ async createTicket() {
             },
         }
         );
-        console.log('response',response)
-        console.log('response sucess' ,response.data.success)
         if(response.data.success == true){
          this.closeModal();
          this.newTicket = { 
@@ -647,7 +640,6 @@ async createTicket() {
 
 
     openEditModal(ticket) {
-    console.log('editingTicket',ticket)
     this.editingTicket = { 
         id: ticket.Id,
         userId: ticket.Username,
@@ -673,7 +665,6 @@ async updateTicket() {
             },
         }
         );
-        console.log('response',response)
         const index = this.tickets.findIndex((op) => op.id === this.editingTicket.id);
         if (index !== -1) {
         this.tickets.splice(index, 1, response.user);

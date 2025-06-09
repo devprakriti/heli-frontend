@@ -22,7 +22,30 @@
         
         <CreateButton @open-modal="openCreateModal" />
         
-         <table class="min-w-full table-auto border-collapse border border-gray-200">
+        <Table :items="items" :columns="tableColumns"   @edit-operator="openEditModal"
+       @assign-permission="openAssignPermissionDrawer"
+       :showAssignPermission="true">
+        <template #modal>
+          <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
+            <h3 class="text-2xl font-bold mb-4">Edit Role</h3>
+            <form @submit.prevent="updateRole" class="space-y-4">
+              <div>
+                <label class="block text-gray-700">User</label>
+                <input v-model="editingRole.name" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
+                <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
+              </div>
+              <div class="flex justify-end space-x-4">
+              <Button type="button" @click="closeModal" severity="secondary" label="Cancel" />
+              <Button type="submit" label="Save" />
+            </div>
+            </form>
+          </div>
+        </div>
+        </template>
+      </Table>
+
+         <!-- <table class="min-w-full table-auto border-collapse border border-gray-200">
         <thead class="bg-gray-100">
           <tr>
             <th class="border px-4 py-2 text-left text-gray-800">S.N</th>
@@ -50,7 +73,7 @@
             </td>
           </tr>
         </tbody>
-        </table> 
+        </table>  -->
        
      
         <!-- Pagination -->
@@ -126,16 +149,16 @@
                 <input v-model="newRole.name" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
                 <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
               </div>
-              <div class="flex justify-end">
-                <button type="button" @click="closeModal" class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
-                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Create</button>
+              <div class="flex justify-end gap-x-3">
+                <Button type="button" label="Cancel" severity="secondary" @click="closeModal" />
+                <Button type="submit" label="Create" />
               </div>
             </form>
           </div>
         </div>
   
         <!-- Edit Modal -->
-        <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <!-- <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
             <h3 class="text-2xl font-bold mb-4">Edit Role</h3>
             <form @submit.prevent="updateRole" class="space-y-4">
@@ -150,7 +173,7 @@
               </div>
             </form>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </template>
@@ -163,10 +186,13 @@
   import moment from 'moment';
   import CreateButton from '../components/CreateButton.vue'
   import Table from "../components/Table.vue";
+  
   export default {
   name: "AdminRole",
   data() {
       return {
+      items: null,
+      tableColumns: null,
       newRole: {
           name: ""
       },
@@ -245,7 +271,6 @@
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.permissionsList = response.data.permissionsList
         this.groupedPermissions = this.permissionsList.reduce((groups, permission) => {
         if (!groups[permission.Module]) {
@@ -268,7 +293,6 @@
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.operators = response.data.userList.map((user) => ({
           id: user.id,
           password: user.password,
@@ -308,8 +332,6 @@
             Authorization: `Bearer ${token}`,
           },
         });
-
-        console.log("API Response:", response);
         if (response.data.success) {
           console.log("Permissions saved successfully.");
           
@@ -338,7 +360,6 @@
       console.log("No authorization token found. Save request aborted.");
       return;
     }
-    console.log('role permission', roleId)
     try {
         const response = await axios.get("/api/rolePermission", {
           params:{
@@ -348,9 +369,7 @@
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("API Response:", response.data.rolePermissionList);
         if (response.data.success) {
-          console.log('response', response.data.success)
           // const roleId = response.data.rolePermissionList[0]?.Role_id || null; 
           const permissionIds = response.data.rolePermissionList.map((item) => item.Permission_id);
 
@@ -425,6 +444,14 @@
         Id: role.Id,
         Name: role.Name
       }));
+      this.items = roleList.map(role => ({
+          Id: role.Id,
+          Name: role.Name
+      }));
+      this.tableColumns = [
+          { field: 'Name', header: 'Name' },
+          { field: 'action', header: 'Action' },
+        ];
       this.totalCount = totalCount;
       this.totalPages = totalPages;
 
@@ -454,7 +481,6 @@
                       },
                   }
               );
-              console.log("Response:", response);
               if (response.data.success) {
                   console.log("Role created successfully.");
                   this.newRole = { name: "" };
@@ -464,6 +490,7 @@
                   } else {
                       console.warn("Created role data is not available in the response.");
                   }
+                  this.getRoles();
               } else {
                   console.error("Failed to create role. API responded with success: false.");
               }
@@ -475,7 +502,6 @@
       },
 
       openEditModal(role) {
-      console.log('editingRole',role)
       this.editingRole = { 
           id: role.Id,
           name: role.Name};
@@ -497,7 +523,6 @@
               },
           }
           );
-          console.log('response',response)
           const index = this.roles.findIndex((op) => op.id === this.editingRole.id);
           if (index !== -1) {
           this.roles.splice(index, 1, response.roles);
@@ -510,14 +535,14 @@
       }
   },
   
-      closeModal() {
+    closeModal() {
       this.showCreateModal = false;
       this.showEditModal = false;
-      },
-      openCreateModal() {
+    },
+    openCreateModal() {
       this.showCreateModal = true;
       this.showEditModal = false;
-      },
+    },
   },
   };
   </script>

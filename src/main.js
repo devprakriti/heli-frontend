@@ -21,8 +21,17 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEdit, faTrash, faExchangeAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { definePreset } from '@primevue/themes';
+import { store } from './store/auth';
 
 library.add(faEdit, faTrash, faExchangeAlt)
+const profile = localStorage.getItem('profile')
+const routePermissions = localStorage.getItem('routePermissions')
+if (profile && profile !== 'undefined') {
+    store?.setProfile(JSON.parse(profile))
+}
+if (routePermissions && routePermissions !== 'undefined') {
+    store?.setRoutePermissions(JSON.parse(routePermissions))
+}
 
 const app = createApp(App)
 const MyPreset = definePreset(Aura, {

@@ -78,8 +78,8 @@
                 <th class="border px-4 py-2 text-left">S.N</th>
                 <th class="border px-4 py-2 text-left">Name</th>
                 <th class="border px-4 py-2 text-left">Type of Condition</th>
-                <th class="border px-4 py-2 text-left">Status</th>
-                <th class="border px-4 py-2 text-left">Action</th>
+                <th class="border px-4 py-2 text-left" v-if="store?.hasRoutePermission($route.name, 'update')">Status</th>
+                <th class="border px-4 py-2 text-left" v-if="store?.hasRoutePermission($route.name, 'update')">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -88,10 +88,10 @@
                   <td class="border px-4 py-2">{{ index + 1 }}</td>
                   <td class="border px-4 py-2">{{ row.name }}</td>
                   <td class="border px-4 py-2">{{ row.type }}</td>
-                  <td class="border px-4 py-2 text-center">
+                  <td class="border px-4 py-2 text-center" v-if="store?.hasRoutePermission($route.name, 'update')">
                     <ToggleSwitch :model-value="!!row.status" @change="toggleStatus(row)" />
                   </td>
-                  <td class="border px-2 py-2 space-x-0">
+                  <td class="border px-2 py-2 space-x-0" v-if="store?.hasRoutePermission($route.name, 'update')">
                     <Button icon="pi pi-pencil" class="p-button-text" @click="openEditModal(row)" label="Edit" />
     
                     <Button icon="pi pi-eye" class="p-button-text " @click="toggleDetails(row.id)" label="View" />
@@ -462,7 +462,7 @@ import Multiselect from 'vue-multiselect';
 import CreateButton from '../components/CreateButton.vue';
 import Select from 'primevue/select';
 import ProgressSpinner from 'primevue/progressspinner';
-
+import { store } from "../store/auth";
 export default {
   components: {
     Multiselect,
@@ -471,6 +471,7 @@ export default {
   name: 'AdminSettings',
   data() {
     return {
+      store,
       items: null,
       tableColumns: null,
       showNoData: false,
@@ -569,17 +570,14 @@ export default {
     'filters.TicketType': 'getRules',
     'filters.Status': 'getRules',
     'newRule.TicketType': function (newVal) {
-      console.log('newVal', newVal)
       this.loadParameterTemplate();
     },
     items: {
             immediate: true, 
             handler(newItems) {
-                console.log(newItems,!newItems || newItems.length === 0,"newItems")
                 if (!newItems || newItems.length === 0) {
                 setTimeout(() => {
                     if (!this.items || this.items.length === 0) {
-                        console.log("triggerred")
                         this.showNoData = true;
                     }
                 }, 1000);
@@ -591,7 +589,6 @@ export default {
 
     editingRule: {
       handler(newVal) {
-        console.log('newVal', newVal)
         if (newVal) {
           if (newVal.DesignatedDate != null) {
             this.designatedDateSelected = newVal.DesignatedDate.length > 0;
@@ -650,7 +647,6 @@ export default {
   },
   methods: {
     toggleDetails(ruleId) {
-      console.log('ruleId', ruleId)
       this.expandedRuleId =
         this.expandedRuleId === ruleId ? null : ruleId;
       this.extendedTable = this.expandedRuleId === ruleId ? true : false;
@@ -726,22 +722,16 @@ export default {
     },
     loadTicketFilter() {
       const selectedTicketType = this.filters.TicketType;
-      console.log('selectedTicketType', selectedTicketType)
       const selectedTemplate = this.ticketTypeList.find(item => item.Type === selectedTicketType);
-      console.log(selectedTemplate, 'selectedTemplate')
     },
     loadParameterTemplate() {
       const selectedTicketType = this.newRule.TicketType;
-      console.log('selectedTicketType:', selectedTicketType);
       const selectedTemplate = this.ticketTypeList.find(item => item.Type === selectedTicketType);
       if (selectedTemplate) {
         this.newRule.parameterTemplate = selectedTemplate.ParameterTemplate;
       } else {
         console.log('No template found for', selectedTicketType);
       }
-    },
-    logRow(row, index) {
-      console.log('Row:', row, 'Index:', index);
     },
     async getRuleType() {
       const token = this.getAuthToken();
@@ -752,7 +742,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.parameterTemplates = response.data.ruleTypeList
         this.ticketTypeList = response.data.ruleTypeList
       } catch (error) {
@@ -768,7 +757,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.systemConfig = {
           id: response.data.systemconfigList.Id,
           parameter: response.data.systemconfigList.Parameter,
@@ -851,7 +839,6 @@ export default {
           },
         });
         const { ruleList, totalCount, totalPages } = response.data;
-        console.log('response', response)
         this.rules = ruleList.map((rule) => ({
           id: rule.Id,
           status: rule.Status,
@@ -930,7 +917,6 @@ export default {
             },
           }
         );
-        console.log('response', response)
 
         if (response.data.success == true) {
           const createdRule = {
@@ -976,7 +962,6 @@ export default {
     },
 
     openEditModal(rule) {
-      console.log('rule', rule)
       const designatedDate = rule.DesignatedDate
         ? JSON.parse(rule.DesignatedDate) // Parse JSON string into an array
         : [];
@@ -984,7 +969,6 @@ export default {
       const designatedDays = rule.DesignatedDays
         ? JSON.parse(rule.DesignatedDays) // Parse JSON string into an array
         : [];
-      console.log('designatedDays', designatedDays, designatedDate)
       this.editingRule = {
         Id: rule.id,
         Name: rule.name,
@@ -1034,7 +1018,6 @@ export default {
             },
           }
         );
-        console.log('response', response)
         const index = this.rules.findIndex((op) => op.id === this.editingRule.id);
         if (index !== -1) {
           this.rules.splice(index, 1, response.user);
@@ -1048,12 +1031,13 @@ export default {
 
       } catch (error) {
         console.error("Error updating rule:", error);
+        this.errorMessage = "An error occurred. Please try again later.";
+        this.showErrorNotification = true;
       }
     },
 
     async changeSettings(row) {
       row.status = !row.status;
-      console.log('here', row)
       try {
         const token = this.getAuthToken();
         if (!token) return;
@@ -1067,7 +1051,6 @@ export default {
             },
           }
         );
-        console.log('Rule status updated successfully:', response.data);
         this.getRules();
         alert('Rule status updated successfully');
       }
@@ -1104,7 +1087,6 @@ export default {
             },
           }
         );
-        console.log('Rule status updated successfully:', response.data);
         this.getRules();
         alert('Rule status updated successfully');
       }
