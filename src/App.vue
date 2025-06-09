@@ -207,7 +207,7 @@
             <h1 class="text-xl font-semibold">{{ pageHeader }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <span class="text-sm text-slate-400">Welcome, Admin</span>
+            <span class="text-sm text-slate-400">Welcome, {{ user.user_name }}</span>
             <button class="bg-red-500 text-sm px-4 py-2 text-white rounded hover:bg-red-600"
               @click="logout">Logout</button>
           </div>
@@ -234,7 +234,8 @@ export default {
       isSpinwinOpen: false,
       isSettingOpen: false,
       loading: false,
-      isSidebarMinimized: false
+      isSidebarMinimized: false,
+      user: {},
     };
   },
   computed: {
@@ -290,16 +291,12 @@ export default {
       return this.$route.path === route;
     },
     async logout() {
-      this.loading = true;
-      setTimeout(() => {
+        window.location.replace('/login');
         localStorage.removeItem('authToken');
         localStorage.removeItem('authUser');
         localStorage.removeItem('profile');
         localStorage.removeItem('routePermissions');
-        this.loading = false;
-        this.$router.push('/login');
-        window.location.reload();
-      }, 1000);
+      
     },
   },
   mounted() {
@@ -307,5 +304,11 @@ export default {
       this.$router.push('/login');
     }
   },
+  created() {
+      const storedUser = localStorage.getItem('authUser');
+      if (storedUser) {
+        this.user = JSON.parse(storedUser);
+      }
+    },
 };
 </script>
