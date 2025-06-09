@@ -4,13 +4,12 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 const port = process.env.PORT || 5003;
 
-// Serve static files from the Vue.js build folder
 app.use(express.static(path.join(__dirname, './dist')));
 
 
 app.use('/api', createProxyMiddleware({
-    target: 'https://cmsapi.luckyluy.net',
-    // target: 'http://127.0.0.1:3000',
+    // target: 'https://cmsapi.luckyluy.n,,,,,,,,,,,,,,,,,,,,,,,,,,et',
+    target: 'https://cmsapi.fairgame888.com',
     changeOrigin: true,
 }));
 
