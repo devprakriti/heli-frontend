@@ -12,6 +12,7 @@
           </div>
           <span v-if="!isSidebarMinimized" class="text-base font-semibold">Menu</span>
         </div>
+
         <!-- <ul class="space-y-3 mt-4 px-6 ">
           <li>
             <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
@@ -104,7 +105,7 @@
                     <span v-if="!isSidebarMinimized" class="ml-3">Profile</span>
                   </router-link>
                 </li>   
-                <li>
+                <li v-if="store?.hasRoutePermission('groups', 'get') || store?.hasRoutePermission('groups', 'view')">
                   <router-link to="/groups" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/groups'),
                     'hover:bg-gray-700': !isActiveRoute('/groups'),
@@ -113,7 +114,7 @@
                     <span v-if="!isSidebarMinimized" class="ml-3">Group</span>
                   </router-link>
                 </li>  
-                <li>
+                <li v-if="store?.hasRoutePermission('roles', 'get') || store?.hasRoutePermission('roles', 'view')">
                   <router-link to="/roles" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/roles'),
                     'hover:bg-gray-700': !isActiveRoute('/roles'),
@@ -124,7 +125,8 @@
                 </li>         
               </ul>
             </li>
-            <li>
+
+            <li v-if="store?.hasRoutePermission('operators', 'get') || store?.hasRoutePermission('operators', 'view')">
                   <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/operators'),
                     'hover:bg-gray-700': !isActiveRoute('/operators'),
@@ -134,7 +136,7 @@
                   </router-link>
                 </li>
 
-            <li>
+            <li >
               <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSpinwin" :class="{
                 'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets') || isActiveRoute('/settings'),
                 'hover:bg-gray-700': !isActiveRoute('/accounts') && !isActiveRoute('/tickets') && !isActiveRoute('/rules') && !isActiveRoute('/settings'),
@@ -146,7 +148,7 @@
                 </span>
               </div>
               <ul v-if="isSpinwinOpen" class="ml-6 space-y-2 mt-4">
-                <li>
+                <li v-if="store?.hasRoutePermission('settings', 'get') || store?.hasRoutePermission('settings', 'view')">
                   <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/settings'),
                     'hover:bg-gray-700': !isActiveRoute('/settings'),
@@ -156,7 +158,7 @@
                   </router-link>
                  </li>
 
-                <li>
+                <li v-if="store?.hasRoutePermission('accounts', 'get') || store?.hasRoutePermission('accounts', 'view')">
                   <router-link to="/accounts" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/accounts'),
                     'hover:bg-gray-700': !isActiveRoute('/accounts'),
@@ -165,7 +167,8 @@
                     <span v-if="!isSidebarMinimized" class="ml-3">Accounts</span>
                   </router-link>
                 </li>
-                <li>
+
+                <li v-if="store?.hasRoutePermission('rules', 'get') || store?.hasRoutePermission('rules', 'view')">
                   <router-link to="/rules" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/rules'),
                     'hover:bg-gray-700': !isActiveRoute('/rules'),
@@ -174,8 +177,9 @@
                     <span v-if="!isSidebarMinimized" class="ml-3">Rules</span>
                   </router-link>
                 </li>
+
                 <!-- Tickets -->
-                <li>
+                <li v-if="store?.hasRoutePermission('tickets', 'get') || store?.hasRoutePermission('tickets', 'view')">
                   <router-link to="/tickets" class="flex items-center py-2 px-4 rounded transition-all" :class="{
                     'bg-[#6b7280]': isActiveRoute('/tickets'),
                     'hover:bg-gray-700': !isActiveRoute('/tickets'),
@@ -220,11 +224,12 @@
   </div>
 </template>
 <script>
-
+import { store } from './store/auth';
 export default {
 
   data() {
     return {
+      store,
       isSidebarMinimized: false,
       isSpinwinOpen: false,
       isSettingOpen: false,
@@ -261,6 +266,13 @@ export default {
           return 'Dashboard'; 
       }
     },
+    canShowSpinwin() {
+    return (
+      this.store?.hasRoutePermission('accounts', 'get') || this.store?.hasRoutePermission('accounts', 'view') ||
+      this.store?.hasRoutePermission('rules', 'get') || this.store?.hasRoutePermission('rules', 'view') ||
+      this.store?.hasRoutePermission('tickets', 'get') || this.store?.hasRoutePermission('tickets', 'view')
+    );
+  }
   },
   methods: {
     toggleSpinwin() {
@@ -271,6 +283,8 @@ export default {
     },
     toggleSidebar() {
       this.isSidebarMinimized = !this.isSidebarMinimized;
+      this.isSettingOpen = false
+      this.isSpinwinOpen = false
     },
     isActiveRoute(route) {
       return this.$route.path === route;
@@ -279,6 +293,9 @@ export default {
       this.loading = true;
       setTimeout(() => {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        localStorage.removeItem('profile');
+        localStorage.removeItem('routePermissions');
         this.loading = false;
         this.$router.push('/login');
         window.location.reload();

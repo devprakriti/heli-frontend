@@ -85,7 +85,6 @@
               Authorization: `Bearer ${token}`,
             },
           });
-          console.log('response', response)
           this.systemConfig = {
             id: response.data.systemconfigList.Id,
             parameter: response.data.systemconfigList.Parameter,
@@ -99,7 +98,6 @@
       },
       getAuthToken() {
         const token = localStorage.getItem("authToken");
-        console.log('token', token)
         if (!token) {
           console.error("Authorization token not found");
           return null;
@@ -180,7 +178,6 @@
       },
       async changeSettings(row) {
         row.status = !row.status;
-        console.log('here', row)
         try {
           const token = this.getAuthToken();
           if (!token) return;
@@ -193,7 +190,6 @@
               },
             }
           );
-          console.log('Rule status updated successfully:', response.data);
           // this.getRules();
           alert('Rule status updated successfully');
         }

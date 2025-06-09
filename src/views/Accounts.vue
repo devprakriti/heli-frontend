@@ -191,7 +191,6 @@ export default {
       }
     },
     async getAccounts() {
-      console.log('accout')
       const token = this.getAuthToken();
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
@@ -214,7 +213,6 @@ export default {
         });
 
         const { accountList, totalCount, totalPages } = response.data;
-        console.log(totalPages,"totalPages")
         this.accounts = accountList.map((account) => ({
           Id: account.Id,
           AccountId: account.AccountId,

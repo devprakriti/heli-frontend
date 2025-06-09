@@ -10,7 +10,8 @@ import Rules from '@/views/Rules.vue';
 import ProfileSettings from '@/views/ProfileSettings.vue';
 import AdminAccounts from  '@/views/Accounts.vue';
 import Test from '@/views/Test.vue';
-
+import Unauthorized from '../views/Unauthorized.vue';
+import { store } from '../store/auth';
 
 const routes = [
   { path: '/', redirect: '/dashboard' }, // This ensures that visiting '/' redirects to the login page
@@ -20,7 +21,7 @@ const routes = [
     name: 'Dashboard',
     component: AdminDashboard,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -28,7 +29,7 @@ const routes = [
     name: 'Settings',
     component: AdminSettings,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -41,18 +42,18 @@ const routes = [
   },
   { 
     path: '/groups', 
-    name: 'Group',
+    name: 'Groups',
     component: AdminGroup,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users,
     }
   },
   { 
     path: '/roles', 
-    name: 'Role',
+    name: 'Roles',
     component: AdminRole,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -60,7 +61,7 @@ const routes = [
     name: 'Accounts',
     component: AdminAccounts,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -68,7 +69,7 @@ const routes = [
     name: 'Operators',
     component: AdminOperators,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -76,7 +77,7 @@ const routes = [
     name: 'Rules',
     component: Rules,
     meta: {
-      requiresAuth: true  // Only allow access to authenticated users
+      requiresAuth: true,  // Only allow access to authenticated users
     }
   },
   { 
@@ -95,6 +96,11 @@ const routes = [
       requiresAuth: true  // Only allow access to authenticated users
     }
   },
+  { 
+    path: '/unauthorized', 
+    name: 'Unauthorized',
+    component: Unauthorized,
+  },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/login'
@@ -108,17 +114,27 @@ const router = createRouter({
 
 // Navigation guard to check for authentication
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = !!localStorage.getItem('authToken');  // Check if authToken exists
+  const isAuthenticated = !!localStorage.getItem('authToken');
+  const allRouteNames = router.getRoutes().map(route => route.name).filter(route => route != undefined);
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    // If the route requires authentication and no authToken is found, redirect to login
     if (!isAuthenticated) {
       next({ name: 'Login' });
-    } else {
-      next();  // Proceed to the route
+    } 
+    if (to.name === 'Dashboard') {
+      return next()
     }
+    const routeKey = to.name.toLowerCase();
+    const permissionObj = store?.routePermissions[routeKey] || null;
+    if (permissionObj && (permissionObj.get || permissionObj?.view)) {
+      const requiredSlug = permissionObj.get && permissionObj?.view;
+      if (!store?.hasPermission(requiredSlug)) {
+        return next({ name: 'Unauthorized' }); 
+      }
+    }
+    return next();
   } else {
-    next();  // Proceed for routes that don't require authentication
+    next(); 
   }
 });
 

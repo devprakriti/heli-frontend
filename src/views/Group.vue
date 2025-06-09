@@ -18,9 +18,8 @@
 
       <CreateButton @open-modal="openCreateModal" />
 
-      <Table :items="items" :columns="tableColumns"  :get-status="getStatusClass" 
-       :get-statusText="getStatusText"
-       :get-rewardText="getRewardTypeText"   @edit-operator="openEditModal"
+      <Table :items="items" :columns="tableColumns"  
+       @edit-operator="openEditModal"
        @assign-user="openAssignUserDrawer"
        @assign-role="openAssignRoleDrawer"
        :showAssign="true">
@@ -56,11 +55,9 @@
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
               <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
             </div>
-            <div class="flex justify-end">
-              <button type="button" @click="closeModal"
-                class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
-              <button type="submit"
-                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Save</button>
+            <div class="flex justify-end space-x-4">
+              <Button type="button" @click="closeModal" severity="secondary" label="Cancel" />
+              <Button type="submit" label="Save" />
             </div>
           </form>
         </div>
@@ -209,11 +206,9 @@
                 class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300" />
               <span v-if="errors.name" class="text-red-500 text-sm">{{ errors.name }}</span>
             </div>
-            <div class="flex justify-end">
-              <button type="button" @click="closeModal"
-                class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200">Cancel</button>
-              <button type="submit"
-                class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Create</button>
+            <div class="flex justify-end gap-x-3">
+              <Button type="button" label="Cancel" severity="secondary" @click="closeModal" />
+              <Button type="submit" label="Create" />
             </div>
           </form>
         </div>
@@ -323,7 +318,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.roles = response.data.roleList.map((user) => ({
           id: user.Id,
           name: user.Name
@@ -341,7 +335,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('response', response)
         this.operators = response.data.userList.map((user) => ({
           id: user.id,
           password: user.password,
@@ -426,7 +419,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("API Response:", response.data.groupRoleList);
         if (response.data.success) {
           // const groupId = response.data.groupRoleList[0]?.Group_id || null; 
           const roleIds = response.data.groupRoleList.map((item) => item.Role_id);
@@ -460,7 +452,6 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("API Response:", response.data.groupOperatorList);
         if (response.data.success) { 
           const operatorIds = response.data.groupOperatorList.map((item) => item.Operator_id);
           this.operatorForm = {
@@ -468,7 +459,6 @@ export default {
             group_id: groupId,
             group_name: 'RiskTool',
           };
-
         } else {
           console.error("Failed to fetch operators. API responded with success: false.");
         }
@@ -530,15 +520,12 @@ export default {
       }
       this.isSaving = true;
       try {
-        console.log("Saving operator:", this.operatorForm.roleList);
         const response = await axios.post("/api/groupOperator/create", this.operatorForm, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("API Response:", response);
         if (response.data.success) {
-          console.log("Operators saved successfully.");
           this.showAssignUserDrawer = false;
           this.operatorForm = {
             operatorList: [],
@@ -579,16 +566,13 @@ export default {
       }
       this.isSaving = true;
       try {
-        console.log("Saving roles:", this.roleForm.roleList);
         const response = await axios.post("/api/groupRole/create", this.roleForm, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log("API Response:", response);
         if (response.data.success) {
-          console.log("Roles saved successfully.");
           
           this.showAssignRoleDrawer = false;
           this.roleForm = {
@@ -613,7 +597,6 @@ export default {
     if (!this.validateForm(this.newGroup)) return;
     const token = this.getAuthToken();
     if (!token) return;
-
     try {
         const response = await axios.post(
             "/api/groups/create",
@@ -625,12 +608,12 @@ export default {
             }
         );
         if (response.data.success) {
-            console.log("Group created successfully.");
             if (response.data.group) {
                 this.groups.push(response.data.groups);
             } else {
                 console.warn("Created group data is not available in the response.");
             }
+            this.getGroups();
             this.newGroup = { name: "" };
             this.closeModal();
         } else {
@@ -642,7 +625,6 @@ export default {
     },
 
     openEditModal(group) {
-      console.log('editingGroup', group)
       this.editingGroup = {
         id: group.Id,
         name: group.Name
@@ -651,14 +633,12 @@ export default {
       this.showCreateModal = false;
     },
     openAssignUserDrawer(group) {
-      console.log('editingGroup', group)
       this.operatorForm.group_id = toRaw(group).Id
       const groupId = toRaw(group).Id
       this.showAssignUserDrawer = true;
       this.getGroupOperator(groupId)     
     },
     openAssignRoleDrawer(group) {
-      console.log('editingGroup', group)
       this.roleForm.group_id = toRaw(group).Id
       const groupId = toRaw(group).Id
       this.showAssignRoleDrawer = true;
@@ -680,7 +660,6 @@ export default {
                     },
                 }
             );
-            console.log("Response:", response);
             if (response.data.success) {
               const index = this.groups.findIndex((op) => op.id === this.editingGroup.id);
               if (index !== -1) {

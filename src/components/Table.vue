@@ -1,5 +1,4 @@
 <template>
-    {{ console.log(slotProps, "showNoData") }}
     <div class="card">
         <!-- Loader -->
         <!-- Loader -->
@@ -32,7 +31,6 @@
                     body-class="text-center text-black">
                     <template #body="slotProps">
                         {{ getRewardTypeText(slotProps?.data) }}
-
                     </template>
                 </Column>
 
@@ -47,19 +45,19 @@
 
 
                 <!-- Status Column -->
-                <Column v-if="columns?.some(col => col.field === 'status')" header="Status" body-class="text-center">
+                <Column v-if="columns?.some(col => col.field === 'status') && store?.hasRoutePermission($route.name, 'update')" header="Status" body-class="text-center">
                     <template #body="slotProps">
-                        {{ console.log(slotProps, "slotProps?.data.status") }}
                         <ToggleSwitch :model-value="!!parseInt(slotProps?.data.status, 10)"
                             @change="emitStatusChange(slotProps?.data)" />
                     </template>
                 </Column>
 
                 <!-- Action Column -->
-                <Column v-if="columns?.some(col => col.field === 'action')" :class="{ 'custom-width': showAssign }"  header="Action" body-class="text-center">
+                <Column v-if="columns?.some(col => col.field === 'action') && store?.hasRoutePermission($route.name, 'update')" :class="{ 'custom-width': showAssign || showAssignPermission }"  header="Action" body-class="text-center">
                     <template #body="slotProps">
                         <Button v-tooltip.top="{ value: 'Edit'}" icon="pi pi-pencil" class="p-button-text" @click="emitEdit(slotProps?.data)"
                             label="Edit" />
+                        <Button v-if="showAssignPermission" v-tooltip.top="{ value: 'Assign Permission'}" icon="pi pi-lock" class="p-button-text" @click="emitAssignPermission(slotProps?.data)"/>
                         <Button v-if="showAssign" v-tooltip.top="{ value: 'Assign User'}" icon="pi pi-users" class="p-button-text"
                             @click="emitAssignUser(slotProps?.data)"/>
                         <Button v-if="showAssign" v-tooltip.top="{ value: 'Assign Role'}" icon="pi pi-plus-circle" class="p-button-text"
@@ -77,7 +75,7 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import ToggleSwitch from 'primevue/toggleswitch';
 import ProgressSpinner from 'primevue/progressspinner';
-
+import { store } from '../store/auth';
 export default {
     name: 'Table',
     components: {
@@ -105,12 +103,17 @@ export default {
         },
         showAssign: {
             type: Boolean,
-            default: false, // By default, the Assign User button is not shown
+            default: false, 
+        },
+        showAssignPermission: {
+            type: Boolean,
+            default: false,
         },
     },
-    emits: ['update-status', 'edit-operator', 'edit-details', 'get-rewardType', 'get-statusText', 'get-status', 'assign-user', 'assign-role'],
+    emits: ['update-status', 'edit-operator', 'edit-details', 'get-rewardType', 'get-statusText', 'get-status', 'assign-user', 'assign-role', 'assign-permission'],
     data() {
         return {
+            store,
             showNoData: false,
         };
     },
@@ -132,6 +135,9 @@ export default {
         emitAssignRole(row) {
             this.$emit('assign-role', row)
         },
+        emitAssignPermission(row) {
+            this.$emit('assign-permission', row)
+        },
         getRewardTypeText(data) {
             const rewardTypeMap = {
                 0: 'NO_WIN',
@@ -148,11 +154,9 @@ export default {
         items: {
             immediate: true,
             handler(newItems) {
-                console.log(newItems, !newItems || newItems.length === 0, "newItems")
                 if (!newItems || newItems.length === 0) {
                     setTimeout(() => {
                         if (!this.items || this.items.length === 0) {
-                            console.log("triggerred")
                             this.showNoData = true;
                         }
                     }, 1000);
