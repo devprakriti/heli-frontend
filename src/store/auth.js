@@ -13,6 +13,8 @@ export const store = reactive({
 // Check if the user has permission
 hasPermission(slug) {
   if (!this.profile) return false;
+  console.log('slug',slug)
+  console.log('profilesdas', this.profile)
   const userSlugs = new Set(
     this.profile.map(p => p.permission_slug)
   );
@@ -23,7 +25,9 @@ hasPermission(slug) {
 hasRoutePermission(route, operation) {
   const routeName = route.toLowerCase(); 
   const routePermissions = JSON.parse(localStorage.getItem("routePermissions")) || {};
+
   const permissionsForRoute = routePermissions[routeName];
+  console.log('prakriti',permissionsForRoute)
   if (!permissionsForRoute) {
     return false;
   }
@@ -42,7 +46,9 @@ async getRolePermission(token){
         },
       });
       if (response.data.success) {
+        
         response.data.permissionsList.forEach((permission) => {
+          
           const module = permission?.Module?.toLowerCase().endsWith('s') ? permission?.Module?.toLowerCase() : permission?.Module?.toLowerCase() + 's'
           const slug = permission?.Slug?.toLowerCase()
           const action = slug.split("_")[0]
@@ -51,7 +57,8 @@ async getRolePermission(token){
           }
           this.routePermissions[module][action] = slug;
         });
-        localStorage.setItem("routePermissions", JSON.stringify(routePermissions));
+        console.log(JSON.stringify(this.routePermissions),'permissionsList')
+        localStorage.setItem("routePermissions", JSON.stringify(this.routePermissions));
       } else {
         console.error("Failed to fetch permissions. API responded with success: false.");
       }

@@ -23,69 +23,18 @@
         </div>
       </div>
     </div>
+
     <!-- Table Section -->
     <div class="bg-white p-6 rounded-lg shadow-lg relative">
       <!-- Plus Button -->
       <CreateButton @open-modal="openCreateModal" />
 
-      <!-- <table class="min-w-full table-auto border-collapse border border-gray-200">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="border px-4 py-2 text-left">S.N</th>
-            <th class="border px-4 py-2 text-left">Username</th>
-            <th class="border px-4 py-2 text-left">Fullname</th>
-            <th class="border px-4 py-2 text-left">Status</th>
-            <th class="border px-4 py-2 text-left">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in operators" :key="index" class="hover:bg-gray-50">
-            <td class="border px-4 py-2">{{ index + 1 }}</td>
-            <td class="border px-4 py-2">{{ row.username }}</td>
-            <td class="border px-4 py-2">{{ row.fullname }}</td>
-            <td class="border px-4 py-2 text-center">
-                <label class="flex items-center justify-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    v-model="row.status"
-                    class="sr-only"
-                    @click="toggleStatus(row)"
-                    :checked="row.status"
-                  />
-                  <div
-                    :class="{
-                      'bg-blue-500': row.status,
-                      'bg-gray-300': !row.status
-                    }"
-                    class="relative inline-block h-6 w-12 rounded-full"
-                  >
-                    <span
-                      :class="{
-                        'translate-x-6': row.status,
-                        'translate-x-1': !row.status
-                      }"
-                      class="absolute left-1 top-1 bg-white h-4 w-4 rounded-full transition transform"
-                    ></span>
-                  </div>
-                </label>
-              </td>
-            <td class="border px-4 py-2 text-center">
-              <Button icon="pi pi-pencil" class="p-button-text text-blue-500" @click="openEditModal(row)"
-                label="Edit" />
-            </td>
-
-          </tr>
-        </tbody>
-      </table> -->
-
       <Table :items="items" :columns="tableColumns" @update-status="toggleStatus" @edit-operator="openEditModal">
         <!-- Edit Operator Modal -->
         <template #modal>
           <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-            <!-- Modal Content -->
             <div class="bg-white p-8 rounded-lg shadow-lg w-3/5 md:w-2/5">
               <h3 class="text-xl font-bold mb-6 text-center">Reset Password</h3>
-              <!-- Form -->
               <form @submit.prevent="updateOperator" class="space-y-6">
                 <div>
                   <label for="newPassword" class="block font-medium mb-2">New Password</label>
@@ -95,8 +44,7 @@
                   <span v-if="errors.password" class="text-red-500 text-sm">{{ errors.password }}</span>
                 </div>
                 <div>
-                  <label for="confirmPassword" class="block font-medium mb-2">Confirm New
-                    Password</label>
+                  <label for="confirmPassword" class="block font-medium mb-2">Confirm New Password</label>
                   <input v-model="editingOperator.confirmPassword" id="confirmPassword" type="password"
                     placeholder="Confirm your new password"
                     class="w-full px-4 py-3 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300"
@@ -105,7 +53,6 @@
                 </div>
                 <div class="flex justify-end space-x-4">
                   <Button type="button" @click="closeModal" severity="secondary" label="Cancel" />
-
                   <Button type="submit" label="Update Password" />
                 </div>
               </form>
@@ -113,37 +60,60 @@
           </div>
         </template>
       </Table>
+
+      <!-- Pagination -->
       <div class="mt-6 flex justify-center items-center space-x-2">
         <Button @click="goToPage(1)" :disabled="currentPage === 1" label="First" />
-
         <Button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" label="Prev" />
-
-        <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages
-          }}</span>
-
-        <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0"
-          label="Next" />
-
+        <span class="text-lg font-semibold text-gray-700">{{ currentPage }} / {{ totalPages === 0 ? 1 : totalPages }}</span>
+        <Button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || totalPages === 0" label="Next" />
         <Button @click="goToPage(totalPages)" :disabled="currentPage === totalPages || totalPages === 0" label="Last" />
-
       </div>
+
       <!-- Create Operator Modal -->
       <div v-if="showCreateModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <!-- Set the width of the modal here, similar to the Edit modal -->
         <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-2/5">
           <h3 class="text-xl font-bold mb-4">Create New Operator</h3>
           <form @submit.prevent="createOperator" class="space-y-4">
+            <!-- Username -->
             <div>
               <input v-model="newOperator.username" type="text" placeholder="Operator Username"
                 class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.username" class="text-red-500 text-sm">{{ errors.username }}</span>
-
             </div>
+
+            <!-- Fullname -->
             <div>
               <input v-model="newOperator.fullname" type="text" placeholder="Operator Fullname"
                 class="w-full px-4 py-2 border rounded-lg placeholder:font-light focus:outline-none focus:ring focus:ring-slate-300" />
               <span v-if="errors.fullname" class="text-red-500 text-sm">{{ errors.fullname }}</span>
             </div>
+
+            <!-- Currency Dropdown -->
+            <!-- Multiple Currency Selection -->
+          <div>
+            <label class="block mb-1 font-medium text-gray-700">Currencies</label>
+          
+            <div class="flex flex-col gap-2 pl-1">
+              <label
+                v-for="curr in currency"
+                :key="curr.CurrencyId"
+                class="inline-flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  class="form-checkbox h-4 w-4 text-blue-600"
+                  :value="curr.CurrencyId"
+                  v-model="newOperator.currencyIds"
+                />
+                <span>{{ curr.Currency }}</span>
+              </label>
+            </div>
+            <span v-if="errors.currencyIds" class="text-red-500 text-sm">{{ errors.currencyIds }}</span>
+          </div>
+
+
+            <!-- Group and Role Selection -->
             <div class="space-y-4">
               <div class="flex gap-4">
                 <p>Groups:</p>
@@ -161,6 +131,8 @@
                 </div>
               </div>
             </div>
+
+            <!-- Submit Buttons -->
             <div class="flex justify-end gap-x-3">
               <Button type="button" label="Cancel" severity="secondary" @click="closeModal" />
               <Button type="submit" label="Create" />
@@ -168,60 +140,6 @@
           </form>
         </div>
       </div>
-
-      <!-- <div v-if="showEditModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div class="bg-white p-6 rounded-lg shadow-lg w-3/4 md:w-1/2">
-          <h3 class="text-2xl font-bold mb-4">Edit Operator</h3>
-          <form @submit.prevent="updateOperator" class="space-y-4">
-          <div>
-              <input
-              v-model="editingOperator.username"
-              type="text"
-              placeholder="Operator Username"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-slate-300"
-              />
-              <span v-if="errors.username" class="text-red-500 text-sm">{{ errors.username }}</span>
-
-          </div>
-          <div>
-              <input
-              v-model="editingOperator.email"
-              type="email"
-              placeholder="Operator Email"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-slate-300"
-              />
-              <span v-if="errors.email" class="text-red-500 text-sm">{{ errors.email }}</span>
-
-          </div>
-          <div>
-              <input
-              v-model="editingOperator.phone"
-              type="number"
-              placeholder="Operator Phone"
-              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-slate-300"
-              />
-              <span v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</span>
-
-          </div>
-          <div class="flex justify-end">
-              <button
-              type="button"
-              @click="closeModal"
-              class="mr-2 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-200"
-              >
-              Cancel
-              </button>
-              <button
-              type="submit"
-              class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200"
-              >
-              Update
-              </button>
-      </div>
-          </form>
-      </div>
-      </div> -->
-
     </div>
   </div>
 </template>
@@ -254,6 +172,9 @@ export default {
         username: "",
         fullname: "",
         status: 1,
+        currencyIds: [],
+        group_id: null,
+        role_id: null
       },
       editingOperator: {
         password: "",
@@ -264,6 +185,7 @@ export default {
       showEditModal: false,
       roles: [],
       groups: [],
+      currency:[],
       form: {
         group_id: null,
         role_id: null,
@@ -282,12 +204,15 @@ export default {
     'filters.Username': 'getOperators',
     'filters.Fullname': 'getOperators',
     'filters.Status': 'getOperators',
+    // 'this.form.group_id': 'getGroupRoles'
   },
 
   mounted() {
     this.getOperators(),
-      this.getGroups(),
-      this.getRoles()
+    this.getCurrencyList(),
+    this.getGroups(),
+    this.getRoles()
+    // this.getGroupRoles()
   },
   methods: {
     getAuthToken() {
@@ -305,6 +230,11 @@ export default {
       };
 
       let isValid = true;
+
+      if (!operator.currencyIds || operator.currencyIds.length === 0) {
+        this.errors.currencyIds = "At least one currency must be selected";
+        isValid = false;
+      }
 
       if (!operator.username) {
         this.errors.username = "Username is required";
@@ -376,7 +306,8 @@ export default {
         };
         this.operators.push(createdOperator);
         // window.location.reload();
-        this.newOperator = { username: "", fullname: "", status: 1 };
+        
+        this.newOperator = { username: "", fullname: "", status: 1, currencyIds: [] };
         this.closeModal();
       } catch (error) {
         console.error("Error creating operator:", error);
@@ -397,6 +328,21 @@ export default {
         console.error("Error creating operator:", error);
       }
     },
+    async getCurrencyList() {
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+        const response = await axios.get("/api/users/currencyList", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.currency = response?.data?.currencyList;
+
+      } catch (error) {
+        console.error("Error listing currency:", error);
+      }
+    },
     async getRoles() {
       const token = this.getAuthToken();
       if (!token) return;
@@ -412,6 +358,26 @@ export default {
         console.error("Error creating operator:", error);
       }
     },
+
+    async getGroupRoles(groupId) {
+      console.log('getGroupRoles',groupId)
+      // if (!this.validateForm(groupId)) return;
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
+        const response = await axios.get(`/api/groups/groupRole/${groupId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('response',response)
+        this.roles = response?.data?.groupRole;
+
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
+
     async createOperator() {
       if (!this.validateForm(this.newOperator)) return;
       const token = this.getAuthToken();
@@ -426,25 +392,25 @@ export default {
             },
           }
         );
-        const createdOperator = {
-          id: response.data.user[0].Id,
-          ...this.newOperator,
-          status: true,
-        };
+        // const createdOperator = {
+        //   id: response.data.user[0].Id,
+        //   ...this.newOperator,
+        //   status: true,
+        // };
         // window.location.reload();
-        this.form.operator_id = createdOperator.id;
-        await axios.post(
-          "/api/operatorGroupRole/create",
-          this.form,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // this.form.operator_id = createdOperator.id;
+        // await axios.post(
+        //   "/api/operatorGroupRole/create",
+        //   this.form,
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   }
+        // );
         this.getOperators();
-        this.newOperator = { username: "", fullname: "", status: 1 };
-        this.form = { group_id: null, role_id: null, operator_id: null };
+        this.newOperator = { username: "", fullname: "", status: 1,currencyIds:[] ,group_id: null, role_id: null};
+        // this.form = { group_id: null, role_id: null, operator_id: null };
         this.closeModal();
       } catch (error) {
         console.error("Error creating operator:", error);
@@ -511,12 +477,6 @@ export default {
         this.errors.password = 'Password must be at least 8 characters long.';
         return false;
       }
-      // const passwordRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-      // if (!passwordRequirements.test(password)) {
-      //   this.errors.password =
-      //     'Password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number.';
-      //   return false;
-      // }
       if (password1 !== confirmPassword1) {
         this.errors.confirmPassword = 'Passwords do not match.';
         return false;
@@ -554,12 +514,22 @@ export default {
       this.form.role_id = null;
     },
     openCreateModal() {
+      this.newOperator = { username: "", fullname: "", status: 1, currencyIds: [] };
       this.showCreateModal = true;
       this.showEditModal = false;
     },
-    handleGroupChange(groupId) {
-      this.form.group_id = groupId;
-    },
+    // handleGroupChange(groupId) {
+    //   this.form.group_id = groupId;
+    // },
+    handleGroupChange(group) {
+    console.log('group',group)
+    if (group) {
+      this.getGroupRoles(group);
+    } else {
+      this.roles = [];
+    }
+  },
+  
 
   },
 };

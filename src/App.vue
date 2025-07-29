@@ -207,7 +207,7 @@
             <h1 class="text-xl font-semibold">{{ pageHeader }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <span class="text-sm text-slate-400">Welcome, {{ user.user_name }}</span>
+            <span class="text-sm text-slate-400">Welcome, {{ user.username }}</span>
             <button class="bg-red-500 text-sm px-4 py-2 text-white rounded hover:bg-red-600"
               @click="logout">Logout</button>
           </div>

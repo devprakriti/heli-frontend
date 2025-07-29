@@ -109,10 +109,23 @@ export default {
           localStorage.setItem("profile", JSON.stringify(authme?.data?.user?.permissionList));
           await store?.getRolePermission(response?.data?.token)
           localStorage.setItem("routePermissions", JSON.stringify(store?.routePermissions));
+
+          const totalCount = await axios.get("/api/users/totalCount", {
+            headers
+          });
+          localStorage.setItem("accountList", totalCount?.data?.totalList?.accountList);
+          localStorage.setItem("ruleList", totalCount?.data?.totalList?.ruleList);
+          localStorage.setItem("operatorList", totalCount?.data?.totalList?.operatorList);
+          localStorage.setItem("ticketList", totalCount?.data?.totalList?.ticketList);
+          const userDetails = JSON.parse(localStorage.getItem("userDetails"))
+          // const userCurrencies = userDetails.currencies
+          localStorage.setItem("userCurrencies", userDetails?.currencies);
+
+
           this.$router.push("/dashboard");
           setTimeout(() => {
             window.location.reload();
-          }, 100);
+           }, 100);
         } else {
           // Show error message if login failed
           this.loading = false;  // Stop loading

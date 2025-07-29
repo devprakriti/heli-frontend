@@ -98,23 +98,44 @@ export default {
   },
   watch: 
   {
-    'totalList': 'getAccounts'
+    // 'totalList': 'getAccounts'
   },
   mounted(){
-    this.getAccounts()
+    // this.getAccounts()
+    const userDetails = JSON.parse(localStorage.getItem("userDetails"))
+    const currency = userDetails.currencies
+    console.log(currency,'currency')
+    const userCurrencies = localStorage.getItem("userCurrencies")
+    const accountList = localStorage.getItem("accountList");
+    const ruleList = localStorage.getItem("ruleList");
+    const operatorList = localStorage.getItem("operatorList");
+    const ticketList = localStorage.getItem("ticketList");
+    if (accountList) {
+      this.totalList.accountList = accountList;
+    }
+    if (ruleList) {
+      this.totalList.ruleList = ruleList;
+    }
+    if (operatorList) {
+      this.totalList.operatorList = operatorList;
+    }
+    if (ticketList) {
+      this.totalList.ticketList = ticketList;    
+    }
+
   },
   methods:{
     goToLinkOperator() {
-      window.location.href = '/operators'; // Replace with your desired URL
+      window.location.href = '/operators';
     },
     goToLinkAccounts() {
-      window.location.href = '/accounts'; // Replace with your desired URL
+      window.location.href = '/accounts';
     },
     goToLinkRules() {
-      window.location.href = '/rules'; // Replace with your desired URL
+      window.location.href = '/rules';
     },
-    goToLinkRules() {
-      window.location.href = '/tickets'; // Replace with your desired URL
+    goToLinkTickets() {
+      window.location.href = '/tickets';
     },
     getAuthToken() {
         const token = localStorage.getItem("authToken"); 
@@ -124,24 +145,6 @@ export default {
         }
         return token;
     },
-    async getAccounts() {
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-        const response = await axios.get("/api/users/totalCount", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          }
-        });
-        this.totalList.accountList = response.data.totalList.accountList
-        this.totalList.ruleList = response.data.totalList.ruleList
-        this.totalList.operatorList = response.data.totalList.operatorList
-        this.totalList.ticketList = response.data.totalList.ticketList;
-      } catch (error) {
-        console.error("Error fetching total list:", error);
-      }
-    }
-
   }
 };
 </script>
