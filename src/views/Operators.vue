@@ -16,10 +16,22 @@
             placeholder="Search by Username"
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" />
         </div>
+      </div>
+      <div class="flex space-x-4 mb-4">
         <div class="flex-1">
           <label for="search" class="block text-sm font-medium text-gray-700">Search By Status</label>
           <Select v-model="filters.Status" :options="statusList" showClear optionLabel="name"
             placeholder="Select a Status" fluid />
+        </div>
+        <div class="flex-1">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search By Group</label>
+          <Select v-model="filters.Group" :options="groupList" showClear optionLabel="name"
+            placeholder="Select a Group" fluid />
+        </div>
+        <div class="flex-1">
+          <label for="search" class="block text-sm font-medium text-gray-700">Search By Role</label>
+          <Select v-model="filters.Role" :options="roleList" showClear optionLabel="name"
+            placeholder="Select a Role" fluid />
         </div>
       </div>
     </div>
@@ -53,6 +65,7 @@
                 </div>
                 <div class="flex justify-end space-x-4">
                   <Button type="button" @click="closeModal" severity="secondary" label="Cancel" />
+
                   <Button type="submit" label="Update Password" />
                 </div>
               </form>
@@ -113,7 +126,6 @@
           </div>
 
 
-            <!-- Group and Role Selection -->
             <div class="space-y-4">
               <div class="flex gap-4">
                 <p>Groups:</p>
@@ -125,9 +137,9 @@
               </div>
               <div v-if="form.group_id" class="flex gap-2">
                 <p>Roles:</p>
-                <div v-for="role in roles" :key="role.Id" class="flex gap-1.5 items-center">
-                  <RadioButton v-model="form.role_id" :inputId="'role-' + role.Id" :value="role.Id" :name="role.Name" />
-                  <label :for="'role-' + role.Id">{{ role.Name }}</label>
+                <div v-for="role in roles" :key="role.Role_id" class="flex gap-1.5 items-center">
+                  <RadioButton v-model="form.role_id" :inputId="'role-' + role.Role_id" :value="role.Role_id" :name="role.Role_Name" />
+                  <label :for="'role-' + role.Role_id">{{ role.Role_Name }}</label>
                 </div>
               </div>
             </div>
@@ -162,8 +174,12 @@ export default {
       filters: {
         Username: null,
         Fullname: null,
-        Status: null
+        Status: null,
+        Group: null,
+        Role:null,
       },
+      roleList : null,
+      groupList: null,
       statusList: [
         { name: 'Active', code: '1' },
         { name: 'Inactive', code: '0' }
@@ -262,38 +278,44 @@ export default {
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
       try {
-        const response = await axios.get("/api/users", {
+        const response = await axios.get("/api/users/userDetailList", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            username: this.filters.Username,
-            fullname: this.filters.Fullname,
+            Username: this.filters.Username,
+            Fullname: this.filters.Fullname,
             ...(this.filters.Status !== null && this.filters.Status.code !== null
-              ? { status: this.filters.Status.code }
+              ? { Status: this.filters.Status.code }
               : {}),
+              ...(this.filters.Group?.name ? { Group: this.filters.Group.name } : {}),
+              ...(this.filters.Role?.name ? { Role: this.filters.Role.name } : {}),
             page: this.currentPage,
             pageSize: this.pageSize,
             offset: offset,
           },
         });
-        const {userList, totalCount, totalPages } = response?.data;
+        const { userList, totalCount, totalPages } = response?.data;
         this.operators = userList.map((user) => ({
           id: user.id,
-          username: user.username,
           password: user.password,
           fullname: user.fullname,
           status: user.status,
         }));
         this.items = userList.map((user) => ({
           id: user.id,
+          password: user.password,
           username: user.username,
           fullname: user.fullname,
+          groupname: user.group_details[0].group_name,
+          rolename: user.group_details[0].role.role_name,
           status: user.status,
         }));
         this.tableColumns = [
           { field: 'username', header: 'Username' },
           { field: 'fullname', header: 'Fullname' },
+          { field: 'groupname', header: 'Group' },
+          { field: 'rolename', header: 'Role' },
           { field: 'status', header: 'Status' },
           { field: 'action', header: 'Action' },
         ];
@@ -323,6 +345,10 @@ export default {
           },
         });
         this.groups = response?.data?.groupList;
+        this.groupList = response?.data?.groupList.map(group => ({
+          name: group.Name,
+          value: group.ID
+        }));
 
       } catch (error) {
         console.error("Error creating operator:", error);
@@ -347,13 +373,34 @@ export default {
       const token = this.getAuthToken();
       if (!token) return;
       try {
+        const response = await axios.get("/api/groupRole", {
+          params:{
+            group_id: this.form.group_id
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.roles = response?.data?.groupRoleList;
+        console.log(this.roles, "thisrole")
+      } catch (error) {
+        console.error("Error creating operator:", error);
+      }
+    },
+    async getAllRoles() {
+      const token = this.getAuthToken();
+      if (!token) return;
+      try {
         const response = await axios.get("/api/roles", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        this.roles = response?.data?.roleList;
-
+        this.roleList = response?.data?.roleList.map(role => ({
+          name: role.Name,
+          value: role.ID
+        }));
+        console.log(this.roleList, "thisrole")
       } catch (error) {
         console.error("Error creating operator:", error);
       }
