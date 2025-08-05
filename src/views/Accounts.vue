@@ -128,6 +128,7 @@ export default {
   name: 'AdminSettings',
   data() {
     return {
+      selectedCurrency: localStorage.getItem('selectedCurrency') || null,
       items: null,
       tableColumns: null,
       accounts: [],
@@ -194,12 +195,13 @@ export default {
       const token = this.getAuthToken();
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
-
+      const headers = { Authorization: `Bearer ${token}` };
+      if (localStorage.getItem('selectedCurrency')) {
+            headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+      }
       try {
         const response = await axios.get("/api/spinwin/accounts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: headers,
           params: {
             Username: this.filters.Username,
             Account: this.filters.Account,

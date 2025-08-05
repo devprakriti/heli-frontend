@@ -130,16 +130,17 @@
               <div class="flex gap-4">
                 <p>Groups:</p>
                 <div v-for="group in groups" :key="group.Id" class="flex gap-1.5 items-center">
-                  <RadioButton v-model="form.group_id" :inputId="'group-' + group.Id" :value="group.Id" :name="group.Name"
+                  <RadioButton v-model="newOperator.group_id" :inputId="'group-' + group.Id" :value="group.Id" :name="group.Name"
                     @change="handleGroupChange(group.Id)" />
                   <label :for="'group-' + group.Id">{{ group.Name }}</label>
                 </div>
               </div>
-              <div v-if="form.group_id" class="flex gap-2">
+              <div v-if="newOperator.group_id" class="flex gap-2">
                 <p>Roles:</p>
+            
                 <div v-for="role in roles" :key="role.Role_id" class="flex gap-1.5 items-center">
-                  <RadioButton v-model="form.role_id" :inputId="'role-' + role.Role_id" :value="role.Role_id" :name="role.Role_Name" />
-                  <label :for="'role-' + role.Role_id">{{ role.Role_Name }}</label>
+                  <RadioButton v-model="newOperator.role_id" :inputId="'role-' + role.Id" :value="role.Id" :name="role.Name" />
+                  <label :for="'role-' + role.Role_id">{{ role.Name }}</label>
                 </div>
               </div>
             </div>
@@ -455,6 +456,7 @@ export default {
         //     },
         //   }
         // );
+        console.log('response', response)
         this.getOperators();
         this.newOperator = { username: "", fullname: "", status: 1,currencyIds:[] ,group_id: null, role_id: null};
         // this.form = { group_id: null, role_id: null, operator_id: null };

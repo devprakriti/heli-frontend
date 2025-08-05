@@ -13,8 +13,6 @@ export const store = reactive({
 // Check if the user has permission
 hasPermission(slug) {
   if (!this.profile) return false;
-  console.log('slug',slug)
-  console.log('profilesdas', this.profile)
   const userSlugs = new Set(
     this.profile.map(p => p.permission_slug)
   );
@@ -27,7 +25,6 @@ hasRoutePermission(route, operation) {
   const routePermissions = JSON.parse(localStorage.getItem("routePermissions")) || {};
 
   const permissionsForRoute = routePermissions[routeName];
-  console.log('prakriti',permissionsForRoute)
   if (!permissionsForRoute) {
     return false;
   }

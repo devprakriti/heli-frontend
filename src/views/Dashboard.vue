@@ -9,7 +9,7 @@
             <div class="flex justify-between items-center">
               <h3 class="font-medium">Operators</h3>
               <i class="pi pi-user text-blue-500" :style="{ fontSize: '1.2rem' }"></i>
-            </div>
+            </div> 
           </template>
           <template #content>
             <div class="text-left mt-4">
@@ -88,6 +88,7 @@ export default {
   },
   data(){
     return{
+      userCurrency: [],
       totalList: {
         accountList: 0,
         ruleList: 0,
@@ -102,14 +103,17 @@ export default {
   },
   mounted(){
     // this.getAccounts()
-    const userDetails = JSON.parse(localStorage.getItem("userDetails"))
-    const currency = userDetails.currencies
-    console.log(currency,'currency')
-    const userCurrencies = localStorage.getItem("userCurrencies")
+    // const userDetails = JSON.parse(localStorage.getItem("userDetails"))
+    // const currency = userDetails.currencies
+    // console.log(currency,'currency')
+    const userCurrency = localStorage.getItem("userCurrency")
     const accountList = localStorage.getItem("accountList");
     const ruleList = localStorage.getItem("ruleList");
     const operatorList = localStorage.getItem("operatorList");
     const ticketList = localStorage.getItem("ticketList");
+    if(userCurrency){
+      this.userCurrency = userCurrency
+    }
     if (accountList) {
       this.totalList.accountList = accountList;
     }

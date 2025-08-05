@@ -38,7 +38,7 @@
       </div>
 
       <button type="submit"
-        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"  :disabled="loading">
         Login
       </button>
     </form>
@@ -63,7 +63,7 @@ export default {
       loading: false,
       showPassword: false,
       isAdmin: false,
-      groupId: 2
+      groupId: 4
     };
   },
   watch: {
@@ -102,14 +102,26 @@ export default {
           localStorage.setItem("authToken", response.data.token);
           localStorage.setItem('authUser', JSON.stringify(response.data.data));
           const headers = { Authorization: `Bearer ${response?.data?.token}` };
+          
+          
+
+         
           const authme = await axios.get("/api/auth/me", 
           {
             headers 
           });
           localStorage.setItem("profile", JSON.stringify(authme?.data?.user?.permissionList));
+          localStorage.setItem("userCurrency", JSON.stringify(authme?.data?.user?.userCurrency));
           await store?.getRolePermission(response?.data?.token)
           localStorage.setItem("routePermissions", JSON.stringify(store?.routePermissions));
 
+          const selectedCurrency = localStorage.getItem('selectedCurrency') || (JSON.parse(localStorage.getItem("userCurrency"))?.[0].CurrencyId)
+
+          if (selectedCurrency) {
+            headers['X-Selected-Currency'] = selectedCurrency; 
+          }
+
+          console.log('headers',headers )
           const totalCount = await axios.get("/api/users/totalCount", {
             headers
           });
@@ -117,11 +129,6 @@ export default {
           localStorage.setItem("ruleList", totalCount?.data?.totalList?.ruleList);
           localStorage.setItem("operatorList", totalCount?.data?.totalList?.operatorList);
           localStorage.setItem("ticketList", totalCount?.data?.totalList?.ticketList);
-          const userDetails = JSON.parse(localStorage.getItem("userDetails"))
-          // const userCurrencies = userDetails.currencies
-          localStorage.setItem("userCurrencies", userDetails?.currencies);
-
-
           this.$router.push("/dashboard");
           setTimeout(() => {
             window.location.reload();

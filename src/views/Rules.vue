@@ -78,7 +78,7 @@
                 <th class="border px-4 py-2 text-left">S.N</th>
                 <th class="border px-4 py-2 text-left">Name</th>
                 <th class="border px-4 py-2 text-left">Type of Condition</th>
-                <th class="border px-4 py-2 text-left" v-if="store?.hasRoutePermission($route.name, 'update')">Status</th>
+                <!-- <th class="border px-4 py-2 text-left" v-if="store?.hasRoutePermission($route.name, 'update')">Status</th> -->
                 <th class="border px-4 py-2 text-left" v-if="store?.hasRoutePermission($route.name, 'update')">Action</th>
               </tr>
             </thead>
@@ -88,9 +88,9 @@
                   <td class="border px-4 py-2">{{ index + 1 }}</td>
                   <td class="border px-4 py-2">{{ row.name }}</td>
                   <td class="border px-4 py-2">{{ row.type }}</td>
-                  <td class="border px-4 py-2 text-center" v-if="store?.hasRoutePermission($route.name, 'update')">
+                  <!-- <td class="border px-4 py-2 text-center" v-if="store?.hasRoutePermission($route.name, 'update')">
                     <ToggleSwitch :model-value="!!row.status" @change="toggleStatus(row)" />
-                  </td>
+                  </td> -->
                   <td class="border px-2 py-2 space-x-0" v-if="store?.hasRoutePermission($route.name, 'update')">
                     <Button icon="pi pi-pencil" class="p-button-text" @click="openEditModal(row)" label="Edit" />
     
@@ -478,8 +478,6 @@ export default {
       extendedTable: false,
       activeTab: 'settings',
       loading: true,
-      statisticalProcedureEnabled: false,
-      memberDisplayEnabled: false,
       filters: {
         Name: null,
         TicketType: null,
@@ -502,6 +500,7 @@ export default {
         Template: null,
         parameterTemplate: null,
       },
+      editingRule: { ...this.newRule },
       parameterTemplate: null,
       parameterTemplates: null,
       ticketTypeList: [],
@@ -532,6 +531,7 @@ export default {
       ],
       isReadOnly: true,
       editingRule: {
+        Id: '',
         Name: '',
         TicketType: '',
         TicketAmount: '',
@@ -555,6 +555,7 @@ export default {
         username: null,
         email: null,
         phone: null,
+        DesignatedDate: null
       },
       maxDate: null,
       expandedRuleId: null,
@@ -638,8 +639,6 @@ export default {
     selectedDatesValues() {
       return this.selectedDesignatedDates.map(date => date.code);
     },
-  },
-  computed: {
     filteredExtendedItems() {
       if (!this.expandedRuleId) return [];
       return this.items.filter((item) => item.id === this.expandedRuleId);
@@ -777,17 +776,7 @@ export default {
       return token;
     },
     validateForm(rule) {
-      this.errors = {
-        Id: null,
-        Name: null,
-        TicketType: null,
-        TicketAmount: null,
-        IssueFrequency: null,
-        DesignatedDate: null,
-        DesignatedDays: null,
-        status: null
-      };
-
+      this.errors = {}; // Clear previous errors
       let isValid = true;
 
       if (!rule.Name) {
@@ -806,22 +795,199 @@ export default {
       }
 
       if (!rule.IssueFrequency) {
-        this.errors.IssueFrequency = "IssueFrequency number is required";
+        this.errors.IssueFrequency = "IssueFrequency is required";
+        isValid = false;
+      }
+      if (rule.IssueFrequency == 1 && (this.selectedDesignatedDates.length === 0 || this.selectedDesignatedDays.length === 0)) {
+        this.errors.DesignatedDate = "Designated Date and Days are required when Issue Frequency is 'Designated Time'";
         isValid = false;
       }
 
       return isValid;
     },
-    async getRules() {
+    async createRule() {
+      if (!this.validateForm(this.newRule)) return;
+      this.loading = true;
+      try {
+        const token = this.getAuthToken();
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'X-Selected-Currency': localStorage.getItem('selectedCurrency') || '',
+        };
+        this.newRule.DesignatedDate = JSON.stringify(this.selectedDesignatedDates);
+        this.newRule.DesignatedDays = JSON.stringify(this.selectedDesignatedDays);
+        this.newRule.parameterTemplate = JSON.stringify(this.newRule.parameterTemplate)
+        const response = await axios.post("/api/spinwin/rule/create", this.newRule, { headers });
+        console.log('response',response)
+        if (response.data.success) {
+          const transformedRule = {
+            id: response.data.rule.Id,
+            status: response.data.rule.Status,
+            name: response.data.rule.Name,
+            type: response.data.rule.TicketType,
+            issueTime: this.getIssueFrequencyLabel(response.data.rule.IssueFrequency), // Assuming you already have a function for this
+            IssueFrequency: response.data.rule.IssueFrequency,
+            issueThresholdAmount: response.data.rule.TicketAmount,
+            sheets: 0,
+            validPeriod: null, // Set this to null as per your structure
+            ExpireType: response.data.rule.ExpireType,
+            DesignatedDate: response.data.rule.DesignatedDate ? JSON.parse(response.data.rule.DesignatedDate) : null, // Parse DesignatedDate string
+            DesignatedDays: response.data.rule.DesignatedDays ? JSON.parse(response.data.rule.DesignatedDays) : null, // Parse DesignatedDays string
+            parameterTemplate: JSON.parse(response.data.rule.Template || "{}") // Ensure Template is parsed into an object
+          };
+
+          this.rules.push(transformedRule);
+          this.showCreateModal = false;
+          this.newRule = { ...this.editingRule }; // Reset form
+          this.showErrorNotification = false;
+          window.location.reload(); // Hide error notification if successful
+        } else {
+          this.errorMessage = response.data.message || "Something went wrong, please try again.";
+          this.showErrorNotification = true;
+
+        }
+      } catch (error) {
+        this.errorMessage = "An error occurred. Please try again later.";
+        this.showErrorNotification = true;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // API Call to Update Rule
+
+    
+    async updateRule() {
+      if (!this.validateForm(this.editingRule)) return;
+      this.editingRule.DesignatedDate = JSON.stringify(this.editingRule.DesignatedDate);
+      this.editingRule.DesignatedDays = JSON.stringify(this.editingRule.DesignatedDays);
+      this.editingRule.parameterTemplate = JSON.stringify(this.editingRule.parameterTemplate)
+      this.loading = true;
+      console.log('here', this.editingRule)
+      try {
+        const token = this.getAuthToken();
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          'X-Selected-Currency': localStorage.getItem('selectedCurrency') || '',
+        };
+        console.log(headers, 'headers')
+        const response = await axios.put(`/api/spinwin/rule/update/${this.editingRule.Id}`, this.editingRule, { headers });
+      console.log('response',response)
+      if (response.data.success) {
+        
+        const updatedRule = {
+        id: response.data.rule.Id,
+        status: response.data.rule.Status,
+        name: response.data.rule.Name, // Ensure it's capitalized
+        type: response.data.rule.TicketType, // Ensure it's capitalized
+        issueTime: this.getIssueFrequencyLabel(response.data.rule.IssueFrequency), // Assuming you already have a function for this
+        IssueFrequency: response.data.rule.IssueFrequency,
+        issueThresholdAmount: response.data.rule.TicketAmount,
+        sheets: 0,
+        validPeriod: null, // Set this to null as per your structure
+        ExpireType: response.data.rule.ExpireType,
+        ExpireTime: response.data.rule.ExpireTime,
+        DesignatedDate: response.data.rule.DesignatedDate ? JSON.parse(response.data.rule.DesignatedDate) : null, // Parse DesignatedDate string
+        DesignatedDays: response.data.rule.DesignatedDays ? JSON.parse(response.data.rule.DesignatedDays) : null, // Parse DesignatedDays string
+        parameterTemplate: JSON.parse(response.data.rule.Template || "{}") // Ensure Template is parsed into an object
+      };
+
+      // Find the rule in `this.rules` array by its `id` and replace it with the updated one
+      const index = this.rules.findIndex(rule => rule.id === updatedRule.id);
+      if (index !== -1) {
+        this.rules[index] = updatedRule; // Update the rule in the list
+      }
+
+      // Hide the modal and reset the form
+      this.showEditModal = false;
+      this.showErrorNotification = false;
+      this.editingRule = { ...this.newRule }; // Reset form
+      window.location.reload();
+    } else {
+      this.errorMessage = response.data.message || "Error updating rule.";
+      this.showErrorNotification = true;
+    }
+      } catch (error) {
+        this.errorMessage = "An error occurred. Please try again later.";
+        this.showErrorNotification = true;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+
+    // Open the Edit Modal
+    openEditModal(rule) {
+    console.log('rule',rule)
+    const transformedDesignatedDate = rule.DesignatedDate ? JSON.parse(rule.DesignatedDate) // Parse DesignatedDate string into an array
+    : [];
+
+    const transformedDesignatedDays = rule.DesignatedDays
+      ? JSON.parse(rule.DesignatedDays) // Parse DesignatedDays string into an array
+      : [];
+      this.selectedDesignatedDates = transformedDesignatedDate
+      this.selectedDesignatedDays = transformedDesignatedDays
+      this.editingRule = {
+        Id: rule.id,
+        Name: rule.name,  // Capitalize Name when editing
+        TicketType: rule.type, // Capitalize TicketType
+        TicketAmount: rule.issueThresholdAmount,
+        IssueFrequency: rule.IssueFrequency,
+        DesignatedDate: transformedDesignatedDate,
+        DesignatedDays: transformedDesignatedDays,
+        ExpireType: rule.ExpireType,
+        ExpireTime: rule.validPeriod,
+        status: rule.status,
+        parameterTemplate: JSON.parse(rule.parameterTemplate || "{}")
+      };
+
+      this.showEditModal = true;
+      this.showCreateModal = false;
+    },
+
+    // Open the Create Modal
+    openCreateModal() {
+      this.showCreateModal = true;
+      this.showEditModal = false;
+      this.clearErrorMessages(); // Clear errors on modal open
+    },
+
+    // Close both modals
+    closeModal() {
+      this.showCreateModal = false;
+      this.showEditModal = false;
+      this.clearErrorMessages(); // Clear errors on modal close
+    },
+
+    // Clear error messages
+    clearErrorMessages() {
+      this.errors = {};
+      this.showErrorNotification = false;
+      this.errorMessage = '';
+    },
+
+    // Helper to retrieve auth token
+    getAuthToken() {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        console.error("Authorization token not found");
+        return null;
+      }
+      return token;
+    },
+ 
+
+  async getRules() {
       const token = this.getAuthToken();
       if (!token) return;
       const offset = (this.currentPage - 1) * this.pageSize;
       try {
+        const headers = { Authorization: `Bearer ${token}` };
+        if (localStorage.getItem('selectedCurrency')) {
+            headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+        }
         const response = await axios.get("/api/spinwin/rules", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-
+          headers: headers,
           params: {
             Name: this.filters.Name,
             ...(this.filters.TicketType !== null && this.filters.TicketType.Type !== null
@@ -887,7 +1053,7 @@ export default {
       } catch (error) {
         console.error("Error fetching rules:", error);
       }
-    },
+  },
 
     getIssueFrequencyLabel(issueFrequency) {
       if (issueFrequency === 0) {
@@ -900,141 +1066,155 @@ export default {
       return 'Unknown';
     },
 
-    async createRule() {
-      this.newRule.DesignatedDays = JSON.stringify(this.selectedDaysValues);
-      this.newRule.DesignatedDate = JSON.stringify(this.selectedDatesValues);
-      this.newRule.parameterTemplate = JSON.stringify(this.newRule.parameterTemplate)
-      if (!this.validateForm(this.newRule)) return;
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-        const response = await axios.post(
-          "/api/spinwin/rule/create",
-          this.newRule,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+    // async createRule() {
+    //   this.newRule.DesignatedDays = JSON.stringify(this.selectedDaysValues);
+    //   this.newRule.DesignatedDate = JSON.stringify(this.selectedDatesValues);
+    //   this.newRule.parameterTemplate = JSON.stringify(this.newRule.parameterTemplate)
+    //   if (!this.validateForm(this.newRule)) return;
+    //   const token = this.getAuthToken();
+    //   if (!token) return;
+    //   try {
+    //     const headers = { Authorization: `Bearer ${token}` };
+    //     if (localStorage.getItem('selectedCurrency')) {
+    //         headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+    //     }
+    //     const response = await axios.post(
+    //       "/api/spinwin/rule/create",
+    //       this.newRule,
+    //       {
+    //         headers: headers,
+    //       }
+    //     );
+    //     console.log('here prakrii',this.newRule)
+    //     if (response.data.success == true) {
+    //       const createdRule = {
+    //         id: response.data.rule.id,
+    //         ...this.newRule,
+    //         status: true,
+    //       };
+    //       this.rules.push(createdRule);
+    //       this.showCreateModal = false;
+    //       this.newRule = {
+    //           Id: "",
+    //           Name: "",
+    //           TicketType: "",
+    //           TicketAmount: "",
+    //           IssueFrequency: "",
+    //           DesignatedDate: "",
+    //           DesignatedDays: "",
+    //           status: ""
+    //       };
+    //       // window.location.reload();
+    //     }
+    //     else {
+    //       if (response.data.success == false) {
+    //         this.errorMessage = response.data.message
+    //         this.showErrorNotification = true;
+    //       }
+    //       console.error("Error creating rule:", response.data.message || "Unknown error");
 
-        if (response.data.success == true) {
-          const createdRule = {
-            id: response.data.rule.id,
-            ...this.newRule,
-            status: true,
-          };
-          this.rules.push(createdRule);
-          this.closeModal();
-          window.location.reload();
-        }
-        else {
-          if (response.data.success == false) {
-            this.errorMessage = response.data.message
-            this.showErrorNotification = true;
-          }
-          console.error("Error creating rule:", response.data.message || "Unknown error");
+    //       this.errorMessage = response.data.message || "Something went wrong, please try again.";
 
-          this.errorMessage = response.data.message || "Something went wrong, please try again.";
-
-          this.showErrorNotification = true;
-        }
+    //       this.showErrorNotification = true;
+    //     }
 
 
-        // window.location.reload();
-        this.newRule = {
-          Id: "",
-          Name: "",
-          TicketType: "",
-          TicketAmount: "",
-          IssueFrequency: "",
-          DesignatedDate: "",
-          DesignatedDays: "",
-          status: ""
-        };
+    //     // window.location.reload();
+    //     this.newRule = {
+    //       Id: "",
+    //       Name: "",
+    //       TicketType: "",
+    //       TicketAmount: "",
+    //       IssueFrequency: "",
+    //       DesignatedDate: "",
+    //       DesignatedDays: "",
+    //       status: ""
+    //     };
 
 
-      } catch (error) {
-        console.error("Error creating Rule:", error);
-        this.errorMessage = "An error occurred. Please try again later.";
-        this.showErrorNotification = true;
-      }
-    },
+    //   } catch (error) {
+    //     console.error("Error creating Rule:", error);
+    //     this.errorMessage = "An error occurred. Please try again later.";
+    //     this.showErrorNotification = true;
+    //   }
+    // },
 
-    openEditModal(rule) {
-      const designatedDate = rule.DesignatedDate
-        ? JSON.parse(rule.DesignatedDate) // Parse JSON string into an array
-        : [];
+    // openEditModal(rule) {
+    //   const designatedDate = rule.DesignatedDate
+    //     ? JSON.parse(rule.DesignatedDate) // Parse JSON string into an array
+    //     : [];
 
-      const designatedDays = rule.DesignatedDays
-        ? JSON.parse(rule.DesignatedDays) // Parse JSON string into an array
-        : [];
-      this.editingRule = {
-        Id: rule.id,
-        Name: rule.name,
-        TicketType: rule.type,
-        TicketAmount: rule.issueThresholdAmount,
-        IssueFrequency: rule.IssueFrequency,
-        DesignatedDate: designatedDate.map(d => ({
-          code: d,
-          name: `Day ${d}`
-        })),
-        // DesignatedDays: designatedDays.map(day => ({
-        //   code: day,
-        //   name: this.weekdayOptions[day], 
-        // })),
-        // this.weekdays.filter(day => this.selectedDays.includes(day.code))
-        DesignatedDays: this.weekdayOptions.filter(day => designatedDays.includes(day.code)),
+    //   const designatedDays = rule.DesignatedDays
+    //     ? JSON.parse(rule.DesignatedDays) // Parse JSON string into an array
+    //     : [];
+    //   this.editingRule = {
+    //     Id: rule.id,
+    //     Name: rule.name,
+    //     TicketType: rule.type,
+    //     TicketAmount: rule.issueThresholdAmount,
+    //     IssueFrequency: rule.IssueFrequency,
+    //     DesignatedDate: designatedDate.map(d => ({
+    //       code: d,
+    //       name: `Day ${d}`
+    //     })),
+    //     // DesignatedDays: designatedDays.map(day => ({
+    //     //   code: day,
+    //     //   name: this.weekdayOptions[day], 
+    //     // })),
+    //     // this.weekdays.filter(day => this.selectedDays.includes(day.code))
+    //     DesignatedDays: this.weekdayOptions.filter(day => designatedDays.includes(day.code)),
 
-        ExpireType: rule.ExpireType,
-        ExpireTime: rule.validPeriod,
-        status: rule.status,
-        parameterTemplate: JSON.parse(rule.parameterTemplate)
-      }
-      this.showEditModal = true;
-      this.showCreateModal = false;
-    },
+    //     ExpireType: rule.ExpireType,
+    //     ExpireTime: rule.validPeriod,
+    //     status: rule.status,
+    //     parameterTemplate: JSON.parse(rule.parameterTemplate)
+    //   }
+    //   this.showEditModal = true;
+    //   this.showCreateModal = false;
+    // },
 
-    async updateRule() {
-      const transformedDates = this.editingRule.DesignatedDate.map(item => {
-        return parseInt(item.code);
-      });
-      const transformedDays = this.editingRule.DesignatedDays.map(item => {
-        return parseInt(item.code);
-      });
+    // async updateRule() {
+    //   const transformedDates = this.editingRule.DesignatedDate.map(item => {
+    //     return parseInt(item.code);
+    //   });
+    //   const transformedDays = this.editingRule.DesignatedDays.map(item => {
+    //     return parseInt(item.code);
+    //   });
 
-      this.editingRule.DesignatedDays = JSON.stringify(transformedDays);
-      this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
-      this.editingRule.parameterTemplate = JSON.stringify(this.editingRule.parameterTemplate)
-      const token = this.getAuthToken();
-      if (!token) return;
-      try {
-        const response = await axios.put(
-          `/api/spinwin/rule/update/${this.editingRule.Id}`,
-          this.editingRule,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const index = this.rules.findIndex((op) => op.id === this.editingRule.id);
-        if (index !== -1) {
-          this.rules.splice(index, 1, response.user);
-        }
-        // window.location.reload();
-        // this.editingRule = null;
-        // window.location.reload()
-        this.closeModal();
-        window.location.reload()
-        this.rules()
+    //   this.editingRule.DesignatedDays = JSON.stringify(transformedDays);
+    //   this.editingRule.DesignatedDate = JSON.stringify(transformedDates);
+    //   this.editingRule.parameterTemplate = JSON.stringify(this.editingRule.parameterTemplate)
+    //   const token = this.getAuthToken();
+    //   if (!token) return;
+    //   try {
+    //     const headers = { Authorization: `Bearer ${token}` };
+    //     if (localStorage.getItem('selectedCurrency')) {
+    //         headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+    //     }
+    //     const response = await axios.put(
+    //       `/api/spinwin/rule/update/${this.editingRule.Id}`,
+    //       this.editingRule,
+    //       {
+    //         headers: headers,
+    //       }
+    //     );
+    //     const index = this.rules.findIndex((op) => op.id === this.editingRule.id);
+    //     if (index !== -1) {
+    //       this.rules.splice(index, 1, response.user);
+    //     }
+    //     // window.location.reload();
+    //     // this.editingRule = null;
+    //     // window.location.reload()
+    //     this.showEditModal = false;
+    //     window.location.reload()
+    //     this.rules()
 
-      } catch (error) {
-        console.error("Error updating rule:", error);
-        this.errorMessage = "An error occurred. Please try again later.";
-        this.showErrorNotification = true;
-      }
-    },
+    //   } catch (error) {
+    //     console.error("Error updating rule:", error);
+    //     this.errorMessage = "An error occurred. Please try again later.";
+    //     this.showErrorNotification = true;
+    //   }
+    // },
 
     async changeSettings(row) {
       row.status = !row.status;

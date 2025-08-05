@@ -155,7 +155,9 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Rule</label>
               <div class="relative">
+            
                 <select v-model="newTicket.ruleId" class="form-select block w-full px-4 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                 
                   <option v-for="rule in rules" :key="rule.Id" :value="rule.Id">{{ rule.Name }}</option>
                 </select>
               </div>
@@ -490,10 +492,12 @@ methods: {
     if (!token) return;
     const offset = (this.currentPage - 1) * this.pageSize;
     try {
+      const headers = { Authorization: `Bearer ${token}` };
+      if (localStorage.getItem('selectedCurrency')) {
+          headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+      }
       const response = await axios.get("/api/spinwin/tickets", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         params: {
           Username: this.filters.Username,
           TradeId: this.filters.TradeId,
@@ -585,10 +589,12 @@ methods: {
     const token = this.getAuthToken();
     if (!token) return;
     try {
+        const headers = { Authorization: `Bearer ${token}` };
+        if (localStorage.getItem('selectedCurrency')) {
+            headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+        }
         const response = await axios.get("/api/spinwin/rules", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
+        headers: headers,
         });
         this.rules = response.data.ruleList.map((rule) => ({
         Id: rule.Id,
@@ -611,13 +617,15 @@ async createTicket() {
     const token = this.getAuthToken();
     if (!token) return;
     try {
+        const headers = { Authorization: `Bearer ${token}` };
+        if (localStorage.getItem('selectedCurrency')) {
+            headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+        }
         const response = await axios.post(
-        "/api/spinwin/ticket/create",
+        "/api/spinwin/tickets/create",
         this.newTicket,
         {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
+            headers: headers,
         }
         );
         if(response.data.success == true){
@@ -656,13 +664,15 @@ async updateTicket() {
     const token = this.getAuthToken();
     if (!token) return;
     try {
+        const headers = { Authorization: `Bearer ${token}` };
+        if (localStorage.getItem('selectedCurrency')) {
+            headers['X-Selected-Currency'] = localStorage.getItem('selectedCurrency'); 
+        }
         const response = await axios.put(
         `/api/spinwin/ticket/update/${this.editingTicket.id}`,
         this.editingTicket,
         {
-            headers: {
-            Authorization: `Bearer ${token}`,
-            },
+            headers: headers,
         }
         );
         const index = this.tickets.findIndex((op) => op.id === this.editingTicket.id);
