@@ -63,7 +63,7 @@ export default {
       loading: false,
       showPassword: false,
       isAdmin: false,
-      groupId: 4
+      groupId: 2
     };
   },
   watch: {
@@ -102,10 +102,7 @@ export default {
           localStorage.setItem("authToken", response.data.token);
           localStorage.setItem('authUser', JSON.stringify(response.data.data));
           const headers = { Authorization: `Bearer ${response?.data?.token}` };
-          
-          
-
-         
+        
           const authme = await axios.get("/api/auth/me", 
           {
             headers 
