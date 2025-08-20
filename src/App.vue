@@ -15,128 +15,448 @@
 
         <!-- Sidebar Links -->
         <ul class="space-y-3 mt-4 px-6">
-            <!-- Dashboard -->
+
+          <!-- Dashboard -->
+          <li>
+            <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+              'bg-[#6b7280]': isActiveRoute('/dashboard'),
+              'hover:bg-gray-700': !isActiveRoute('/dashboard'),
+            }">
+              <span><i class="pi pi-home"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3 text-base">Dashboard</span>
+            </router-link>
+          </li>
+         
+
+          <!-- User & Role Management -->
+          <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleUserRoleManagement" :class="{
+              'bg-[#6b7280]': isActiveRoute('/user-role-management'),
+              'hover:bg-gray-700': !isActiveRoute('/user-role-management'),
+            }">
+              <span><i class="pi pi-users"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">User & Role Management</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isUserRoleManagementOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isUserRoleManagementOpen" class="ml-6 space-y-2 mt-4">
+              <!-- Submenus for User & Role Management -->
+              <!-- <li>
+                <router-link to="/user-role-management/users" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-user"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Users</span>
+                </router-link>
+              </li> -->
+              <li v-if="store?.hasRoutePermission('operators', 'get') || store?.hasRoutePermission('operators', 'view')">
+                <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/operators'),
+                  'hover:bg-gray-700': !isActiveRoute('/operators'),
+                }">
+                  <span><i class="pi pi-user"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Users</span>
+                </router-link>
+          </li> 
+
+              <!-- <li>
+                <router-link to="/user-role-management/roles" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-user-plus"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Roles</span>
+                </router-link>
+              </li> -->
+              <li v-if="store?.hasRoutePermission('roles', 'get') || store?.hasRoutePermission('roles', 'view')">
+                <router-link to="/roles" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/roles'),
+                  'hover:bg-gray-700': !isActiveRoute('/roles'),
+                }">
+                  <span><i class="pi pi-user-plus"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Role</span>
+                </router-link>
+              </li>         
+
+              <li>
+                <router-link to="/user-role-management/permissions" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-key"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Permissions</span>
+                </router-link>
+              </li>
+            </ul>
+          </li>
+            <!-- Fleet Management -->
             <li>
-              <router-link to="/dashboard" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
-                'bg-[#6b7280]': isActiveRoute('/dashboard'),
-                'hover:bg-gray-700': !isActiveRoute('/dashboard'),
-              }">
-                <span><i class="pi pi-home"></i></span>
-                <span v-if="!isSidebarMinimized" class="ml-3 text-base">Dashboard</span>
-              </router-link>
-            </li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleFleetManagement" :class="{
+              'bg-[#6b7280]': isActiveRoute('/fleet-management'),
+              'hover:bg-gray-700': !isActiveRoute('/fleet-management'),
+            }">
+              <span><i class="pi pi-arrows-alt"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Fleet Management</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isFleetManagementOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isFleetManagementOpen" class="ml-6 space-y-2 mt-4">
+              <!-- Submenus for Fleet Management -->
+              <li>
+                <router-link to="/fleet-management/overview" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-send"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Helicopter Overview</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/fleet-management/flight-hours-tracker" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-clock"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Flight Hours Tracker</span>
+                </router-link>
+              </li>
+            </ul>
+          </li>
+          <!-- Maintenance Planning -->
+          <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleMaintenancePlanning" :class="{
+              'bg-[#6b7280]': isActiveRoute('/maintenance-planning'),
+              'hover:bg-gray-700': !isActiveRoute('/maintenance-planning'),
+            }">
+              <span><i class="pi pi-calendar"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Maintenance Planning</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto cursor-pointer">
+                <i class="pi" :class="isMaintenancePlanningOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isMaintenancePlanningOpen" class="ml-6 space-y-2 mt-4">
+              <li>
+                <router-link to="/maintenance-planning/tlp-scan" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-search"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">TLP Scan</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/daily-log" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-calendar-plus"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Daily Log</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/monitoring-chart" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-chart-line"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Monitoring Chart</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/component-status" class="flex items-center py-2 px-4 rounded transition-all">
+    <span><i class="pi pi-cog"></i></span> <!-- Replaced pi icon with Font Awesome -->
+    <span v-if="!isSidebarMinimized" class="ml-3">Component Status</span>
+  </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/out-of-phase-inspection" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-exclamation-triangle"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Out of Phase Inspection</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/nrc" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-refresh"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">NRC</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/awc" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-shield"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">AWC</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/component-changes" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-refresh"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Component Changes</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/maintenance-works-order-tracking" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-truck"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Maintenance Works Order Tracking</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/engine-health-check" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-heart"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Engine Health Check</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/ado-tracking" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-list"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">ADO Tracking</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/airframe-logbook" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-book"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Airframe Logbook</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/engine-logbook" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-bookmark"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Engine Logbook</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/maintenance-occurrence-report" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-file"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Maintenance Occurrence Report</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/maintenance-planning/work-pack-scan" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-qrcode"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Work Pack Scan</span>
+                </router-link>
+              </li>
+            </ul>
+          </li>
+           <!-- Technical Services -->
+           <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleTechnicalServices" :class="{
+              'bg-[#6b7280]': isActiveRoute('/technical-services'),
+              'hover:bg-gray-700': !isActiveRoute('/technical-services'),
+            }">
+              <span><i class="pi pi-wrench"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Technical Services</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isTechnicalServicesOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isTechnicalServicesOpen" class="ml-6 space-y-2 mt-4">
+              <!-- Submenus for Technical Services -->
+              <li>
+                <router-link to="/technical-services/website-visit-log" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-globe"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Website Visit Log</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-services/ad-sb-compliance-summary" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-file"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">AD/SB Compliance Summary</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-services/individual-troubleshoot-logbook" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-book"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Individual Troubleshoot Logbook</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-services/ai-si-tracking-system" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-cog"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">AD/SB Tracking System</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-services/e10" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-cloud"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">E10</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-services/tdr" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-caret-down"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">TDR</span>
+                </router-link>
+              </li>
+            </ul>
+          </li>
+
+             <!-- Technical Library -->
+             <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleTechnicalLibrary" :class="{
+              'bg-[#6b7280]': isActiveRoute('/technical-library'),
+              'hover:bg-gray-700': !isActiveRoute('/technical-library'),
+            }">
+              <span><i class="pi pi-book"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Technical Library</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isTechnicalLibraryOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isTechnicalLibraryOpen" class="ml-6 space-y-2 mt-4">
+              <!-- Submenus for Technical Library -->
+              <li>
+                <router-link to="/technical-library/company-document" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-file"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Company Document</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-library/camo-document" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-file"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">CAMO Document</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-library/manufacturers-document" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-briefcase"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Manufacturers Document</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-library/distribution-operational-manual" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-book"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Distribution and Operational Manual</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/technical-library/maintenance-data-record" class="flex items-center py-2 px-4 rounded transition-all">
+                  <span><i class="pi pi-file"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Maintenance Data Record</span>
+                </router-link>
+              </li>
+              <!-- Technical Training Record submenu -->
+              <li>
+                <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleTrainingRecord" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/technical-library/technical-training-record'),
+                  'hover:bg-gray-700': !isActiveRoute('/technical-library/technical-training-record'),
+                }">
+                  <span><i class="pi pi-user"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Technical Training Record</span>
+                  <span v-if="!isSidebarMinimized" class="ml-auto">
+                    <i class="pi" :class="isTrainingRecordOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+                  </span>
+                </div>
+                <ul v-if="isTrainingRecordOpen" class="ml-6 space-y-2 mt-4">
+                  <li>
+                    <router-link to="/technical-library/technical-training-record/overview" class="flex items-center py-2 px-4 rounded transition-all">
+                      <span><i class="pi pi-eye"></i></span>
+                      <span v-if="!isSidebarMinimized" class="ml-3">Overview</span>
+                    </router-link>
+                  </li>
+                  <li>
+                    <router-link to="/technical-library/technical-training-record/details" class="flex items-center py-2 px-4 rounded transition-all">
+                      <span><i class="pi pi-info-circle"></i></span>
+                      <span v-if="!isSidebarMinimized" class="ml-3">Details</span>
+                    </router-link>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          
+          <!-- Settings -->
 
             <!-- Settings -->
-            <li>
-              <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSettings" :class="{
-                'bg-[#6b7280]':isActiveRoute('/profilesettings') || isActiveRoute('/groups') || isActiveRoute('/roles'),
-                'hover:bg-gray-700': !isActiveRoute('/profilesettings') && !isActiveRoute('/groups') && !isActiveRoute('/roles'),
-              }">
-                 <span><i class="pi pi-cog"></i></span>
-                <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
-                <span v-if="!isSidebarMinimized" class="ml-auto">
-                  <i class="pi" :class="isSettingOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-                </span>
-              </div>
-              <ul v-if="isSettingOpen" class="ml-6 space-y-2 mt-4">
-                <li>
-                  <router-link to="/profilesettings" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/profilesettings'),
-                    'hover:bg-gray-700': !isActiveRoute('/profilesettings'),
-                  }">
-                    <span><i class="pi pi-user-edit"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Profile</span>
-                  </router-link>
-                </li>   
-                <li v-if="store?.hasRoutePermission('groups', 'get') || store?.hasRoutePermission('groups', 'view')">
-                  <router-link to="/groups" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/groups'),
-                    'hover:bg-gray-700': !isActiveRoute('/groups'),
-                  }">
-                    <span><i class="pi pi-users"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Group</span>
-                  </router-link>
-                </li>  
-                <li v-if="store?.hasRoutePermission('roles', 'get') || store?.hasRoutePermission('roles', 'view')">
-                  <router-link to="/roles" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/roles'),
-                    'hover:bg-gray-700': !isActiveRoute('/roles'),
-                  }">
-                    <span><i class="pi pi-user-minus"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Role</span>
-                  </router-link>
-                </li>         
-              </ul>
-            </li>
+          <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSettings" :class="{
+              'bg-[#6b7280]': isActiveRoute('/settings/system-config') || isActiveRoute('/settings/fleet-config') || isActiveRoute('/settings/compliance-settings') || isActiveRoute('/settings/user-manual') || isActiveRoute('/settings/knowledge-base'),
+              'hover:bg-gray-700': !isActiveRoute('/settings/system-config') && !isActiveRoute('/settings/fleet-config') && !isActiveRoute('/settings/compliance-settings') && !isActiveRoute('/settings/user-manual') && !isActiveRoute('/settings/knowledge-base'),
+            }">
+              <span><i class="pi pi-cog"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isSettingOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isSettingOpen" class="ml-6 space-y-2 mt-4">
+              <!-- Submenus for Settings -->
+              <li>
+                <router-link to="/settings/system-config" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/settings/system-config'),
+                  'hover:bg-gray-700': !isActiveRoute('/settings/system-config'),
+                }">
+                  <span><i class="pi pi-asterisk"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">System Configuration</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/settings/fleet-config" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/settings/fleet-config'),
+                  'hover:bg-gray-700': !isActiveRoute('/settings/fleet-config'),
+                }">
+                  <span><i class="pi pi-arrows-alt"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Fleet Configurations</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/settings/compliance-settings" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/settings/compliance-settings'),
+                  'hover:bg-gray-700': !isActiveRoute('/settings/compliance-settings'),
+                }">
+                  <span><i class="pi pi-check-circle"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Compliance Settings</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/settings/user-manual" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/settings/user-manual'),
+                  'hover:bg-gray-700': !isActiveRoute('/settings/user-manual'),
+                }">
+                  <span><i class="pi pi-book"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">User Manual</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="/settings/knowledge-base" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/settings/knowledge-base'),
+                  'hover:bg-gray-700': !isActiveRoute('/settings/knowledge-base'),
+                }">
+                  <span><i class="pi pi-info-circle"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Knowledge Base</span>
+                </router-link>
+              </li>
+            </ul>
+          </li>
+          <!-- <li>
+            <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSettings" :class="{
+              'bg-[#6b7280]':isActiveRoute('/profilesettings') || isActiveRoute('/groups') || isActiveRoute('/roles'),
+              'hover:bg-gray-700': !isActiveRoute('/profilesettings') && !isActiveRoute('/groups') && !isActiveRoute('/roles'),
+            }">
+               <span><i class="pi pi-cog"></i></span>
+              <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
+              <span v-if="!isSidebarMinimized" class="ml-auto">
+                <i class="pi" :class="isSettingOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+              </span>
+            </div>
+            <ul v-if="isSettingOpen" class="ml-6 space-y-2 mt-4">
+              <li>
+                <router-link to="/profilesettings" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/profilesettings'),
+                  'hover:bg-gray-700': !isActiveRoute('/profilesettings'),
+                }">
+                  <span><i class="pi pi-user-edit"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Profile</span>
+                </router-link>
+              </li>   
+              <li v-if="store?.hasRoutePermission('groups', 'get') || store?.hasRoutePermission('groups', 'view')">
+                <router-link to="/groups" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/groups'),
+                  'hover:bg-gray-700': !isActiveRoute('/groups'),
+                }">
+                  <span><i class="pi pi-users"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Group</span>
+                </router-link>
+              </li>  
+              <li v-if="store?.hasRoutePermission('roles', 'get') || store?.hasRoutePermission('roles', 'view')">
+                <router-link to="/roles" class="flex items-center py-2 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/roles'),
+                  'hover:bg-gray-700': !isActiveRoute('/roles'),
+                }">
+                  <span><i class="pi pi-user-minus"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Role</span>
+                </router-link>
+              </li>         
+            </ul>
+          </li> -->
 
-            <li v-if="store?.hasRoutePermission('operators', 'get') || store?.hasRoutePermission('operators', 'view')">
-                  <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/operators'),
-                    'hover:bg-gray-700': !isActiveRoute('/operators'),
-                  }">
-                    <span><i class="pi pi-user"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
-                  </router-link>
-                </li>
+          <!-- <li v-if="store?.hasRoutePermission('operators', 'get') || store?.hasRoutePermission('operators', 'view')">
+                <router-link to="/operators" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
+                  'bg-[#6b7280]': isActiveRoute('/operators'),
+                  'hover:bg-gray-700': !isActiveRoute('/operators'),
+                }">
+                  <span><i class="pi pi-user"></i></span>
+                  <span v-if="!isSidebarMinimized" class="ml-3">Operators</span>
+                </router-link>
+          </li>  -->
 
-            <li >
-              <div class="flex items-center py-2.5 px-4 rounded transition-all cursor-pointer" @click="toggleSpinwin" :class="{
-                'bg-[#6b7280]': isActiveRoute('/accounts') || isActiveRoute('/rules') || isActiveRoute('/tickets') || isActiveRoute('/settings'),
-                'hover:bg-gray-700': !isActiveRoute('/accounts') && !isActiveRoute('/tickets') && !isActiveRoute('/rules') && !isActiveRoute('/settings'),
-              }">
-                 <span><i class="pi pi-bullseye"></i></span>
-                <span v-if="!isSidebarMinimized" class="ml-3">Spinwin</span>
-                <span v-if="!isSidebarMinimized" class="ml-auto">
-                  <i class="pi" :class="isSpinwinOpen ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
-                </span>
-              </div>
-              <ul v-if="isSpinwinOpen" class="ml-6 space-y-2 mt-4">
-                <li v-if="store?.hasRoutePermission('settings', 'get') || store?.hasRoutePermission('settings', 'view')">
-                  <router-link to="/settings" class="flex items-center py-2.5 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/settings'),
-                    'hover:bg-gray-700': !isActiveRoute('/settings'),
-                  }">
-                    <span><i class="pi pi-cog"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Settings</span>
-                  </router-link>
-                 </li>
-
-                <li v-if="store?.hasRoutePermission('accounts', 'get') || store?.hasRoutePermission('accounts', 'view')">
-                  <router-link to="/accounts" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/accounts'),
-                    'hover:bg-gray-700': !isActiveRoute('/accounts'),
-                  }">
-                    <span><i class="pi pi-users"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Accounts</span>
-                  </router-link>
-                </li>
-
-                <li v-if="store?.hasRoutePermission('rules', 'get') || store?.hasRoutePermission('rules', 'view')">
-                  <router-link to="/rules" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/rules'),
-                    'hover:bg-gray-700': !isActiveRoute('/rules'),
-                  }">
-                    <span><i class="pi pi-file"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Rules</span>
-                  </router-link>
-                </li>
-
-                <!-- Tickets -->
-                <li v-if="store?.hasRoutePermission('tickets', 'get') || store?.hasRoutePermission('tickets', 'view')">
-                  <router-link to="/tickets" class="flex items-center py-2 px-4 rounded transition-all" :class="{
-                    'bg-[#6b7280]': isActiveRoute('/tickets'),
-                    'hover:bg-gray-700': !isActiveRoute('/tickets'),
-                  }">
-                    <span><i class="pi pi-ticket"></i></span>
-                    <span v-if="!isSidebarMinimized" class="ml-3">Tickets</span>
-                  </router-link>
-                </li>           
-              </ul>
-            </li>
-
-           
-
-            
         </ul>
       </aside>
 
@@ -148,13 +468,6 @@
           </div>
           
           <div class="flex items-center space-x-4">
-            <!-- Currency Switcher -->
-            <select v-model="selectedCurrency" @change="updateCurrency" class="bg-gray-200 p-2 rounded">
-              <option v-for="currency in userCurrencies" :key="currency.CurrencyId" :value="currency.CurrencyId">
-                {{ currency.Currency }}
-              </option>
-            </select>
-            
             <span class="text-sm text-slate-400">Welcome, {{ user.username }}</span>
             <button class="bg-red-500 text-sm px-4 py-2 text-white rounded hover:bg-red-600" @click="logout">Logout</button>
           </div>
@@ -178,15 +491,24 @@ import axios from "axios";
 export default {
   data() {
     return {
+      sidebarWidth: 240, // default width
+      isResizing: false,
+      minSidebarWidth: 80,
+      maxSidebarWidth: 400,
       userCurrencies: JSON.parse(localStorage.getItem("userCurrency")) || [],
       selectedCurrency: localStorage.getItem('selectedCurrency') || null, // Default value to null
-      // selectedCurrency: localStorage.getItem('selectedCurrency') || (JSON.parse(localStorage.getItem("userCurrency"))?.[0]), 
       user: {},
       store,
       isSidebarMinimized: false,
       isSpinwinOpen: false,
       isSettingOpen: false,
       loading: false,
+      isFleetManagementOpen: false, 
+      isUserRoleManagementOpen: false,
+      isTrainingRecordOpen: false,  
+      isTechnicalLibraryOpen: false,
+      isTechnicalServicesOpen: false,  
+      isMaintenancePlanningOpen: false, 
     };
   },
   computed: {
@@ -206,65 +528,56 @@ export default {
           return 'Group';
         case '/roles':
           return 'Role';
-        case '/accounts':
-          return 'Accounts';
         case '/operators':
           return 'Operators';
-        case '/rules':
-          return 'Rules';
-        case '/tickets':
-          return 'Tickets';
         default:
           return 'Dashboard'; 
       }
     },
-    canShowSpinwin() {
-      return (
-        this.store?.hasRoutePermission('accounts', 'get') || this.store?.hasRoutePermission('accounts', 'view') ||
-        this.store?.hasRoutePermission('rules', 'get') || this.store?.hasRoutePermission('rules', 'view') ||
-        this.store?.hasRoutePermission('tickets', 'get') || this.store?.hasRoutePermission('tickets', 'view')
-      );
-    }
   },
   methods: {
-    updateCurrency() {
-      // Set the selected currency to localStorage
-      localStorage.setItem('selectedCurrency', this.selectedCurrency);
-
-      // Make the API calls to fetch new data based on the selected currency
-      this.fetchCurrencyData(this.selectedCurrency);
+    toggleFleetManagement() {
+      this.isFleetManagementOpen = !this.isFleetManagementOpen;
     },
-    async fetchCurrencyData(currencyId) {
-    this.loading = true; // Show the loading spinner while fetching data
-
-    try {
-      const headers = {
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        'X-Selected-Currency': currencyId, // Pass selected currency in the headers
-      };
-      const totalCount = await axios.get("/api/users/totalCount", {
-            headers
-      });
-      localStorage.setItem("accountList", totalCount?.data?.totalList?.accountList);
-      localStorage.setItem("ruleList", totalCount?.data?.totalList?.ruleList);
-      localStorage.setItem("operatorList", totalCount?.data?.totalList?.operatorList);
-      localStorage.setItem("ticketList", totalCount?.data?.totalList?.ticketList);
-     
-      this.loading = false;
-
-      // Optionally, you can trigger a success message or alert
-      // this.$toast.add({ severity: 'success', summary: 'Data fetched successfully!' });
-
-    } catch (error) {
-      // If there is an error in fetching the data, stop the loading spinner
-      this.loading = false;
-      console.error('Error fetching currency data', error);
-      // Optionally, show an error message
-      // this.$toast.add({ severity: 'error', summary: 'Error fetching data', detail: error.message });
-    }
-  },
-    toggleSpinwin() {
-      this.isSpinwinOpen = !this.isSpinwinOpen;
+    toggleUserRoleManagement() {
+      this.isUserRoleManagementOpen = !this.isUserRoleManagementOpen;
+    },
+    toggleTrainingRecord() {
+      this.isTrainingRecordOpen = !this.isTrainingRecordOpen;
+    },
+    toggleTechnicalLibrary() {
+      this.isTechnicalLibraryOpen = !this.isTechnicalLibraryOpen;
+    },
+    
+    toggleTechnicalServices() {
+      this.isTechnicalServicesOpen = !this.isTechnicalServicesOpen;
+    },
+    startResizing(e) {
+      this.isResizing = true;
+      document.addEventListener("mousemove", this.resizeSidebar);
+      document.addEventListener("mouseup", this.stopResizing);
+    },
+    resizeSidebar(e) {
+      if (!this.isResizing) return;
+      let newWidth = e.clientX;
+      if (newWidth < this.minSidebarWidth) newWidth = this.minSidebarWidth;
+      if (newWidth > this.maxSidebarWidth) newWidth = this.maxSidebarWidth;
+      this.sidebarWidth = newWidth;
+    },
+    stopResizing() {
+      this.isResizing = false;
+      document.removeEventListener("mousemove", this.resizeSidebar);
+      document.removeEventListener("mouseup", this.stopResizing);
+    },
+    toggleSidebar() {
+      if (this.sidebarWidth > this.minSidebarWidth + 20) {
+        this.sidebarWidth = this.minSidebarWidth;
+      } else {
+        this.sidebarWidth = 240;
+      }
+    },
+    toggleMaintenancePlanning() {
+      this.isMaintenancePlanningOpen = !this.isMaintenancePlanningOpen;
     },
     toggleSettings() {
       this.isSettingOpen = !this.isSettingOpen;
@@ -279,25 +592,10 @@ export default {
     },
     async logout() {
       window.location.replace('/login');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUser');
-      localStorage.removeItem('profile');
-      localStorage.removeItem('routePermissions');
-      localStorage.removeItem('accountList');
-      localStorage.removeItem('operatorList');
-      localStorage.removeItem('ruleList');
-      localStorage.removeItem('ticketList');
-      localStorage.removeItem('userCurrency');
-      localStorage.removeItem('selectedCurrency');
+      localStorage.clear();
     },
   },
   mounted() {
-    // Set the default currency if not set yet
-    if (!this.selectedCurrency && this.userCurrencies.length > 0) {
-      this.selectedCurrency = this.userCurrencies[0].CurrencyId; // Set default currency to the first item
-      localStorage.setItem('selectedCurrency', this.selectedCurrency); // Save the default currency in localStorage
-    }
-
     if (!localStorage.getItem('authToken')) {
       this.$router.push('/login');
     }

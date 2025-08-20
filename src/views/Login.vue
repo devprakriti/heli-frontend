@@ -63,7 +63,7 @@ export default {
       loading: false,
       showPassword: false,
       isAdmin: false,
-      groupId: 2
+      groupId: 4
     };
   },
   watch: {

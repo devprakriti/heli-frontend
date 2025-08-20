@@ -1,4 +1,4 @@
-# spinwin-cms-vue
+# altitude-air-cms-vue
 
 ## Project setup
 ```
